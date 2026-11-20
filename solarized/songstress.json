@@ -1,0 +1,36 @@
+{
+  "$schema": "https://songstress.app/schema/extension/v1.json",
+  "manifestVersion": 1,
+  "id": "songstress.solarized",
+  "name": "Solarized",
+  "version": "1.0.0",
+  "description": "Ethan Schoonover's Solarized: sixteen colours, one dark look and one light, built to be read for hours.",
+  "engines": {
+    "songstress": "^0.1.3"
+  },
+  "license": "MIT",
+  "repository": "https://github.com/pacholoamit/songstress-extensions",
+  "categories": [
+    "themes"
+  ],
+  "keywords": [
+    "solarized",
+    "precision",
+    "calm"
+  ],
+  "icon": {
+    "path": "assets/icon.png",
+    "width": 512,
+    "height": 512
+  },
+  "contributes": {
+    "themes": [
+      {
+        "id": "solarized",
+        "label": "Solarized",
+        "appearance": "both",
+        "path": "themes/solarized.json"
+      }
+    ]
+  }
+}

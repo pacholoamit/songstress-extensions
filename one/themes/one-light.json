@@ -1,0 +1,27 @@
+{
+  "$schema": "https://songstress.app/schema/theme/v1.json",
+  "light": {
+    "colors": {
+      "background": "hsl(230, 1%, 98%)",
+      "sidebar": "hsl(230, 1%, 94%)",
+      "surface": "hsl(230, 1%, 94%)",
+      "surface.raised": "hsl(0, 0%, 100%)",
+      "border": "hsl(230 8% 24% / 15%)",
+      "text": "hsl(230, 8%, 24%)",
+      "text.muted": "#5d606b",
+      "text.faint": "#83848a",
+      "accent": "#2363dc",
+      "accent.fill": "#2363dc",
+      "accent.onFill": "hsl(0, 0%, 100%)",
+      "success": "#459646",
+      "warning": "hsl(35, 99%, 36%)",
+      "danger": "hsl(344, 84%, 43%)",
+      "info": "hsl(301, 63%, 40%)"
+    },
+    "glow": [
+      "hsl(221, 87%, 60%)",
+      "hsl(198, 99%, 37%)",
+      "hsl(119, 34%, 47%)"
+    ]
+  }
+}

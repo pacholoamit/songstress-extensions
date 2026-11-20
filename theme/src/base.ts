@@ -3,8 +3,8 @@ import type { ThemeAppearance, ThemeColors, ThemeVariant } from './tokens'
 /*
  * Songstress's own look as theme tokens: what a look's missing colours are
  * filled from where nothing of its own derives them, what the rules were
- * written against, and the dark neutrals the player's look is made from
- * (in the theme's dark accent), as Songstress's own surfaces keep them.
+ * written against. Under this look the full player keeps Songstress's own
+ * dark design in either appearance; a theme's look themes it.
  *
  * These are the phones' values (apps/native src/ui/theme.ts: darkPalette,
  * lightPalette, brand; the hover washes are palette.fill as tokens write

@@ -711,7 +711,7 @@ A theme sets the colours the apps draw. Songstress's own look is the only one an
 
 ### Looks
 
-A theme has a dark look, a light one or both, as its `appearance` says (section 5). A phone in dark mode shows a dark look and one in light mode a light look; Android is always dark. A person may take the dark look of one theme and the light look of another.
+A theme has a dark look, a light one or both, as its `appearance` says (section 5). A phone in dark mode shows a dark look and one in light mode a light look; Android shows a theme's dark look when it has one. A person may take the dark look of one theme and the light look of another.
 
 A look is an object of these fields, every one optional, though a look holds at least one:
 
@@ -778,7 +778,7 @@ These keep Songstress's own look whatever theme is showing, Songstress Red inclu
 - the first run, and its art;
 - supporters' medals and their tiers' art.
 
-The full player, and a page's header over its artwork's wash, are drawn dark in either appearance. No theme writes their colours either: each app makes them from the theme, as Songstress's dark neutrals (which those washes are made for) in the accent of the theme's dark look.
+The full player, and a page's header over its artwork, are themed like every other screen: they are drawn from the tokens of the look showing, light when that look is light. The stage under the artwork is `background`, the words are `text`, `text.muted` and `text.faint`, the controls `accent`, and Play `accent.fill` with `accent.onFill` on it. Their words lie on a floor, the look's `background` at 90% over the artwork's blur, so a cover shows through by 10% at most, and the rules below hold them there over the darkest artwork and the lightest. Under Songstress's own look the player stays as it is, dark in either appearance: that is Songstress's own design.
 
 No theme reaches what the system draws or the app's binary carries: the splash screen, widgets, the watch and car screens, the system's own menus, alerts and pickers; nor pictures (covers, avatars).
 
@@ -805,8 +805,9 @@ A look is shown only if it meets these, once it is filled. Contrast is WCAG 2's 
 - `success` and `warning` on `background` and `surface`: 4.5:1, and 1.9:1 in a light look (iOS's own light green and orange).
 - `danger` and `info` on `background` and `surface`: 4.5:1.
 - `accent.onFill` on `accent.fill` and on `accent.fill.pressed`: 4.5:1.
+- On the full player's floor, over black artwork and over white: `text` and `text.muted` 4.5:1, `accent` 3:1.
 
-The rules are the apps' own. Each app holds a theme to them before it applies one: a look that fails is not shown, and the theme already showing stays. `songstress check` runs the apps' code and reports a look that fails as `THEME_CONTRAST` or `THEME_LUMINANCE`, with the ratio it reaches, so the official list never carries one. The manifest's validator holds a theme to its shape and each colour to its form and its place (`THEME_COLOR`, `THEME_COLOR_ALPHA`) wherever it runs, on a server that installs one too, and a server holds each theme file to the same when it installs the package (section 3).
+4.5:1 is a floor, not a target: words read best nearer 7:1, and the official themes aim there wherever their palette allows. The rules are the apps' own. Each app holds a theme to them before it applies one: a look that fails is not shown, and the theme already showing stays. `songstress check` runs the apps' code and reports a look that fails as `THEME_CONTRAST` or `THEME_LUMINANCE`, with the ratio it reaches, so the official list never carries one. The manifest's validator holds a theme to its shape and each colour to its form and its place (`THEME_COLOR`, `THEME_COLOR_ALPHA`) wherever it runs, on a server that installs one too, and a server holds each theme file to the same when it installs the package (section 3).
 
 ### A theme file
 

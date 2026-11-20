@@ -1,0 +1,36 @@
+{
+  "$schema": "https://songstress.app/schema/extension/v1.json",
+  "manifestVersion": 1,
+  "id": "songstress.studio",
+  "name": "Studio",
+  "version": "1.0.0",
+  "description": "A graphite console with one signal light: lime for dark, and for the day an olive pen with lime buttons.",
+  "engines": {
+    "songstress": "^0.1.3"
+  },
+  "license": "MIT",
+  "repository": "https://github.com/pacholoamit/songstress-extensions",
+  "categories": [
+    "themes"
+  ],
+  "keywords": [
+    "studio",
+    "graphite",
+    "lime"
+  ],
+  "icon": {
+    "path": "assets/icon.png",
+    "width": 512,
+    "height": 512
+  },
+  "contributes": {
+    "themes": [
+      {
+        "id": "studio",
+        "label": "Studio",
+        "appearance": "both",
+        "path": "themes/studio.json"
+      }
+    ]
+  }
+}

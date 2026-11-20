@@ -1,0 +1,42 @@
+{
+  "$schema": "https://songstress.app/schema/extension/v1.json",
+  "manifestVersion": 1,
+  "id": "songstress.rose-pine",
+  "name": "Rosé Pine",
+  "version": "1.0.0",
+  "description": "Rosé Pine's soho vibes: Main and Moon for dark, Dawn for light.",
+  "engines": {
+    "songstress": "^0.1.3"
+  },
+  "license": "MIT",
+  "repository": "https://github.com/pacholoamit/songstress-extensions",
+  "categories": [
+    "themes"
+  ],
+  "keywords": [
+    "rose-pine",
+    "pink",
+    "muted"
+  ],
+  "icon": {
+    "path": "assets/icon.png",
+    "width": 512,
+    "height": 512
+  },
+  "contributes": {
+    "themes": [
+      {
+        "id": "rose-pine",
+        "label": "Rosé Pine",
+        "appearance": "both",
+        "path": "themes/rose-pine.json"
+      },
+      {
+        "id": "rose-pine-moon",
+        "label": "Rosé Pine Moon",
+        "appearance": "dark",
+        "path": "themes/rose-pine-moon.json"
+      }
+    ]
+  }
+}

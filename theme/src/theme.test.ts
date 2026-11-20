@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { SONGSTRESS } from './base'
-import { checkVariant } from './check'
+import { checkPlayer, checkVariant } from './check'
 import { contrast, luminance, mix, over, withAlpha } from './color'
 import { checkLook } from './looks'
 import { resolveVariant } from './resolve'
@@ -288,9 +288,24 @@ describe('a look as an extension writes it', () => {
     expect(checkLook('dark', { colors: dark.colors as Record<string, string>, glow: ['#ff464a'] })).toEqual([])
   })
 
-  it('names the look a problem is in', () => {
-    expect(checkLook('dark', { colors: { 'text.muted': '#333333' } }).map((p) => p.at)).toEqual(['dark', 'dark'])
+  it('names the look a problem is in, on the stage and on the player', () => {
+    const problems = checkLook('dark', { colors: { 'text.muted': '#333333' } })
+    expect(problems.map((p) => p.at)).toEqual(['dark', 'dark', 'dark', 'dark'])
+    expect(problems.filter((p) => p.message.includes('on the player over')).map((p) => p.message)).toEqual([
+      'text.muted on the player over black artwork is 1.66:1, under 4.50:1.',
+      'text.muted on the player over white artwork is 1.39:1, under 4.50:1.',
+    ])
     expect(checkLook('light', { colors: { background: '#202020' } }).map((p) => [p.at, p.code])).toContainEqual(['light', 'luminance'])
+  })
+
+  it("holds the themed player's words and controls on its floor, over dark artwork and light", () => {
+    // A light look whose second voice reads on its stage by a hair is lost on the player over a dark cover.
+    const thin = checkLook('light', { colors: { background: '#ffffff', text: '#111111', 'text.muted': '#6a6a6a' } })
+    expect(thin.map((p) => p.message)).toEqual(['text.muted on the player over black artwork is 4.33:1, under 4.50:1.'])
+    // A dark look whose accent reads on its stage keeps reading on its floor over a white cover.
+    expect(checkLook('dark', { colors: { background: '#0f1117', accent: '#7fd6a1' } })).toEqual([])
+    // Songstress's own looks keep their own dark player; held as a theme's would be, they pass there too.
+    expect([...checkVariant(dark), ...checkVariant(light), ...checkPlayer(dark), ...checkPlayer(light)]).toEqual([])
   })
 
   it('reads the translucent tokens in their one form, with their alpha', () => {

@@ -8,16 +8,16 @@
       "surface.raised": "#eff1f5",
       "surface.hover": "#7c7f9326",
       "border": "#ccd0da",
-      "text": "#4c4f69",
-      "text.muted": "#5c5f77",
+      "text": "#393d56",
+      "text.muted": "#55586f",
       "text.faint": "#7c7f93",
-      "accent": "#8535eb",
+      "accent": "#8231e8",
       "accent.fill": "#8839ef",
       "accent.onFill": "#eff1f5",
-      "success": "#40a02b",
-      "warning": "#df8e1d",
-      "danger": "#ce0937",
-      "info": "#095eed"
+      "success": "#32921e",
+      "warning": "#b77100",
+      "danger": "#ca0335",
+      "info": "#0059e5"
     },
     "glow": [
       "#8839ef",

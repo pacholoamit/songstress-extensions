@@ -1,0 +1,51 @@
+{
+  "$schema": "https://songstress.app/schema/theme/v1.json",
+  "dark": {
+    "colors": {
+      "background": "#191724",
+      "sidebar": "#1f1d2e",
+      "surface": "#1f1d2e",
+      "surface.raised": "#26233a",
+      "border": "#e0def41f",
+      "text": "#e0def4",
+      "text.muted": "#9b97b5",
+      "text.faint": "#716c89",
+      "accent": "#ebbcba",
+      "accent.fill": "#ebbcba",
+      "accent.onFill": "#191724",
+      "success": "#9ccfd8",
+      "warning": "#f6c177",
+      "danger": "#eb6f92",
+      "info": "#c4a7e7"
+    },
+    "glow": [
+      "#ebbcba",
+      "#c4a7e7",
+      "#31748f"
+    ]
+  },
+  "light": {
+    "colors": {
+      "background": "#faf4ed",
+      "sidebar": "#f2e9e1",
+      "surface": "#f2e9e1",
+      "surface.raised": "#fffaf3",
+      "border": "#4642612e",
+      "text": "#464261",
+      "text.muted": "#5e5a76",
+      "text.faint": "#837e90",
+      "accent": "#286983",
+      "accent.fill": "#286983",
+      "accent.onFill": "#faf4ed",
+      "success": "#4b8a94",
+      "warning": "#b57100",
+      "danger": "#994d64",
+      "info": "#715c89"
+    },
+    "glow": [
+      "#286983",
+      "#907aa9",
+      "#d7827e"
+    ]
+  }
+}

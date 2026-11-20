@@ -9,7 +9,7 @@
 // times out and Bugs serves a bot challenge.
 
 import { execFileSync } from 'node:child_process'
-import { mkdtempSync, readdirSync, readFileSync, rmSync } from 'node:fs'
+import { existsSync, mkdtempSync, readdirSync, readFileSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -39,11 +39,13 @@ function packed(folder: string): Buffer {
   }
 }
 
-/** The themes: Catppuccin's, Dracula's and Nord's palettes, each under its MIT licence (NOTICE). */
-const THEMES = ['catppuccin', 'dracula', 'nord']
+/** The themes: well-known palettes, each under its MIT licence (NOTICE), and Songstress's own originals. */
+const PALETTES = ['catppuccin', 'dracula', 'everforest', 'gruvbox', 'kanagawa', 'nord', 'one', 'rose-pine', 'solarized', 'tokyo-night']
+const ORIGINALS = ['glacier', 'nocturne', 'studio']
+const THEMES = [...PALETTES, ...ORIGINALS].sort()
 
 describe('the official extensions', () => {
-  it('are seven ports less the two that cannot be (Bugs, Melon), and three themes', () => {
+  it('are seven ports less the two that cannot be (Bugs, Melon), and the themes', () => {
     expect(EXTENSIONS.filter((folder) => !THEMES.includes(folder))).toEqual(['apple-music', 'genie-music', 'jiosaavn', 'soundcloud', 'spotify-web'])
     expect(EXTENSIONS.filter((folder) => THEMES.includes(folder))).toEqual(THEMES)
   })
@@ -63,8 +65,9 @@ describe('the official extensions', () => {
           if (look) expect(checkLook(appearance, normalizeLook(look) ?? {}), `${theme.path}, ${appearance}`).toEqual([])
         }
       }
-      // Its palette's own licence comes with it.
-      expect(readFileSync(join(here, folder, 'NOTICE'), 'utf8')).toMatch(/MIT License/)
+      // A palette's own licence comes with it; an original is Songstress's alone.
+      if (PALETTES.includes(folder)) expect(readFileSync(join(here, folder, 'NOTICE'), 'utf8')).toMatch(/MIT License/)
+      else expect(existsSync(join(here, folder, 'NOTICE'))).toBe(false)
     })
   }
 
