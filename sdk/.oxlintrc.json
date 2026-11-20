@@ -1,0 +1,8 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "plugins": ["typescript", "oxc"],
+  // testdata holds generated files the Go server's tests read in place: the
+  // example extension built by src/test/fixtures.ts, whose source (examples/
+  // and src/) is linted where it lives.
+  "ignorePatterns": ["testdata/**"]
+}

@@ -1,0 +1,51 @@
+{
+  "manifestVersion": 1,
+  "id": "acme.example",
+  "name": "Example",
+  "version": "1.0.0",
+  "description": "An example extension.",
+  "engines": {
+    "songstress": "^0.1.0"
+  },
+  "entry": {
+    "server": "dist/server.js",
+    "client": "dist/client.js"
+  },
+  "hooks": {
+    "server": [
+      "onPlay",
+      "onLibraryChange"
+    ],
+    "client": [
+      "onVolumeChange",
+      "onProgress"
+    ]
+  },
+  "permissions": {
+    "storage": {
+      "reason": "Needed for what the extension does."
+    }
+  },
+  "contributes": {
+    "providers": {
+      "lyrics": [
+        {
+          "id": "a"
+        }
+      ]
+    },
+    "jobs": [
+      {
+        "id": "b",
+        "title": "B"
+      }
+    ],
+    "routes": [
+      {
+        "id": "c",
+        "method": "GET",
+        "path": "/c"
+      }
+    ]
+  }
+}

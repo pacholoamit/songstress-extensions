@@ -1,0 +1,39 @@
+{
+  "manifestVersion": 1,
+  "id": "acme.example",
+  "name": "Example",
+  "version": "1.0.0",
+  "description": "An example extension.",
+  "engines": {
+    "songstress": "^0.1.0"
+  },
+  "entry": {
+    "server": "dist/server.js"
+  },
+  "hooks": {
+    "server": [
+      "onScrobble"
+    ]
+  },
+  "permissions": {
+    "listening.read": {
+      "reason": "Needed for what the extension does."
+    },
+    "network": {
+      "reason": "Needed for what the extension does.",
+      "hosts": [
+        "api.example.com",
+        "*",
+        "*.com",
+        "10.0.0.1",
+        "example.com/path",
+        "https://example.com",
+        "EXAMPLE.com",
+        "example.com:99999",
+        "localhost",
+        "example.com:0",
+        "-a.example.com"
+      ]
+    }
+  }
+}

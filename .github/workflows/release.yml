@@ -1,0 +1,57 @@
+# A release of one extension: pushing a tag `<id>@<version>`
+# (`songstress.soundcloud@1.2.0`, sdk/SPEC.md "A release") packs the folder
+# whose manifest is that id at that version and publishes a full release on
+# the tag with its one asset, `<id>-<version>.songstress`. The tag must name
+# exactly what the manifest says, or nothing is published. The signed index
+# then lists it (the index workflow, on the `index` branch); a pre-release
+# version (`1.3.0-beta.1`) is published as a pre-release, which the index
+# never lists.
+name: release
+
+on:
+  push:
+    tags: ['*@*']
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      # Each action pinned by commit, as index.yml's are; the checkout keeps no
+      # token in .git/config, so nothing a dependency runs can push with it.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6.1.1
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Find the extension the tag names
+        id: find
+        env:
+          TAG: ${{ github.ref_name }}
+        run: |
+          id="${TAG%@*}"
+          version="${TAG##*@}"
+          folder=""
+          for manifest in */songstress.json; do
+            if [ "$(node -p "require('./$manifest').id")" = "$id" ]; then folder=$(dirname "$manifest"); fi
+          done
+          if [ -z "$folder" ]; then echo "no folder holds $id"; exit 1; fi
+          if [ "$(node -p "require('./$folder/songstress.json').version")" != "$version" ]; then
+            echo "$folder is not at $version: its songstress.json says $(node -p "require('./$folder/songstress.json').version")"; exit 1
+          fi
+          echo "folder=$folder" >> "$GITHUB_OUTPUT"
+          echo "asset=$id-$version.songstress" >> "$GITHUB_OUTPUT"
+          case "$version" in *-*) echo "prerelease=--prerelease" >> "$GITHUB_OUTPUT" ;; esac
+      - run: pnpm exec songstress check "${{ steps.find.outputs.folder }}"
+      - run: pnpm exec songstress pack "${{ steps.find.outputs.folder }}" --out "${{ steps.find.outputs.asset }}"
+      - name: Publish the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.ref_name }}
+        run: gh release create "$TAG" "${{ steps.find.outputs.asset }}" --title "$TAG" --notes "Built from ${{ steps.find.outputs.folder }}/ at $GITHUB_SHA by the release workflow." --verify-tag ${{ steps.find.outputs.prerelease }}

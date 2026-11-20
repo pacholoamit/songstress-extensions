@@ -1,0 +1,100 @@
+{
+  "name": "songstress",
+  "version": "0.1.2",
+  "description": "The Songstress extension SDK: the manifest's schema and validator, the API an extension is written against, and the songstress command that builds, packs and pushes an extension.",
+  "license": "MIT",
+  "author": "Pacholo Amit",
+  "homepage": "https://songstress.app/extensions",
+  "bugs": "https://github.com/pacholoamit/songstress-extensions/issues",
+  "keywords": [
+    "songstress",
+    "extension",
+    "sdk",
+    "music",
+    "self-hosted"
+  ],
+  "type": "module",
+  "sideEffects": false,
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "files": [
+    "dist",
+    "schema",
+    "corpus",
+    "examples",
+    "sandbox.d.ts",
+    "SPEC.md",
+    "CHANGELOG.md"
+  ],
+  "exports": {
+    ".": "./src/index.ts",
+    "./server": "./src/server.ts",
+    "./client": "./src/client.ts",
+    "./manifest": "./src/manifest.ts",
+    "./testing": "./src/testing.ts",
+    "./sandbox": {
+      "types": "./sandbox.d.ts"
+    },
+    "./schema/extension.v1.json": "./schema/extension.v1.json",
+    "./package.json": "./package.json"
+  },
+  "bin": {
+    "songstress": "./src/cli/main.ts"
+  },
+  "publishConfig": {
+    "access": "public",
+    "exports": {
+      ".": {
+        "types": "./dist/types/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "./server": {
+        "types": "./dist/types/server.d.ts",
+        "default": "./dist/server.js"
+      },
+      "./client": {
+        "types": "./dist/types/client.d.ts",
+        "default": "./dist/client.js"
+      },
+      "./manifest": {
+        "types": "./dist/types/manifest.d.ts",
+        "default": "./dist/manifest.js"
+      },
+      "./testing": {
+        "types": "./dist/types/testing.d.ts",
+        "default": "./dist/testing.js"
+      },
+      "./sandbox": {
+        "types": "./sandbox.d.ts"
+      },
+      "./schema/extension.v1.json": "./schema/extension.v1.json",
+      "./package.json": "./package.json"
+    },
+    "bin": {
+      "songstress": "./dist/cli.js"
+    }
+  },
+  "scripts": {
+    "build": "node scripts/build.ts",
+    "prepack": "node scripts/build.ts",
+    "typecheck": "tsc --noEmit",
+    "lint": "oxlint",
+    "test": "vitest run",
+    "generate": "vitest run src/manifest/generate.test.ts --update",
+    "api:record": "SONGSTRESS_API_RECORD=1 vitest run src/surface.test.ts",
+    "differential:record": "SONGSTRESS_DIFFERENTIAL_RECORD=1 vitest run src/manifest/differential.test.ts",
+    "fixtures:record": "SONGSTRESS_FIXTURES_RECORD=1 vitest run src/fixtures.test.ts"
+  },
+  "dependencies": {
+    "pocketbase": "^0.27.0",
+    "rolldown": "1.2.15"
+  },
+  "devDependencies": {
+    "@types/node": "^24.19.2",
+    "ajv": "^8.20.0",
+    "oxlint": "^1.89.0",
+    "typescript": "~6.0.3",
+    "vitest": "^5.0.5"
+  }
+}

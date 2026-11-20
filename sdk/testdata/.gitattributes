@@ -1,0 +1,2 @@
+# The packed example (src/test/fixtures.ts): an archive, never text to diff.
+*.songstress binary

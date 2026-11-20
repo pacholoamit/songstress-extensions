@@ -1,0 +1,28 @@
+{
+  "$schema": "https://songstress.app/schema/extension/v1.json",
+  "manifestVersion": 1,
+  "id": "songstress.genie-music",
+  "name": "Genie Music",
+  "version": "1.0.0",
+  "description": "Search Genie Music's songs, albums and artists, and open them from a link.",
+  "engines": { "songstress": "^0.1.0" },
+  "license": "MIT",
+  "repository": "https://github.com/pacholoamit/songstress-extensions",
+  "categories": ["sources"],
+  "keywords": ["genie", "k-pop", "korea"],
+  "entry": { "server": "dist/server.js" },
+  "permissions": {
+    "network": {
+      "reason": "Read Genie Music's search and detail pages, and its cover images.",
+      "hosts": ["www.genie.co.kr", "genie.co.kr", "image.genie.co.kr"]
+    },
+    "providers": { "reason": "Add Genie Music's results beside Songstress's own sources." }
+  },
+  "contributes": {
+    "providers": {
+      "search": [{ "id": "genie-music", "types": ["track", "album", "artist"] }],
+      "lookup": [{ "id": "genie-music", "types": ["track", "album", "artist"] }],
+      "links": [{ "id": "genie-music", "patterns": ["genie.co.kr/detail/songInfo", "genie.co.kr/detail/albumInfo", "genie.co.kr/detail/artistInfo"] }]
+    }
+  }
+}

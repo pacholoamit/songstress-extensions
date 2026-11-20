@@ -1,0 +1,35 @@
+{
+  "manifestVersion": 1,
+  "id": "acme.example",
+  "name": "Example",
+  "version": "1.0.0",
+  "description": "An example extension.",
+  "engines": {
+    "songstress": "^0.1.0"
+  },
+  "entry": {
+    "client": "dist/client.js"
+  },
+  "hooks": {
+    "client": [
+      "onTrackChange"
+    ]
+  },
+  "permissions": {
+    "listening.read": {
+      "reason": "Needed for what the extension does."
+    },
+    "player.control": {
+      "reason": "Needed for what the extension does."
+    },
+    "library.read": {
+      "reason": "Needed for what the extension does."
+    },
+    "users.read": {
+      "reason": "Needed for what the extension does."
+    },
+    "secrets": {
+      "reason": "Needed for what the extension does."
+    }
+  }
+}

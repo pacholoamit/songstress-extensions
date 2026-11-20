@@ -1,0 +1,57 @@
+{
+  "manifestVersion": 1,
+  "id": "acme.example",
+  "name": "\u3164\u3164\u3164",
+  "version": "1.0.0",
+  "description": "Plays every\u00adwhere.",
+  "engines": {
+    "songstress": "^0.1.0"
+  },
+  "screenshots": [
+    {
+      "path": "a.png",
+      "width": 800,
+      "height": 600,
+      "caption": "Beamed\ud834\udd73 notes"
+    }
+  ],
+  "contributes": {
+    "themes": [
+      {
+        "id": "a",
+        "label": "Annotated\ufff9",
+        "path": "a.json"
+      },
+      {
+        "id": "b",
+        "label": "Shaped\u206f digits",
+        "path": "b.json"
+      },
+      {
+        "id": "c",
+        "label": "\u845b\udb40\udd00\u98fe",
+        "path": "c.json"
+      },
+      {
+        "id": "d",
+        "label": "Filler\u115f",
+        "path": "d.json"
+      },
+      {
+        "id": "e",
+        "label": "Grapheme\u034fjoined",
+        "path": "e.json"
+      },
+      {
+        "id": "f",
+        "label": "Khmer\u17b4",
+        "path": "f.json"
+      },
+      {
+        "id": "g",
+        "label": "\u182e\u180b\u1823",
+        "path": "g.json"
+      }
+    ]
+  }
+}

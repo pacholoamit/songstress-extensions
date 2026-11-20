@@ -1,0 +1,29 @@
+{
+  "manifestVersion": 1,
+  "id": "acme.example",
+  "name": "Example",
+  "version": "1.0.0",
+  "description": "An example extension.",
+  "engines": {
+    "songstress": "^0.1.0"
+  },
+  "entry": {
+    "server": "dist/server.js"
+  },
+  "permissions": {
+    "network": {
+      "reason": "Reach the Example service.",
+      "hosts": [
+        "api.example.com"
+      ]
+    },
+    "secrets": {
+      "reason": "Keep the tokens Example hands out."
+    }
+  },
+  "contributes": {
+    "signIn": {
+      "scope": "user"
+    }
+  }
+}

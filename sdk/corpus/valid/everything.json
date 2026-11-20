@@ -1,0 +1,451 @@
+{
+  "$schema": "https://songstress.app/schema/extension/v1.json",
+  "manifestVersion": 1,
+  "id": "kitchen.sink",
+  "name": "Kitchen Sink",
+  "version": "2.0.0-beta.1",
+  "description": "Uses every contribution point, hook, permission and menu the manifest has.",
+  "engines": {
+    "songstress": ">=0.1.0"
+  },
+  "license": "Apache-2.0",
+  "repository": "https://github.com/kitchen/songstress-sink",
+  "sponsor": {
+    "url": "https://opencollective.com/kitchen"
+  },
+  "categories": [
+    "integrations"
+  ],
+  "keywords": [
+    "example",
+    "everything"
+  ],
+  "platforms": [
+    "web",
+    "desktop",
+    "ios",
+    "android"
+  ],
+  "icon": {
+    "path": "assets/icon.png",
+    "width": 512,
+    "height": 512
+  },
+  "banner": {
+    "path": "assets/banner.webp",
+    "width": 1920,
+    "height": 1080
+  },
+  "screenshots": [
+    {
+      "path": "assets/one.png",
+      "width": 1280,
+      "height": 800,
+      "caption": "The charts page",
+      "platform": "desktop"
+    },
+    {
+      "path": "assets/two.jpeg",
+      "width": 1080,
+      "height": 2400,
+      "caption": "The same page",
+      "platform": "android"
+    },
+    {
+      "path": "assets/three.webp",
+      "width": 2048,
+      "height": 2732,
+      "platform": "ios"
+    }
+  ],
+  "entry": {
+    "server": "dist/server.js",
+    "client": "dist/client.js"
+  },
+  "hooks": {
+    "server": [
+      "onPlay",
+      "onScrobble",
+      "onFavorite",
+      "onPlaylistChange",
+      "onLibraryChange",
+      "onScanComplete"
+    ],
+    "client": [
+      "onPlay",
+      "onPause",
+      "onTrackChange",
+      "onSeek",
+      "onVolumeChange",
+      "onQueueChange",
+      "onProgress"
+    ]
+  },
+  "permissions": {
+    "network": {
+      "reason": "Reach the charts service.",
+      "hosts": [
+        "api.charts.example",
+        "*.cdn.charts.example"
+      ]
+    },
+    "network.local": {
+      "reason": "Reach a receiver on your own network.",
+      "targets": [
+        "192.168.1.40:8080"
+      ]
+    },
+    "library.read": {
+      "reason": "Match chart entries to your library."
+    },
+    "users.read": {
+      "reason": "Show who played a song."
+    },
+    "listening.read": {
+      "reason": "Count what you play."
+    },
+    "player.control": {
+      "reason": "Start a chart from its page."
+    },
+    "providers": {
+      "reason": "Add the charts service as a source."
+    },
+    "routes": {
+      "reason": "Serve the charts to its own page."
+    },
+    "jobs": {
+      "reason": "Refresh the charts through the day."
+    },
+    "storage": {
+      "reason": "Keep the charts between refreshes."
+    },
+    "secrets": {
+      "reason": "Keep the sign-in the charts service hands out."
+    }
+  },
+  "contributes": {
+    "commands": [
+      {
+        "id": "add-to-chart",
+        "title": "Add to my chart",
+        "run": "server",
+        "description": "Adds the song to your own chart.",
+        "icon": "chart-bar"
+      },
+      {
+        "id": "open-charts",
+        "title": "Open the charts",
+        "run": "client",
+        "icon": "list-ordered"
+      },
+      {
+        "id": "refresh",
+        "title": "Refresh now",
+        "run": "server"
+      }
+    ],
+    "menus": {
+      "song/context": [
+        {
+          "command": "add-to-chart"
+        }
+      ],
+      "album/context": [
+        {
+          "command": "add-to-chart"
+        }
+      ],
+      "artist/context": [
+        {
+          "command": "add-to-chart"
+        }
+      ],
+      "playlist/context": [
+        {
+          "command": "add-to-chart"
+        }
+      ],
+      "queue/item": [
+        {
+          "command": "add-to-chart"
+        }
+      ],
+      "player/actions": [
+        {
+          "command": "add-to-chart"
+        },
+        {
+          "command": "open-charts"
+        }
+      ],
+      "sidebar": [
+        {
+          "command": "open-charts"
+        }
+      ],
+      "settings/actions": [
+        {
+          "command": "refresh"
+        }
+      ]
+    },
+    "settings": [
+      {
+        "key": "region",
+        "type": "string",
+        "title": "Region",
+        "description": "A two-letter country code.",
+        "scope": "server",
+        "required": true,
+        "default": "PH",
+        "placeholder": "PH",
+        "maxLength": 2
+      },
+      {
+        "key": "apiKey",
+        "type": "secret",
+        "title": "API key",
+        "scope": "server",
+        "placeholder": "From the service"
+      },
+      {
+        "key": "entries",
+        "type": "number",
+        "title": "Entries shown",
+        "scope": "user",
+        "default": 20,
+        "minimum": 5,
+        "maximum": 100,
+        "step": 5
+      },
+      {
+        "key": "compact",
+        "type": "boolean",
+        "title": "Compact rows",
+        "scope": "device",
+        "default": false
+      },
+      {
+        "key": "period",
+        "type": "select",
+        "title": "Period",
+        "scope": "user",
+        "required": true,
+        "default": "week",
+        "options": [
+          {
+            "value": "day",
+            "title": "Today"
+          },
+          {
+            "value": "week",
+            "title": "This week"
+          },
+          {
+            "value": "year",
+            "title": "This year"
+          }
+        ]
+      }
+    ],
+    "pages": [
+      {
+        "id": "charts",
+        "title": "Charts",
+        "render": "server",
+        "icon": "chart-bar",
+        "sidebar": true
+      },
+      {
+        "id": "live",
+        "title": "Live",
+        "render": "client"
+      }
+    ],
+    "panels": [
+      {
+        "id": "now",
+        "title": "On the charts",
+        "location": "now-playing",
+        "render": "client"
+      },
+      {
+        "id": "shelf",
+        "title": "Top of the week",
+        "location": "home",
+        "render": "server"
+      },
+      {
+        "id": "artist-rank",
+        "title": "Chart history",
+        "location": "artist",
+        "render": "server"
+      },
+      {
+        "id": "album-rank",
+        "title": "Chart history",
+        "location": "album",
+        "render": "server"
+      }
+    ],
+    "views": [
+      {
+        "id": "wall",
+        "title": "Chart wall",
+        "path": "views/wall.html",
+        "icon": "layout-grid",
+        "sidebar": true
+      }
+    ],
+    "themes": [
+      {
+        "id": "chart-night",
+        "label": "Chart Night",
+        "path": "themes/chart-night.json"
+      }
+    ],
+    "providers": {
+      "search": [
+        {
+          "id": "charts",
+          "name": "Charts",
+          "types": [
+            "track",
+            "album"
+          ]
+        }
+      ],
+      "lookup": [
+        {
+          "id": "charts",
+          "name": "Charts",
+          "types": [
+            "track",
+            "album",
+            "artist",
+            "playlist"
+          ]
+        }
+      ],
+      "links": [
+        {
+          "id": "charts",
+          "name": "Charts",
+          "patterns": [
+            "charts.example/entry/",
+            "chartsapp:"
+          ]
+        }
+      ],
+      "lyrics": [
+        {
+          "id": "charts",
+          "name": "Charts"
+        }
+      ],
+      "metadata": [
+        {
+          "id": "charts",
+          "name": "Charts",
+          "supports": [
+            "discography",
+            "enrich"
+          ]
+        }
+      ],
+      "artwork": [
+        {
+          "id": "charts",
+          "name": "Charts",
+          "supports": [
+            "artist-photo",
+            "album-cover"
+          ]
+        }
+      ],
+      "scrobble": [
+        {
+          "id": "charts",
+          "name": "Charts"
+        }
+      ],
+      "recommend": [
+        {
+          "id": "charts",
+          "name": "Charts",
+          "modes": [
+            "track",
+            "artist",
+            "context"
+          ]
+        }
+      ],
+      "play": [
+        {
+          "id": "charts",
+          "name": "Charts"
+        }
+      ],
+      "download": [
+        {
+          "id": "charts",
+          "name": "Charts",
+          "qualities": [
+            {
+              "id": "flac",
+              "title": "FLAC",
+              "lossless": true
+            },
+            {
+              "id": "aac-256",
+              "title": "AAC 256 kbps",
+              "lossless": false
+            }
+          ]
+        }
+      ]
+    },
+    "jobs": [
+      {
+        "id": "refresh-charts",
+        "title": "Refreshing the charts",
+        "every": "6h"
+      },
+      {
+        "id": "rebuild",
+        "title": "Rebuilding your chart"
+      }
+    ],
+    "routes": [
+      {
+        "id": "list",
+        "method": "GET",
+        "path": "/charts/:period"
+      },
+      {
+        "id": "vote",
+        "method": "POST",
+        "path": "/charts/:period/votes"
+      },
+      {
+        "id": "replace",
+        "method": "PUT",
+        "path": "/mine"
+      },
+      {
+        "id": "rename",
+        "method": "PATCH",
+        "path": "/mine"
+      },
+      {
+        "id": "clear",
+        "method": "DELETE",
+        "path": "/mine"
+      }
+    ],
+    "signIn": {
+      "scope": "server",
+      "title": "Charts"
+    }
+  }
+}

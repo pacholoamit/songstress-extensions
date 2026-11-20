@@ -1,0 +1,10 @@
+{
+  "manifestVersion": 1,
+  "id": "acme.example",
+  "name": "Example",
+  "version": "1.0.0",
+  "description": "Half a character: \ud83c.",
+  "engines": {
+    "songstress": "^0.1.0"
+  }
+}

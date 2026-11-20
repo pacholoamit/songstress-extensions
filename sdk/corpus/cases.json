@@ -1,0 +1,1586 @@
+{
+  "note": "Every manifest of the corpus with what a validator must answer for it. See README.md.",
+  "cases": [
+    {
+      "file": "valid/minimal.json",
+      "profile": "install",
+      "valid": true,
+      "errors": [],
+      "note": "The smallest manifest: the six required fields and nothing else."
+    },
+    {
+      "file": "valid/minimal.json",
+      "profile": "install",
+      "apiVersion": "0.1.5",
+      "valid": true,
+      "errors": [],
+      "note": "The same file for a host whose extension API is inside ^0.1.0."
+    },
+    {
+      "file": "valid/minimal.json",
+      "profile": "install",
+      "apiVersion": "0.2.0",
+      "valid": false,
+      "errors": [
+        {
+          "code": "ENGINE_UNSUPPORTED",
+          "pointer": "/engines/songstress"
+        }
+      ],
+      "note": "The same file for a host whose extension API ^0.1.0 leaves out: 0.2.0 may break a 0.1 extension."
+    },
+    {
+      "file": "valid/minimal.json",
+      "profile": "listing",
+      "valid": false,
+      "errors": [
+        {
+          "code": "LISTING_FIELD_REQUIRED",
+          "pointer": "/license"
+        },
+        {
+          "code": "LISTING_FIELD_REQUIRED",
+          "pointer": "/repository"
+        },
+        {
+          "code": "LISTING_FIELD_REQUIRED",
+          "pointer": "/categories"
+        },
+        {
+          "code": "LISTING_FIELD_REQUIRED",
+          "pointer": "/icon"
+        },
+        {
+          "code": "LISTING_FIELD_REQUIRED",
+          "pointer": "/screenshots"
+        }
+      ],
+      "note": "The same file for the official list, which needs five more fields."
+    },
+    {
+      "file": "valid/theme-only.json",
+      "profile": "install",
+      "valid": true,
+      "errors": [],
+      "note": "Themes and nothing else: no code, no permission."
+    },
+    {
+      "file": "valid/scrobbler.json",
+      "profile": "install",
+      "valid": true,
+      "errors": [],
+      "note": "A server-only scrobbler on onPlay and onScrobble, with a member's own token."
+    },
+    {
+      "file": "valid/scrobbler.json",
+      "profile": "listing",
+      "valid": true,
+      "errors": [],
+      "note": "The same file is ready for the official list."
+    },
+    {
+      "file": "valid/source.json",
+      "profile": "install",
+      "valid": true,
+      "errors": [],
+      "note": "A source modelled on today's SoundCloud port: search of four types, lookup, links, play and download."
+    },
+    {
+      "file": "valid/source.json",
+      "profile": "listing",
+      "valid": false,
+      "errors": [
+        {
+          "code": "LISTING_ACQUISITION",
+          "pointer": "/contributes/providers/play"
+        },
+        {
+          "code": "LISTING_ACQUISITION",
+          "pointer": "/contributes/providers/download"
+        }
+      ],
+      "note": "The same file for the official list, which takes no play or download provider."
+    },
+    {
+      "file": "valid/group-source.json",
+      "profile": "install",
+      "valid": true,
+      "errors": [],
+      "note": "A source that joins one of Songstress's own groups under every kind it answers, an app link among its patterns."
+    },
+    {
+      "file": "valid/sign-in.json",
+      "profile": "install",
+      "valid": true,
+      "errors": [],
+      "note": "A sign-in and nothing else: it alone starts the server entry, and its tokens are what the secrets permission is for."
+    },
+    {
+      "file": "valid/visualiser.json",
+      "profile": "install",
+      "valid": true,
+      "errors": [],
+      "note": "Client code only: live hooks, a panel drawn by the client entry, a free-form view."
+    },
+    {
+      "file": "valid/everything.json",
+      "profile": "install",
+      "valid": true,
+      "errors": [],
+      "note": "Every contribution point (a sign-in among them), hook of both sides, permission, menu location, provider kind, setting type and scope, and panel location."
+    },
+    {
+      "file": "valid/everything.json",
+      "profile": "listing",
+      "valid": false,
+      "errors": [
+        {
+          "code": "LISTING_ACQUISITION",
+          "pointer": "/contributes/providers/play"
+        },
+        {
+          "code": "LISTING_ACQUISITION",
+          "pointer": "/contributes/providers/download"
+        }
+      ],
+      "note": "The same file for the official list: complete, but it plays and downloads."
+    },
+    {
+      "file": "valid/limits.json",
+      "profile": "install",
+      "valid": true,
+      "errors": [],
+      "note": "Every limit met exactly: longest id, name, description, reason, title and key, smallest and largest sizes, ports and blocks, lengths counted in characters, legal joiners and direction marks, brackets inside text."
+    },
+    {
+      "file": "valid/unicode.json",
+      "profile": "install",
+      "valid": true,
+      "errors": [],
+      "note": "Text outside ASCII written as itself, in UTF-8, not as escapes."
+    },
+    {
+      "file": "invalid/reader-empty.json",
+      "profile": "install",
+      "valid": false,
+      "errors": [
+        {
+          "code": "JSON_INVALID",
+          "pointer": ""
+        }
+      ],
+      "note": "An empty file is not JSON."
+    },
+    {
+      "file": "invalid/reader-not-json.json",
+      "profile": "install",
+      "valid": false,
+      "errors": [
+        {
+          "code": "JSON_INVALID",
+          "pointer": ""
+        }
+      ],
+      "note": "Not JSON at all."
+    },
+    {
+      "file": "invalid/reader-trailing-comma.json",
+      "profile": "install",
+      "valid": false,
+      "errors": [
+        {
+          "code": "JSON_INVALID",
+          "pointer": ""
+        }
+      ],
+      "note": "A comma after the last field."
+    },
+    {
+      "file": "invalid/reader-comment.json",
+      "profile": "install",
+      "valid": false,
+      "errors": [
+        {
+          "code": "JSON_INVALID",
+          "pointer": ""
+        }
+      ],
+      "note": "A comment: the manifest is JSON, not JSON with comments."
+    },
+    {
+      "file": "invalid/reader-bom.json",
+      "profile": "install",
+      "valid": false,
+      "errors": [
+        {
+          "code": "JSON_INVALID",
+          "pointer": ""
+        }
+      ],
+      "note": "A byte-order mark before the first brace."
+    },
+    {
+      "file": "invalid/reader-not-utf8.json",
+      "profile": "install",
+      "valid": false,
+      "errors": [
+        {
+          "code": "JSON_INVALID",
+          "pointer": ""
+        }
+      ],
+      "note": "A name saved in Latin-1: the byte E9 is not UTF-8. Only a reader given the bytes can tell."
+    },
+    {
+      "file": "invalid/reader-number-too-large.json",
+      "profile": "install",
+      "valid": false,
+      "errors": [
+        {
+          "code": "JSON_INVALID",
+          "pointer": ""
+        }
+      ],
+      "note": "1e400 is JSON, and more than a double holds: no number is read as infinity."
+    },
+    {
+      "file": "invalid/reader-duplicate-key.json",
+      "profile": "install",
+      "valid": false,
+      "errors": [
+        {
+          "code": "JSON_DUPLICATE_KEY",
+          "pointer": "/id"
+        }
+      ],
+      "note": "id is written twice. The second one would also fail the schema, which is never reached."
+    },
+    {
+      "file": "invalid/reader-duplicate-key-escaped.json",
+      "profile": "install",
+      "valid": false,
+      "errors": [
+        {
+          "code": "JSON_DUPLICATE_KEY",
+          "pointer": "/permissions/listening.read/reason"
+        }
+      ],
+      "note": "A permission's reason twice, the second key written with an escape for its first letter: keys are compared as the text they stand for."
+    },
+    {
+      "file": "invalid/reader-duplicate-key-nested.json",
+      "profile": "install",
+      "valid": false,
+      "errors": [
+        {
+          "code": "JSON_DUPLICATE_KEY",
+          "pointer": "/contributes/commands/1/run"
+        }
+      ],
+      "note": "The second command names run twice: the pointer goes through the list."
+    },
+    {
+      "file": "invalid/reader-too-deep.json",
+      "profile": "install",
+      "valid": false,
+      "errors": [
+        {
+          "code": "MANIFEST_TOO_DEEP",
+          "pointer": ""
+        }
+      ],
+      "note": "Sixteen lists inside the manifest's object: seventeen levels."
+    },
+    {
+      "file": "invalid/reader-too-deep-not-json.json",
+      "profile": "install",
+      "valid": false,
+      "errors": [
+        {
+          "code": "MANIFEST_TOO_DEEP",
+          "pointer": ""
+        }
+      ],
+      "note": "Seventeen brackets that never close. Depth is counted before the text is parsed, so this is too deep, not bad JSON."
+    },
+    {
+      "file": "invalid/reader-depth-at-limit.json",
+      "profile": "install",
+      "valid": false,
+      "errors": [
+        {
+          "code": "SCHEMA_UNKNOWN_PROPERTY",
+          "pointer": "/deep"
+        }
+      ],
+      "note": "Fifteen lists inside the manifest's object: sixteen levels, which is read. The schema then refuses the unknown field."
+    },
+    {
+      "file": "invalid/reader-top-level-list.json",
+      "profile": "install",
+      "valid": false,
+      "errors": [
+        {
+          "code": "SCHEMA_TYPE",
+          "pointer": ""
+        }
+      ],
+      "note": "JSON whose top level is a list: the reader takes it, the schema does not."
+    },
+    {
+      "file": "invalid/reader-lone-surrogate.json",
+      "profile": "install",
+      "valid": false,
+      "errors": [
+        {
+          "code": "JSON_INVALID",
+          "pointer": ""
+        }
+      ],
+      "note": "The description holds an escape for half a surrogate pair. Some parsers keep it and others replace it, so the reader refuses it."
+    },
+    {
+      "file": "invalid/reader-lone-surrogate-keys.json",
+      "profile": "install",
+      "valid": false,
+      "errors": [
+        {
+          "code": "JSON_INVALID",
+          "pointer": ""
+        }
+      ],
+      "note": "Two keys, each half a surrogate pair. A parser that replaces them would see one key twice, another two unknown fields: the reader refuses the file before either."
+    },
+    {
+      "file": "invalid/reader-replacement-character.json",
+      "profile": "install",
+      "valid": false,
+      "errors": [
+        {
+          "code": "JSON_INVALID",
+          "pointer": ""
+        }
+      ],
+      "note": "The name holds U+FFFD, the mark a decoder leaves where it could not read: the file was damaged before it got here."
+    },
+    {
+      "file": "invalid/reader-too-deep-not-utf8.json",
+      "profile": "install",
+      "valid": false,
+      "errors": [
+        {
+          "code": "MANIFEST_TOO_DEEP",
+          "pointer": ""
+        }
+      ],
+      "note": "Seventeen lists around a byte that is not UTF-8. Depth is counted on the raw bytes, before they are decoded: too deep comes first."
+    },
+    {
+      "file": "invalid/schema-type.json",
+      "profile": "install",
+      "valid": false,
+      "errors": [
+        {
+          "code": "SCHEMA_TYPE",
+          "pointer": "/name"
+        }
+      ],
+      "note": "name is a number."
+    },
+    {
+      "file": "invalid/schema-type-integer.json",
+      "profile": "install",
+      "valid": false,
+      "errors": [
+        {
+          "code": "SCHEMA_TYPE",
+          "pointer": "/banner/width"
+        }
+      ],
+      "note": "A width that is not a whole number."
+    },
+    {
+      "file": "invalid/schema-required.json",
+      "profile": "install",
+      "valid": false,
+      "errors": [
+        {
+          "code": "SCHEMA_REQUIRED",
+          "pointer": "/engines"
+        }
+      ],
+      "note": "engines is missing: the pointer names the missing field."
+    },
+    {
+      "file": "invalid/schema-unknown-property.json",
+      "profile": "install",
+      "valid": false,
+      "errors": [
+        {
+          "code": "SCHEMA_UNKNOWN_PROPERTY",
+          "pointer": "/author"
+        }
+      ],
+      "note": "The manifest has no author field: the pointer names the unknown field."
+    },
+    {
+      "file": "invalid/schema-unknown-property-object-names.json",
+      "profile": "install",
+      "valid": false,
+      "errors": [
+        {
+          "code": "SCHEMA_UNKNOWN_PROPERTY",
+          "pointer": "/__proto__"
+        },
+        {
+          "code": "SCHEMA_UNKNOWN_PROPERTY",
+          "pointer": "/constructor"
+        },
+        {
+          "code": "SCHEMA_UNKNOWN_PROPERTY",
+          "pointer": "/toString"
+        }
+      ],
+      "note": "Three unknown fields that share their names with what every JavaScript object has."
+    },
+    {
+      "file": "invalid/schema-enum.json",
+      "profile": "install",
+      "valid": false,
+      "errors": [
+        {
+          "code": "SCHEMA_ENUM",
+          "pointer": "/categories/0"
+        }
+      ],
+      "note": "A category that is not in the list."
+    },
+    {
+      "file": "invalid/schema-enum-hook-side.json",
+      "profile": "install",
+      "valid": false,
+      "errors": [
+        {
+          "code": "SCHEMA_ENUM",
+          "pointer": "/hooks/server/0"
+        }
+      ],
+      "note": "onPause is a hook of the client entry, not of the server's."
+    },
+    {
+      "file": "invalid/schema-enum-sign-in-scope.json",
+      "profile": "install",
+      "valid": false,
+      "errors": [
+        {
+          "code": "SCHEMA_ENUM",
+          "pointer": "/contributes/signIn/scope"
+        }
+      ],
+      "note": "A sign-in for each member: only \"server\" is a scope yet, one account for the whole server."
+    },
+    {
+      "file": "invalid/schema-const.json",
+      "profile": "install",
+      "valid": false,
+      "errors": [
+        {
+          "code": "SCHEMA_CONST",
+          "pointer": "/manifestVersion"
+        }
+      ],
+      "note": "A manifest version this specification does not know."
+    },
+    {
+      "file": "invalid/schema-const-icon.json",
+      "profile": "install",
+      "valid": false,
+      "errors": [
+        {
+          "code": "SCHEMA_CONST",
+          "pointer": "/icon/width"
+        },
+        {
+          "code": "SCHEMA_CONST",
+          "pointer": "/icon/height"
+        }
+      ],
+      "note": "An icon declared as 256 by 256."
+    },
+    {
+      "file": "invalid/schema-pattern.json",
+      "profile": "install",
+      "valid": false,
+      "errors": [
+        {
+          "code": "SCHEMA_PATTERN",
+          "pointer": "/id"
+        }
+      ],
+      "note": "An id with capital letters."
+    },
+    {
+      "file": "invalid/schema-pattern-hosts.json",
+      "profile": "install",
+      "valid": false,
+      "errors": [
+        {
+          "code": "SCHEMA_PATTERN",
+          "pointer": "/permissions/network/hosts/1"
+        },
+        {
+          "code": "SCHEMA_PATTERN",
+          "pointer": "/permissions/network/hosts/2"
+        },
+        {
+          "code": "SCHEMA_PATTERN",
+          "pointer": "/permissions/network/hosts/3"
+        },
+        {
+          "code": "SCHEMA_PATTERN",
+          "pointer": "/permissions/network/hosts/4"
+        },
+        {
+          "code": "SCHEMA_PATTERN",
+          "pointer": "/permissions/network/hosts/5"
+        },
+        {
+          "code": "SCHEMA_PATTERN",
+          "pointer": "/permissions/network/hosts/6"
+        },
+        {
+          "code": "SCHEMA_PATTERN",
+          "pointer": "/permissions/network/hosts/7"
+        },
+        {
+          "code": "SCHEMA_PATTERN",
+          "pointer": "/permissions/network/hosts/8"
+        },
+        {
+          "code": "SCHEMA_PATTERN",
+          "pointer": "/permissions/network/hosts/9"
+        },
+        {
+          "code": "SCHEMA_PATTERN",
+          "pointer": "/permissions/network/hosts/10"
+        }
+      ],
+      "note": "Ten hosts the pattern refuses, after one it takes: everything, a whole top-level domain, an address, a path, a scheme, capitals, ports out of range, a bare name, a label starting with a hyphen."
+    },
+    {
+      "file": "invalid/schema-pattern-local-targets.json",
+      "profile": "install",
+      "valid": false,
+      "errors": [
+        {
+          "code": "SCHEMA_PATTERN",
+          "pointer": "/permissions/network.local/targets/1"
+        },
+        {
+          "code": "SCHEMA_PATTERN",
+          "pointer": "/permissions/network.local/targets/2"
+        },
+        {
+          "code": "SCHEMA_PATTERN",
+          "pointer": "/permissions/network.local/targets/3"
+        },
+        {
+          "code": "SCHEMA_PATTERN",
+          "pointer": "/permissions/network.local/targets/4"
+        },
+        {
+          "code": "SCHEMA_PATTERN",
+          "pointer": "/permissions/network.local/targets/5"
+        },
+        {
+          "code": "SCHEMA_PATTERN",
+          "pointer": "/permissions/network.local/targets/6"
+        }
+      ],
+      "note": "Six targets the pattern refuses, after one it takes."
+    },
+    {
+      "file": "invalid/schema-pattern-contributions.json",
+      "profile": "install",
+      "valid": false,
+      "errors": [
+        {
+          "code": "SCHEMA_PATTERN",
+          "pointer": "/contributes/jobs/0/every"
+        },
+        {
+          "code": "SCHEMA_PATTERN",
+          "pointer": "/contributes/routes/0/path"
+        },
+        {
+          "code": "SCHEMA_PATTERN",
+          "pointer": "/contributes/providers/links/0/patterns/0"
+        },
+        {
+          "code": "SCHEMA_PATTERN",
+          "pointer": "/contributes/commands/0/id"
+        },
+        {
+          "code": "SCHEMA_PATTERN",
+          "pointer": "/contributes/settings/0/key"
+        }
+      ],
+      "note": "An interval in seconds, a path with no leading slash, a link pattern with a scheme and a host, a command id and a setting key in the wrong form."
+    },
+    {
+      "file": "invalid/schema-pattern-file-types.json",
+      "profile": "install",
+      "valid": false,
+      "errors": [
+        {
+          "code": "SCHEMA_PATTERN",
+          "pointer": "/icon/path"
+        },
+        {
+          "code": "SCHEMA_PATTERN",
+          "pointer": "/entry/server"
+        },
+        {
+          "code": "SCHEMA_PATTERN",
+          "pointer": "/contributes/themes/0/path"
+        },
+        {
+          "code": "SCHEMA_PATTERN",
+          "pointer": "/contributes/views/0/path"
+        }
+      ],
+      "note": "Files of the wrong type: an SVG icon, a TypeScript entry, a CSS theme, an .htm view."
+    },
+    {
+      "file": "invalid/schema-length-min.json",
+      "profile": "install",
+      "valid": false,
+      "errors": [
+        {
+          "code": "SCHEMA_LENGTH",
+          "pointer": "/name"
+        }
+      ],
+      "note": "An empty name."
+    },
+    {
+      "file": "invalid/schema-length-max.json",
+      "profile": "install",
+      "valid": false,
+      "errors": [
+        {
+          "code": "SCHEMA_LENGTH",
+          "pointer": "/description"
+        }
+      ],
+      "note": "A description of 161 characters."
+    },
+    {
+      "file": "invalid/schema-length-characters.json",
+      "profile": "install",
+      "valid": false,
+      "errors": [
+        {
+          "code": "SCHEMA_LENGTH",
+          "pointer": "/name"
+        }
+      ],
+      "note": "A name of 51 characters outside the basic plane. valid/limits.json holds 50 of them."
+    },
+    {
+      "file": "invalid/schema-length-reason.json",
+      "profile": "install",
+      "valid": false,
+      "errors": [
+        {
+          "code": "SCHEMA_LENGTH",
+          "pointer": "/permissions/listening.read/reason"
+        }
+      ],
+      "note": "A reason of eight characters: too short to tell anyone anything."
+    },
+    {
+      "file": "invalid/schema-range.json",
+      "profile": "install",
+      "valid": false,
+      "errors": [
+        {
+          "code": "SCHEMA_RANGE",
+          "pointer": "/banner/width"
+        },
+        {
+          "code": "SCHEMA_RANGE",
+          "pointer": "/banner/height"
+        }
+      ],
+      "note": "A banner too narrow and too tall. Its shape is not looked at: the rules never run when the schema fails."
+    },
+    {
+      "file": "invalid/schema-range-exclusive.json",
+      "profile": "install",
+      "valid": false,
+      "errors": [
+        {
+          "code": "SCHEMA_RANGE",
+          "pointer": "/contributes/settings/0/step"
+        }
+      ],
+      "note": "A step of zero: it must be more than zero."
+    },
+    {
+      "file": "invalid/schema-item-count-min.json",
+      "profile": "install",
+      "valid": false,
+      "errors": [
+        {
+          "code": "SCHEMA_ITEM_COUNT",
+          "pointer": "/platforms"
+        }
+      ],
+      "note": "An empty list of platforms."
+    },
+    {
+      "file": "invalid/schema-item-count-max.json",
+      "profile": "install",
+      "valid": false,
+      "errors": [
+        {
+          "code": "SCHEMA_ITEM_COUNT",
+          "pointer": "/categories"
+        }
+      ],
+      "note": "Two categories: an extension is listed under one."
+    },
+    {
+      "file": "invalid/schema-duplicate-item.json",
+      "profile": "install",
+      "valid": false,
+      "errors": [
+        {
+          "code": "SCHEMA_DUPLICATE_ITEM",
+          "pointer": "/keywords"
+        }
+      ],
+      "note": "A keyword twice: the pointer names the list."
+    },
+    {
+      "file": "invalid/schema-duplicate-item-object.json",
+      "profile": "install",
+      "valid": false,
+      "errors": [
+        {
+          "code": "SCHEMA_DUPLICATE_ITEM",
+          "pointer": "/contributes/menus/song~1context"
+        }
+      ],
+      "note": "The same menu item twice. The \"/\" of the menu's name is written \"~1\" in the pointer."
+    },
+    {
+      "file": "invalid/schema-property-count.json",
+      "profile": "install",
+      "valid": false,
+      "errors": [
+        {
+          "code": "SCHEMA_PROPERTY_COUNT",
+          "pointer": "/entry"
+        }
+      ],
+      "note": "An entry object with no entry."
+    },
+    {
+      "file": "invalid/schema-unknown-permission.json",
+      "profile": "install",
+      "valid": false,
+      "errors": [
+        {
+          "code": "SCHEMA_UNKNOWN_PROPERTY",
+          "pointer": "/permissions/library.write"
+        }
+      ],
+      "note": "A permission this version does not have."
+    },
+    {
+      "file": "invalid/schema-unknown-menu.json",
+      "profile": "install",
+      "valid": false,
+      "errors": [
+        {
+          "code": "SCHEMA_UNKNOWN_PROPERTY",
+          "pointer": "/contributes/menus/toolbar"
+        }
+      ],
+      "note": "A menu location that does not exist."
+    },
+    {
+      "file": "invalid/schema-setting-type.json",
+      "profile": "install",
+      "valid": false,
+      "errors": [
+        {
+          "code": "SCHEMA_ENUM",
+          "pointer": "/contributes/settings/0/type"
+        }
+      ],
+      "note": "A setting of an unknown type: one problem, at its type. Its other fields cannot be judged."
+    },
+    {
+      "file": "invalid/schema-setting-no-type.json",
+      "profile": "install",
+      "valid": false,
+      "errors": [
+        {
+          "code": "SCHEMA_REQUIRED",
+          "pointer": "/contributes/settings/0/type"
+        }
+      ],
+      "note": "A setting with no type."
+    },
+    {
+      "file": "invalid/schema-setting-not-object.json",
+      "profile": "install",
+      "valid": false,
+      "errors": [
+        {
+          "code": "SCHEMA_TYPE",
+          "pointer": "/contributes/settings/0"
+        }
+      ],
+      "note": "A setting that is text: reported once, however many branches of the schema it fails."
+    },
+    {
+      "file": "invalid/schema-setting-secret.json",
+      "profile": "install",
+      "valid": false,
+      "errors": [
+        {
+          "code": "SCHEMA_ENUM",
+          "pointer": "/contributes/settings/0/scope"
+        },
+        {
+          "code": "SCHEMA_UNKNOWN_PROPERTY",
+          "pointer": "/contributes/settings/1/default"
+        }
+      ],
+      "note": "A secret a device would keep, and a secret with a default: a secret has neither."
+    },
+    {
+      "file": "invalid/schema-setting-fields.json",
+      "profile": "install",
+      "valid": false,
+      "errors": [
+        {
+          "code": "SCHEMA_UNKNOWN_PROPERTY",
+          "pointer": "/contributes/settings/0/options"
+        },
+        {
+          "code": "SCHEMA_REQUIRED",
+          "pointer": "/contributes/settings/1/options"
+        },
+        {
+          "code": "SCHEMA_UNKNOWN_PROPERTY",
+          "pointer": "/contributes/settings/2/required"
+        },
+        {
+          "code": "SCHEMA_TYPE",
+          "pointer": "/contributes/settings/3/default"
+        }
+      ],
+      "note": "Each type of setting has its own fields: options on text, a select without options, a required switch, a number whose default is text."
+    },
+    {
+      "file": "invalid/schema-many.json",
+      "profile": "install",
+      "valid": false,
+      "errors": [
+        {
+          "code": "SCHEMA_LENGTH",
+          "pointer": "/name"
+        },
+        {
+          "code": "SCHEMA_TYPE",
+          "pointer": "/version"
+        },
+        {
+          "code": "SCHEMA_UNKNOWN_PROPERTY",
+          "pointer": "/banana"
+        },
+        {
+          "code": "SCHEMA_PATTERN",
+          "pointer": "/keywords/0"
+        },
+        {
+          "code": "SCHEMA_DUPLICATE_ITEM",
+          "pointer": "/platforms"
+        },
+        {
+          "code": "SCHEMA_ENUM",
+          "pointer": "/platforms/2"
+        },
+        {
+          "code": "SCHEMA_REQUIRED",
+          "pointer": "/description"
+        }
+      ],
+      "note": "Seven problems in one file: every one is reported, not only the first."
+    },
+    {
+      "file": "invalid/rule-text-unsafe.json",
+      "profile": "install",
+      "valid": false,
+      "errors": [
+        {
+          "code": "TEXT_UNSAFE",
+          "pointer": "/name"
+        },
+        {
+          "code": "TEXT_UNSAFE",
+          "pointer": "/description"
+        },
+        {
+          "code": "TEXT_UNSAFE",
+          "pointer": "/screenshots/0/caption"
+        },
+        {
+          "code": "TEXT_UNSAFE",
+          "pointer": "/permissions/storage/reason"
+        },
+        {
+          "code": "TEXT_UNSAFE",
+          "pointer": "/contributes/commands/0/title"
+        },
+        {
+          "code": "TEXT_UNSAFE",
+          "pointer": "/contributes/settings/0/title"
+        },
+        {
+          "code": "TEXT_UNSAFE",
+          "pointer": "/contributes/settings/0/placeholder"
+        },
+        {
+          "code": "TEXT_UNSAFE",
+          "pointer": "/contributes/settings/0/default"
+        },
+        {
+          "code": "TEXT_UNSAFE",
+          "pointer": "/contributes/settings/1/title"
+        },
+        {
+          "code": "TEXT_UNSAFE",
+          "pointer": "/contributes/settings/1/description"
+        }
+      ],
+      "note": "Ten texts, each with a character that hides or misleads: a direction override, a line break, a tab, zero-width spaces, a byte-order mark, a tag character, a delete, a bell, direction isolates, a word joiner."
+    },
+    {
+      "file": "invalid/rule-text-unsafe-invisible.json",
+      "profile": "install",
+      "valid": false,
+      "errors": [
+        {
+          "code": "TEXT_UNSAFE",
+          "pointer": "/name"
+        },
+        {
+          "code": "TEXT_UNSAFE",
+          "pointer": "/description"
+        },
+        {
+          "code": "TEXT_UNSAFE",
+          "pointer": "/screenshots/0/caption"
+        },
+        {
+          "code": "TEXT_UNSAFE",
+          "pointer": "/contributes/themes/0/label"
+        },
+        {
+          "code": "TEXT_UNSAFE",
+          "pointer": "/contributes/themes/1/label"
+        },
+        {
+          "code": "TEXT_UNSAFE",
+          "pointer": "/contributes/themes/3/label"
+        },
+        {
+          "code": "TEXT_UNSAFE",
+          "pointer": "/contributes/themes/4/label"
+        },
+        {
+          "code": "TEXT_UNSAFE",
+          "pointer": "/contributes/themes/5/label"
+        }
+      ],
+      "note": "Characters that draw nothing: a name of three Hangul fillers, a soft hyphen, a musical beam control, an annotation anchor, a deprecated digit-shaping control, a Hangul choseong filler, a combining grapheme joiner, a Khmer inherent vowel. Two labels stay legal: an ideographic variation selector after a CJK character, and a Mongolian variation selector."
+    },
+    {
+      "file": "invalid/rule-id-reserved.json",
+      "profile": "install",
+      "valid": false,
+      "errors": [
+        {
+          "code": "ID_RESERVED",
+          "pointer": "/id"
+        }
+      ],
+      "note": "A publisher named like a part of the API."
+    },
+    {
+      "file": "invalid/rule-version-invalid.json",
+      "profile": "install",
+      "valid": false,
+      "errors": [
+        {
+          "code": "VERSION_INVALID",
+          "pointer": "/version"
+        }
+      ],
+      "note": "A version with a leading zero."
+    },
+    {
+      "file": "invalid/rule-engine-range-invalid.json",
+      "profile": "install",
+      "valid": false,
+      "errors": [
+        {
+          "code": "ENGINE_RANGE_INVALID",
+          "pointer": "/engines/songstress"
+        }
+      ],
+      "note": "A range with wildcards, which the grammar does not have."
+    },
+    {
+      "file": "invalid/rule-engine-range-empty.json",
+      "profile": "install",
+      "valid": false,
+      "errors": [
+        {
+          "code": "ENGINE_RANGE_INVALID",
+          "pointer": "/engines/songstress"
+        }
+      ],
+      "note": "A range no version can be inside."
+    },
+    {
+      "file": "invalid/rule-path-outside-package.json",
+      "profile": "install",
+      "valid": false,
+      "errors": [
+        {
+          "code": "PATH_OUTSIDE_PACKAGE",
+          "pointer": "/icon/path"
+        },
+        {
+          "code": "PATH_OUTSIDE_PACKAGE",
+          "pointer": "/banner/path"
+        },
+        {
+          "code": "PATH_OUTSIDE_PACKAGE",
+          "pointer": "/screenshots/0/path"
+        },
+        {
+          "code": "PATH_OUTSIDE_PACKAGE",
+          "pointer": "/screenshots/1/path"
+        },
+        {
+          "code": "PATH_OUTSIDE_PACKAGE",
+          "pointer": "/screenshots/2/path"
+        },
+        {
+          "code": "PATH_OUTSIDE_PACKAGE",
+          "pointer": "/screenshots/3/path"
+        },
+        {
+          "code": "PATH_OUTSIDE_PACKAGE",
+          "pointer": "/screenshots/4/path"
+        },
+        {
+          "code": "PATH_OUTSIDE_PACKAGE",
+          "pointer": "/contributes/views/0/path"
+        },
+        {
+          "code": "PATH_OUTSIDE_PACKAGE",
+          "pointer": "/contributes/views/1/path"
+        },
+        {
+          "code": "PATH_OUTSIDE_PACKAGE",
+          "pointer": "/contributes/themes/0/path"
+        }
+      ],
+      "note": "Ten paths that are not plain paths inside the package: a parent folder, an absolute path, a doubled slash, a backslash, a drive, a dot folder, a folder ending in a dot, an escaped parent folder, a folder ending in a space, a wildcard. The sixth screenshot and the second theme are fine."
+    },
+    {
+      "file": "invalid/rule-path-entries.json",
+      "profile": "install",
+      "valid": false,
+      "errors": [
+        {
+          "code": "PATH_OUTSIDE_PACKAGE",
+          "pointer": "/entry/server"
+        }
+      ],
+      "note": "A server entry that climbs out of the package."
+    },
+    {
+      "file": "invalid/rule-banner-not-16-9.json",
+      "profile": "install",
+      "valid": false,
+      "errors": [
+        {
+          "code": "BANNER_NOT_16_9",
+          "pointer": "/banner"
+        }
+      ],
+      "note": "A banner of 1280 by 800 is 16:10."
+    },
+    {
+      "file": "invalid/rule-entry-required.json",
+      "profile": "install",
+      "valid": false,
+      "errors": [
+        {
+          "code": "ENTRY_REQUIRED",
+          "pointer": "/hooks/server"
+        },
+        {
+          "code": "ENTRY_REQUIRED",
+          "pointer": "/hooks/client"
+        },
+        {
+          "code": "ENTRY_REQUIRED",
+          "pointer": "/contributes/commands/0/run"
+        },
+        {
+          "code": "ENTRY_REQUIRED",
+          "pointer": "/contributes/commands/1/run"
+        },
+        {
+          "code": "ENTRY_REQUIRED",
+          "pointer": "/contributes/pages/0/render"
+        },
+        {
+          "code": "ENTRY_REQUIRED",
+          "pointer": "/contributes/panels/0/render"
+        },
+        {
+          "code": "ENTRY_REQUIRED",
+          "pointer": "/contributes/providers"
+        },
+        {
+          "code": "ENTRY_REQUIRED",
+          "pointer": "/contributes/jobs"
+        },
+        {
+          "code": "ENTRY_REQUIRED",
+          "pointer": "/contributes/routes"
+        }
+      ],
+      "note": "Hooks, commands, a page, a panel, a provider, a job and a route, and no entry at all. Each is reported where it names its side; the permissions are not called unused, since code is plainly meant."
+    },
+    {
+      "file": "invalid/rule-entry-required-sign-in.json",
+      "profile": "install",
+      "valid": false,
+      "errors": [
+        {
+          "code": "ENTRY_REQUIRED",
+          "pointer": "/contributes/signIn"
+        }
+      ],
+      "note": "A sign-in and no server entry: its handlers are code. The secrets permission is not called unused, since code is plainly meant."
+    },
+    {
+      "file": "invalid/rule-entry-unused.json",
+      "profile": "install",
+      "valid": false,
+      "errors": [
+        {
+          "code": "ENTRY_UNUSED",
+          "pointer": "/entry/server"
+        },
+        {
+          "code": "ENTRY_UNUSED",
+          "pointer": "/entry/client"
+        }
+      ],
+      "note": "Two entries and nothing that would ever start either: the hooks they listen to were left out."
+    },
+    {
+      "file": "invalid/rule-permission-required.json",
+      "profile": "install",
+      "valid": false,
+      "errors": [
+        {
+          "code": "PERMISSION_REQUIRED",
+          "pointer": "/hooks/server/0"
+        },
+        {
+          "code": "PERMISSION_REQUIRED",
+          "pointer": "/hooks/server/1"
+        },
+        {
+          "code": "PERMISSION_REQUIRED",
+          "pointer": "/hooks/client/1"
+        },
+        {
+          "code": "PERMISSION_REQUIRED",
+          "pointer": "/contributes/providers"
+        },
+        {
+          "code": "PERMISSION_REQUIRED",
+          "pointer": "/contributes/jobs"
+        },
+        {
+          "code": "PERMISSION_REQUIRED",
+          "pointer": "/contributes/routes"
+        }
+      ],
+      "note": "onPlay and onProgress need listening.read, onLibraryChange needs library.read, and providers, jobs and routes each need the permission of their name. onVolumeChange needs none."
+    },
+    {
+      "file": "invalid/rule-permission-required-scrobble.json",
+      "profile": "install",
+      "valid": false,
+      "errors": [
+        {
+          "code": "PERMISSION_REQUIRED",
+          "pointer": "/contributes/providers/scrobble"
+        }
+      ],
+      "note": "A scrobble provider is handed each member's plays, so it needs listening.read as well as providers, as onScrobble does."
+    },
+    {
+      "file": "invalid/rule-permission-required-sign-in.json",
+      "profile": "install",
+      "valid": false,
+      "errors": [
+        {
+          "code": "PERMISSION_REQUIRED",
+          "pointer": "/contributes/signIn"
+        }
+      ],
+      "note": "A sign-in keeps the tokens it is given as the extension's own secrets, so it needs the secrets permission."
+    },
+    {
+      "file": "invalid/rule-permission-unused-no-code.json",
+      "profile": "install",
+      "valid": false,
+      "errors": [
+        {
+          "code": "PERMISSION_UNUSED",
+          "pointer": "/permissions/network"
+        },
+        {
+          "code": "PERMISSION_UNUSED",
+          "pointer": "/permissions/storage"
+        },
+        {
+          "code": "PERMISSION_UNUSED",
+          "pointer": "/permissions/listening.read"
+        }
+      ],
+      "note": "A theme that asks for permissions. Nothing it ships could use one."
+    },
+    {
+      "file": "invalid/rule-permission-unused-server.json",
+      "profile": "install",
+      "valid": false,
+      "errors": [
+        {
+          "code": "PERMISSION_UNUSED",
+          "pointer": "/permissions/providers"
+        },
+        {
+          "code": "PERMISSION_UNUSED",
+          "pointer": "/permissions/jobs"
+        },
+        {
+          "code": "PERMISSION_UNUSED",
+          "pointer": "/permissions/routes"
+        },
+        {
+          "code": "PERMISSION_UNUSED",
+          "pointer": "/permissions/player.control"
+        }
+      ],
+      "note": "Server code that asks to contribute providers, jobs and routes and contributes none, and to control a player no server has. library.read is fine: the server entry can read the library."
+    },
+    {
+      "file": "invalid/rule-permission-unused-client.json",
+      "profile": "install",
+      "valid": false,
+      "errors": [
+        {
+          "code": "PERMISSION_UNUSED",
+          "pointer": "/permissions/library.read"
+        },
+        {
+          "code": "PERMISSION_UNUSED",
+          "pointer": "/permissions/users.read"
+        },
+        {
+          "code": "PERMISSION_UNUSED",
+          "pointer": "/permissions/secrets"
+        }
+      ],
+      "note": "Client code that asks for what only a server entry can use."
+    },
+    {
+      "file": "invalid/rule-network-local-not-private.json",
+      "profile": "install",
+      "valid": false,
+      "errors": [
+        {
+          "code": "NETWORK_LOCAL_NOT_PRIVATE",
+          "pointer": "/permissions/network.local/targets/1"
+        },
+        {
+          "code": "NETWORK_LOCAL_NOT_PRIVATE",
+          "pointer": "/permissions/network.local/targets/2"
+        },
+        {
+          "code": "NETWORK_LOCAL_NOT_PRIVATE",
+          "pointer": "/permissions/network.local/targets/4"
+        },
+        {
+          "code": "NETWORK_LOCAL_NOT_PRIVATE",
+          "pointer": "/permissions/network.local/targets/5"
+        },
+        {
+          "code": "NETWORK_LOCAL_NOT_PRIVATE",
+          "pointer": "/permissions/network.local/targets/6"
+        },
+        {
+          "code": "NETWORK_LOCAL_NOT_PRIVATE",
+          "pointer": "/permissions/network.local/targets/8"
+        },
+        {
+          "code": "NETWORK_LOCAL_NOT_PRIVATE",
+          "pointer": "/permissions/network.local/targets/9"
+        },
+        {
+          "code": "NETWORK_LOCAL_NOT_PRIVATE",
+          "pointer": "/permissions/network.local/targets/10"
+        },
+        {
+          "code": "NETWORK_LOCAL_NOT_PRIVATE",
+          "pointer": "/permissions/network.local/targets/13"
+        }
+      ],
+      "note": "Fourteen targets, nine of them outside the private and loopback ranges: a public address, the link-local metadata address, a carrier-grade address, two blocks wider than their private range, everything, the address after 172.31, a public address with a port, and one whose first bit is set."
+    },
+    {
+      "file": "invalid/rule-duplicate-id.json",
+      "profile": "install",
+      "valid": false,
+      "errors": [
+        {
+          "code": "DUPLICATE_ID",
+          "pointer": "/contributes/commands/1/id"
+        },
+        {
+          "code": "DUPLICATE_ID",
+          "pointer": "/contributes/views/1/id"
+        },
+        {
+          "code": "DUPLICATE_ID",
+          "pointer": "/contributes/panels/2/id"
+        },
+        {
+          "code": "DUPLICATE_ID",
+          "pointer": "/contributes/themes/1/id"
+        },
+        {
+          "code": "DUPLICATE_ID",
+          "pointer": "/contributes/jobs/1/id"
+        },
+        {
+          "code": "DUPLICATE_ID",
+          "pointer": "/contributes/routes/1/id"
+        },
+        {
+          "code": "DUPLICATE_ID",
+          "pointer": "/contributes/settings/1/key"
+        },
+        {
+          "code": "DUPLICATE_ID",
+          "pointer": "/contributes/providers/lyrics/1/id"
+        },
+        {
+          "code": "DUPLICATE_ID",
+          "pointer": "/contributes/providers/download/0/qualities/1/id"
+        }
+      ],
+      "note": "A name used twice in each kind of contribution: the pointer names the later one. A page and a view share their names; a provider id may repeat under another kind, and a quality id under another source."
+    },
+    {
+      "file": "invalid/rule-menu-command-unknown.json",
+      "profile": "install",
+      "valid": false,
+      "errors": [
+        {
+          "code": "MENU_COMMAND_UNKNOWN",
+          "pointer": "/contributes/menus/song~1context/1/command"
+        },
+        {
+          "code": "MENU_COMMAND_UNKNOWN",
+          "pointer": "/contributes/menus/settings~1actions/0/command"
+        }
+      ],
+      "note": "Two menu items that name commands the manifest does not declare."
+    },
+    {
+      "file": "invalid/rule-route-duplicate.json",
+      "profile": "install",
+      "valid": false,
+      "errors": [
+        {
+          "code": "ROUTE_DUPLICATE",
+          "pointer": "/contributes/routes/2"
+        }
+      ],
+      "note": "The third route answers the same requests as the first: the name of a :part does not tell two paths apart. Another method, or a fixed part, does."
+    },
+    {
+      "file": "invalid/rule-link-pattern-too-broad.json",
+      "profile": "install",
+      "valid": false,
+      "errors": [
+        {
+          "code": "LINK_PATTERN_TOO_BROAD",
+          "pointer": "/contributes/providers/links/0/patterns/1"
+        },
+        {
+          "code": "LINK_PATTERN_TOO_BROAD",
+          "pointer": "/contributes/providers/links/0/patterns/2"
+        }
+      ],
+      "note": "Two patterns that would claim every web link. An app's own scheme is fine."
+    },
+    {
+      "file": "invalid/rule-provider-play-needs-search.json",
+      "profile": "install",
+      "valid": false,
+      "errors": [
+        {
+          "code": "PROVIDER_PLAY_NEEDS_SEARCH",
+          "pointer": "/contributes/providers/play/1/id"
+        }
+      ],
+      "note": "A play provider plays what the search provider of the same id found. radio has none."
+    },
+    {
+      "file": "invalid/rule-provider-mismatch.json",
+      "profile": "install",
+      "valid": false,
+      "errors": [
+        {
+          "code": "PROVIDER_MISMATCH",
+          "pointer": "/contributes/providers/lookup/0"
+        },
+        {
+          "code": "PROVIDER_MISMATCH",
+          "pointer": "/contributes/providers/links/0"
+        },
+        {
+          "code": "PROVIDER_MISMATCH",
+          "pointer": "/contributes/providers/lyrics/0"
+        },
+        {
+          "code": "PROVIDER_MISMATCH",
+          "pointer": "/contributes/providers/metadata/0"
+        }
+      ],
+      "note": "The source \"a\" is named One under search. Under lookup it is named Two; under links it joins another group; under lyrics it has no name, which means the extension's; under metadata it joins no group. Artwork agrees, and has no group to give. The source \"b\" is first given a group under metadata, which is fine."
+    },
+    {
+      "file": "invalid/rule-setting-default-invalid.json",
+      "profile": "install",
+      "valid": false,
+      "errors": [
+        {
+          "code": "SETTING_DEFAULT_INVALID",
+          "pointer": "/contributes/settings/0/default"
+        },
+        {
+          "code": "SETTING_DEFAULT_INVALID",
+          "pointer": "/contributes/settings/1/default"
+        },
+        {
+          "code": "SETTING_DEFAULT_INVALID",
+          "pointer": "/contributes/settings/2/default"
+        },
+        {
+          "code": "SETTING_DEFAULT_INVALID",
+          "pointer": "/contributes/settings/3/default"
+        }
+      ],
+      "note": "Four defaults their own settings would refuse: too long, below the minimum, above the maximum, not one of the options. The fifth is three characters long, as allowed."
+    },
+    {
+      "file": "invalid/rule-setting-range-invalid.json",
+      "profile": "install",
+      "valid": false,
+      "errors": [
+        {
+          "code": "SETTING_RANGE_INVALID",
+          "pointer": "/contributes/settings/0/maximum"
+        }
+      ],
+      "note": "A maximum below the minimum."
+    },
+    {
+      "file": "invalid/rule-setting-option-duplicate.json",
+      "profile": "install",
+      "valid": false,
+      "errors": [
+        {
+          "code": "SETTING_OPTION_DUPLICATE",
+          "pointer": "/contributes/settings/0/options/2/value"
+        }
+      ],
+      "note": "Two options with the same value."
+    },
+    {
+      "file": "invalid/listing-license.json",
+      "profile": "listing",
+      "valid": false,
+      "errors": [
+        {
+          "code": "LISTING_LICENSE",
+          "pointer": "/license"
+        }
+      ],
+      "note": "A licence the official list does not accept."
+    },
+    {
+      "file": "invalid/listing-license.json",
+      "profile": "install",
+      "valid": true,
+      "errors": [],
+      "note": "The same file installs from a link or a file: any SPDX identifier does there."
+    },
+    {
+      "file": "invalid/listing-repository.json",
+      "profile": "listing",
+      "valid": false,
+      "errors": [
+        {
+          "code": "LISTING_REPOSITORY",
+          "pointer": "/repository"
+        }
+      ],
+      "note": "An address inside a repository, not the repository's own."
+    },
+    {
+      "file": "invalid/listing-screenshots.json",
+      "profile": "listing",
+      "valid": false,
+      "errors": [
+        {
+          "code": "LISTING_SCREENSHOTS",
+          "pointer": "/screenshots"
+        }
+      ],
+      "note": "Two screenshots: the official list asks for three to six."
+    }
+  ]
+}

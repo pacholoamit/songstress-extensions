@@ -1,0 +1,27 @@
+{
+  "manifestVersion": 1,
+  "id": "acme.example",
+  "name": "Example",
+  "version": "1.0.0",
+  "description": "An example extension.",
+  "engines": {
+    "songstress": "^0.1.0"
+  },
+  "entry": {
+    "server": "dist/../../server.js",
+    "client": "dist/client.js"
+  },
+  "hooks": {
+    "client": [
+      "onVolumeChange"
+    ],
+    "server": [
+      "onScrobble"
+    ]
+  },
+  "permissions": {
+    "listening.read": {
+      "reason": "Needed for what the extension does."
+    }
+  }
+}

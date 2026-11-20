@@ -1,0 +1,39 @@
+# The required check `ports`: every official extension typechecks, lints,
+# passes its suite and the manifest checks a server holds it to
+# (`songstress check`), and packs. A change reaches main only through it.
+name: ports
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  ports:
+    runs-on: ubuntu-latest
+    steps:
+      # Each action pinned by commit, as index.yml's are.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6.1.1
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm typecheck
+      - run: pnpm lint
+      - run: pnpm test
+      - run: pnpm exec songstress check .
+      - name: Pack each extension
+        run: |
+          mkdir -p packages
+          for manifest in */songstress.json; do
+            folder=$(dirname "$manifest")
+            pnpm exec songstress pack "$folder" --out "packages/$folder.songstress"
+          done
+          ls -l packages

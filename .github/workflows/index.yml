@@ -1,0 +1,141 @@
+# The official index: each official extension's newest releases, signed with
+# the owner's Ed25519 key and published as index.json on the `index` branch,
+# where every Songstress server and songstress.app read it; then songstress.app
+# is told (index/ping.ts).
+#
+# It runs after each release (it follows the `release` workflow: a release
+# published with a workflow's own token starts no other workflow by itself),
+# when main changes who is verified, what is blocked or what the directory
+# shows, every Monday so an index (it holds 30 days) never lapses, and by hand.
+#
+# The signing key and the ping's secret live in the `index` environment, which
+# only main may use: a job on any other branch is refused them.
+
+name: index
+
+on:
+  workflow_run:
+    workflows: [release]
+    types: [completed]
+  push:
+    branches: [main]
+    paths:
+      - publishers.json
+      - blocklist.json
+      - marketplace.json
+      - index.pub
+      - "index/**"
+      - .github/workflows/index.yml
+  schedule:
+    - cron: "23 4 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# bash with -e and pipefail: a step stops at its first failing command.
+defaults:
+  run:
+    shell: bash
+
+# One at a time, in order: each index takes the sequence after the last.
+concurrency:
+  group: index
+  cancel-in-progress: false
+
+jobs:
+  sign:
+    name: sign and publish
+    # On main only, and after a release only when it was published.
+    if: github.ref == 'refs/heads/main' && (github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success')
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment: index
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: main
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+
+      - name: Each official extension's newest releases
+        id: releases
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          packages="$RUNNER_TEMP/packages"
+          mkdir -p "$packages"
+          gh release list --limit 1000 --json tagName,publishedAt,isDraft,isPrerelease > "$RUNNER_TEMP/releases.json"
+          ids=()
+          for manifest in */songstress.json; do ids+=("$(node -p "require('./$manifest').id")"); done
+          node index/releases.ts pick "$RUNNER_TEMP/releases.json" "${ids[@]}" > "$RUNNER_TEMP/picked.txt"
+          while read -r tag asset; do
+            gh release download "$tag" --pattern "$asset" --dir "$packages"
+          done < "$RUNNER_TEMP/picked.txt"
+          count=$(find "$packages" -name '*.songstress' | wc -l)
+          echo "count=$count" >> "$GITHUB_OUTPUT"
+          if [ "$count" -eq 0 ]; then echo "No official extension has a release yet: nothing is signed."; else ls -l "$packages"; fi
+
+      - name: The sequence after the index published last
+        id: sequence
+        if: steps.releases.outputs.count != '0'
+        run: |
+          if git fetch --quiet --depth=1 origin index 2>/dev/null; then
+            git show FETCH_HEAD:index.json > "$RUNNER_TEMP/last.json"
+          else
+            echo "No index is published yet: this one is the first."
+          fi
+          echo "next=$(node index/releases.ts sequence "$RUNNER_TEMP/last.json")" >> "$GITHUB_OUTPUT"
+
+      - name: Build it, sign it, and read it back with the public key
+        if: steps.releases.outputs.count != '0'
+        env:
+          INDEX_SIGNING_KEY: ${{ secrets.INDEX_SIGNING_KEY }}
+          SEQUENCE: ${{ steps.sequence.outputs.next }}
+        run: |
+          if [ ! -s index.pub ]; then echo "index.pub is missing: the public key of the index's signing key goes there (README, The official index)."; exit 1; fi
+          if [ -z "$INDEX_SIGNING_KEY" ]; then echo "The index environment holds no INDEX_SIGNING_KEY."; exit 1; fi
+          node -p "require('./marketplace.json').join('\n')" > "$RUNNER_TEMP/marketplace.txt"
+          marketplace=()
+          while read -r id; do [ -n "$id" ] && marketplace+=(--marketplace "$id"); done < "$RUNNER_TEMP/marketplace.txt"
+          node index/cli.ts build "$RUNNER_TEMP"/packages/*.songstress \
+            --url "https://github.com/$GITHUB_REPOSITORY/releases/download/{id}%40{version}/{file}" \
+            --publishers publishers.json --blocked blocklist.json --sequence "$SEQUENCE" --days 30 "${marketplace[@]}" \
+            > "$RUNNER_TEMP/built.json"
+          node index/releases.ts stamp "$RUNNER_TEMP/built.json" "$RUNNER_TEMP/releases.json" > "$RUNNER_TEMP/payload.json"
+          umask 077
+          # The key file goes however this step ends, a failed signing too.
+          trap 'rm -f "$RUNNER_TEMP/index.key"' EXIT
+          printf '%s\n' "$INDEX_SIGNING_KEY" > "$RUNNER_TEMP/index.key"
+          node index/cli.ts sign "$RUNNER_TEMP/payload.json" "$RUNNER_TEMP/index.key" > "$RUNNER_TEMP/index.json"
+          rm -f "$RUNNER_TEMP/index.key"
+          node index/cli.ts verify "$RUNNER_TEMP/index.json" "$(cat index.pub)" > /dev/null
+
+      - name: Publish it on the index branch
+        id: publish
+        if: steps.releases.outputs.count != '0'
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          SEQUENCE: ${{ steps.sequence.outputs.next }}
+        run: |
+          out="$RUNNER_TEMP/out"
+          git init --quiet --initial-branch=index "$out"
+          cd "$out"
+          git remote add origin "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+          if git fetch --quiet --depth=1 origin index 2>/dev/null; then git reset --quiet --soft FETCH_HEAD; fi
+          cp "$RUNNER_TEMP/index.json" index.json
+          git add index.json
+          git -c user.name="github-actions[bot]" -c user.email="41898282+github-actions[bot]@users.noreply.github.com" commit --quiet -m "Official index ${SEQUENCE}"
+          git push --quiet origin index
+          echo "commit=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+
+      - name: Tell songstress.app
+        if: steps.releases.outputs.count != '0'
+        env:
+          INDEX_PING_SECRET: ${{ secrets.INDEX_PING_SECRET }}
+          COMMIT: ${{ steps.publish.outputs.commit }}
+        run: node index/ping.ts "$COMMIT"

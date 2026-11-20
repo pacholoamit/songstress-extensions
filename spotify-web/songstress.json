@@ -1,0 +1,30 @@
+{
+  "$schema": "https://songstress.app/schema/extension/v1.json",
+  "manifestVersion": 1,
+  "id": "songstress.spotify-web",
+  "name": "Spotify Web",
+  "version": "1.0.0",
+  "description": "Search Spotify's catalogue beside Songstress's Spotify, open its links, and fill a track with the ISRC Spotify keeps.",
+  "engines": { "songstress": "^0.1.0" },
+  "license": "LGPL-3.0-only",
+  "repository": "https://github.com/pacholoamit/songstress-extensions",
+  "categories": ["sources"],
+  "keywords": ["spotify"],
+  "entry": { "server": "dist/server.js" },
+  "permissions": {
+    "network": {
+      "reason": "Reach Spotify's web player for its session, its catalogue and metadata, and Deezer for a track's id by ISRC.",
+      "hosts": ["open.spotify.com", "*.spotify.com", "api-partner.spotify.com", "clienttoken.spotify.com", "*.scdn.co", "api.deezer.com"]
+    },
+    "providers": { "reason": "Add Spotify's results beside Songstress's own Spotify." },
+    "storage": { "reason": "Keep the web player's session until its tokens expire." }
+  },
+  "contributes": {
+    "providers": {
+      "search": [{ "id": "spotify-web", "group": "spotify", "types": ["track", "album", "artist", "playlist"] }],
+      "lookup": [{ "id": "spotify-web", "group": "spotify", "types": ["track", "album", "artist", "playlist"] }],
+      "links": [{ "id": "spotify-web", "group": "spotify", "patterns": ["open.spotify.com", "play.spotify.com", "embed.spotify.com", "spotify:"] }],
+      "metadata": [{ "id": "spotify-web", "group": "spotify", "supports": ["enrich"] }]
+    }
+  }
+}

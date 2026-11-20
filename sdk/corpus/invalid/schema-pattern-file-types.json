@@ -1,0 +1,34 @@
+{
+  "manifestVersion": 1,
+  "id": "acme.example",
+  "name": "Example",
+  "version": "1.0.0",
+  "description": "An example extension.",
+  "engines": {
+    "songstress": "^0.1.0"
+  },
+  "icon": {
+    "path": "icon.svg",
+    "width": 512,
+    "height": 512
+  },
+  "entry": {
+    "server": "dist/server.ts"
+  },
+  "contributes": {
+    "themes": [
+      {
+        "id": "a",
+        "label": "A",
+        "path": "themes/a.css"
+      }
+    ],
+    "views": [
+      {
+        "id": "b",
+        "title": "B",
+        "path": "b.htm"
+      }
+    ]
+  }
+}

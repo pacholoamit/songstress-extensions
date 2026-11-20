@@ -1,0 +1,95 @@
+{
+  "manifestVersion": 1,
+  "id": "acme.example",
+  "name": "Example",
+  "version": "1.0.0",
+  "description": "An example extension.",
+  "engines": {
+    "songstress": "^0.1.0"
+  },
+  "entry": {
+    "server": "dist/server.js"
+  },
+  "hooks": {
+    "server": [
+      "onScrobble"
+    ]
+  },
+  "permissions": {
+    "listening.read": {
+      "reason": "Needed for what the extension does."
+    },
+    "providers": {
+      "reason": "Needed for what the extension does."
+    }
+  },
+  "contributes": {
+    "providers": {
+      "search": [
+        {
+          "id": "a",
+          "name": "One",
+          "group": "spotify",
+          "types": [
+            "track"
+          ]
+        }
+      ],
+      "lookup": [
+        {
+          "id": "a",
+          "name": "Two",
+          "group": "spotify",
+          "types": [
+            "track"
+          ]
+        }
+      ],
+      "links": [
+        {
+          "id": "a",
+          "name": "One",
+          "group": "itunes",
+          "patterns": [
+            "example.com"
+          ]
+        }
+      ],
+      "lyrics": [
+        {
+          "id": "a"
+        },
+        {
+          "id": "b",
+          "name": "B"
+        }
+      ],
+      "metadata": [
+        {
+          "id": "a",
+          "name": "One",
+          "supports": [
+            "enrich"
+          ]
+        },
+        {
+          "id": "b",
+          "name": "B",
+          "group": "deezer",
+          "supports": [
+            "enrich"
+          ]
+        }
+      ],
+      "artwork": [
+        {
+          "id": "a",
+          "name": "One",
+          "supports": [
+            "album-cover"
+          ]
+        }
+      ]
+    }
+  }
+}

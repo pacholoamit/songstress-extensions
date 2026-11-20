@@ -1,0 +1,83 @@
+{
+  "$schema": "https://songstress.app/schema/extension/v1.json",
+  "manifestVersion": 1,
+  "id": "songstress.apple-music",
+  "name": "Apple Music",
+  "version": "1.0.0",
+  "description": "Search Apple Music beside iTunes, open its songs, albums, playlists and artists from a link, and find synced lyrics.",
+  "engines": { "songstress": "^0.1.0" },
+  "license": "LGPL-3.0-only",
+  "repository": "https://github.com/pacholoamit/songstress-extensions",
+  "categories": ["sources"],
+  "keywords": ["apple-music", "itunes", "lyrics"],
+  "entry": { "server": "dist/server.js" },
+  "permissions": {
+    "network": {
+      "reason": "Reach music.apple.com for its token, and Apple's catalogue and lyrics.",
+      "hosts": ["music.apple.com", "amp-api.music.apple.com", "*.mzstatic.com"]
+    },
+    "providers": { "reason": "Add Apple Music's results and lyrics beside Songstress's own." },
+    "storage": { "reason": "Keep the token music.apple.com hands out until it expires." }
+  },
+  "contributes": {
+    "settings": [
+      {
+        "key": "storefront",
+        "type": "select",
+        "title": "Storefront",
+        "description": "The country whose Apple Music catalogue is searched. No VPN is needed.",
+        "scope": "server",
+        "default": "us",
+        "options": [
+          { "value": "us", "title": "United States" },
+          { "value": "gb", "title": "United Kingdom" },
+          { "value": "jp", "title": "Japan" },
+          { "value": "id", "title": "Indonesia" },
+          { "value": "kr", "title": "South Korea" },
+          { "value": "fr", "title": "France" },
+          { "value": "de", "title": "Germany" },
+          { "value": "it", "title": "Italy" },
+          { "value": "es", "title": "Spain" },
+          { "value": "in", "title": "India" },
+          { "value": "br", "title": "Brazil" },
+          { "value": "mx", "title": "Mexico" },
+          { "value": "au", "title": "Australia" },
+          { "value": "ca", "title": "Canada" },
+          { "value": "ph", "title": "Philippines" }
+        ]
+      },
+      {
+        "key": "mediaUserToken",
+        "type": "secret",
+        "title": "Media User Token",
+        "description": "Needed for lyrics, with an Apple Music subscription: on music.apple.com, the browser console's MusicKit.getInstance().musicUserToken.",
+        "scope": "server"
+      },
+      {
+        "key": "lyricsTranslation",
+        "type": "string",
+        "title": "Lyrics translation",
+        "description": "A language code (en, es, ja, zh-Hans) to add Apple's translation under each line. Empty for none.",
+        "scope": "server",
+        "default": "",
+        "maxLength": 20
+      },
+      {
+        "key": "lyricsPronunciation",
+        "type": "string",
+        "title": "Lyrics pronunciation",
+        "description": "A language code (ja-Latn, ko-Latn) to add Apple's romanised pronunciation under each line. Empty for none.",
+        "scope": "server",
+        "default": "",
+        "maxLength": 20
+      }
+    ],
+    "providers": {
+      "search": [{ "id": "apple-music", "group": "itunes", "types": ["track", "album", "artist", "playlist"] }],
+      "lookup": [{ "id": "apple-music", "group": "itunes", "types": ["track", "album", "artist", "playlist"] }],
+      "links": [{ "id": "apple-music", "group": "itunes", "patterns": ["music.apple.com"] }],
+      "metadata": [{ "id": "apple-music", "group": "itunes", "supports": ["enrich"] }],
+      "lyrics": [{ "id": "apple-music" }]
+    }
+  }
+}

@@ -1,0 +1,56 @@
+// The manifest's JSON Schema, and the closed lists it holds. The schema file
+// is the one place a name is written: the lists below, the generated types
+// and the validator all read it.
+
+import schema from '../../schema/extension.v1.json'
+import type { SchemaNode } from './json'
+import type {
+  Category,
+  ClientHook,
+  Menus,
+  PanelLocation,
+  Permissions,
+  Platform,
+  ServerHook,
+  SourcesByKind,
+} from './types.generated'
+
+/** The name of the manifest file, at the root of an extension's package. */
+export const MANIFEST_FILE = 'songstress.json'
+
+/** `value`, frozen down to its last leaf. The schema and the lists below are
+ * this module's for the life of the process: a caller that changed one would
+ * change what every later check accepts. */
+function frozen<Value>(value: Value): Value {
+  if (typeof value === 'object' && value !== null) {
+    for (const inner of Object.values(value)) frozen(inner)
+    Object.freeze(value)
+  }
+  return value
+}
+
+/** The manifest's JSON Schema (draft 2020-12). */
+export const MANIFEST_SCHEMA: SchemaNode = frozen(schema)
+
+/** The address the schema is published at, and its `$id`. */
+export const MANIFEST_SCHEMA_ID: string = schema.$id
+
+/** A permission's name, as the manifest's `permissions` keys it. */
+export type PermissionName = keyof Permissions
+
+/** A place a menu item can appear, as `contributes.menus` keys it. */
+export type MenuLocation = keyof Menus
+
+/** A kind of provider, as `contributes.providers` keys it. */
+export type ProviderKind = keyof SourcesByKind
+
+const defs = schema.$defs
+
+export const SERVER_HOOKS = defs.serverHook.enum as readonly ServerHook[]
+export const CLIENT_HOOKS = defs.clientHook.enum as readonly ClientHook[]
+export const CATEGORIES = defs.category.enum as readonly Category[]
+export const PLATFORMS = defs.platform.enum as readonly Platform[]
+export const PANEL_LOCATIONS = defs.panelLocation.enum as readonly PanelLocation[]
+export const PERMISSIONS = Object.keys(defs.permissions.properties) as readonly PermissionName[]
+export const MENU_LOCATIONS = Object.keys(defs.menus.properties) as readonly MenuLocation[]
+export const PROVIDER_KINDS = Object.keys(defs.sourcesByKind.properties) as readonly ProviderKind[]

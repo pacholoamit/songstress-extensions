@@ -1,0 +1,119 @@
+{
+  "$schema": "https://songstress.app/schema/extension/v1.json",
+  "manifestVersion": 1,
+  "id": "harbor.soundcloud",
+  "name": "SoundCloud",
+  "version": "1.0.12",
+  "description": "Search SoundCloud, open its links, and play or keep what it finds.",
+  "engines": {
+    "songstress": "^0.1.0"
+  },
+  "license": "LGPL-3.0-only",
+  "repository": "https://github.com/harbor/songstress-soundcloud",
+  "categories": [
+    "sources"
+  ],
+  "keywords": [
+    "soundcloud",
+    "source"
+  ],
+  "icon": {
+    "path": "assets/icon.png",
+    "width": 512,
+    "height": 512
+  },
+  "screenshots": [
+    {
+      "path": "assets/search.png",
+      "width": 1280,
+      "height": 800,
+      "caption": "SoundCloud results in Search"
+    },
+    {
+      "path": "assets/album.png",
+      "width": 1280,
+      "height": 800,
+      "caption": "A SoundCloud album's page"
+    },
+    {
+      "path": "assets/link.png",
+      "width": 1280,
+      "height": 800,
+      "caption": "A pasted link, opened"
+    }
+  ],
+  "entry": {
+    "server": "dist/server.js"
+  },
+  "permissions": {
+    "network": {
+      "reason": "Reach SoundCloud's catalogue and its audio.",
+      "hosts": [
+        "soundcloud.com",
+        "api-v2.soundcloud.com",
+        "*.sndcdn.com"
+      ]
+    },
+    "providers": {
+      "reason": "Add SoundCloud beside Songstress's own sources."
+    },
+    "storage": {
+      "reason": "Remember the client id SoundCloud hands out."
+    }
+  },
+  "contributes": {
+    "providers": {
+      "search": [
+        {
+          "id": "soundcloud",
+          "types": [
+            "track",
+            "album",
+            "artist",
+            "playlist"
+          ]
+        }
+      ],
+      "lookup": [
+        {
+          "id": "soundcloud",
+          "types": [
+            "track",
+            "album",
+            "artist",
+            "playlist"
+          ]
+        }
+      ],
+      "links": [
+        {
+          "id": "soundcloud",
+          "patterns": [
+            "soundcloud.com",
+            "on.soundcloud.com"
+          ]
+        }
+      ],
+      "play": [
+        {
+          "id": "soundcloud"
+        }
+      ],
+      "download": [
+        {
+          "id": "soundcloud",
+          "qualities": [
+            {
+              "id": "aac-160",
+              "title": "AAC 160 kbps"
+            },
+            {
+              "id": "mp3-128",
+              "title": "MP3 128 kbps"
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,10 @@
+# The corpus is test vectors: git keeps every manifest byte for byte, with no
+# end-of-line conversion on any system.
+valid/*.json -text
+invalid/*.json -text
+
+# These two are not UTF-8, on purpose, so they are not text to git either. A
+# diff that carried their bytes would not be UTF-8 itself, and the tools that
+# read diffs (the pre-commit hook's among them) refuse such a diff.
+invalid/reader-not-utf8.json binary
+invalid/reader-too-deep-not-utf8.json binary

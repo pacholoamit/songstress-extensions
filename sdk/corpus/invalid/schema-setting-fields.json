@@ -1,0 +1,41 @@
+{
+  "manifestVersion": 1,
+  "id": "acme.example",
+  "name": "Example",
+  "version": "1.0.0",
+  "description": "An example extension.",
+  "engines": {
+    "songstress": "^0.1.0"
+  },
+  "contributes": {
+    "settings": [
+      {
+        "key": "name",
+        "type": "string",
+        "title": "Name",
+        "scope": "user",
+        "options": []
+      },
+      {
+        "key": "mode",
+        "type": "select",
+        "title": "Mode",
+        "scope": "user"
+      },
+      {
+        "key": "on",
+        "type": "boolean",
+        "title": "On",
+        "scope": "user",
+        "required": true
+      },
+      {
+        "key": "count",
+        "type": "number",
+        "title": "Count",
+        "scope": "user",
+        "default": "3"
+      }
+    ]
+  }
+}

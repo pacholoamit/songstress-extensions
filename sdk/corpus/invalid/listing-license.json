@@ -1,0 +1,112 @@
+{
+  "$schema": "https://songstress.app/schema/extension/v1.json",
+  "manifestVersion": 1,
+  "id": "acme.tunelog",
+  "name": "Tunelog Scrobbler",
+  "version": "1.2.0",
+  "description": "Sends what you play to your Tunelog profile, what is playing now included.",
+  "engines": {
+    "songstress": "^0.1.0"
+  },
+  "license": "WTFPL",
+  "repository": "https://github.com/acme/songstress-tunelog",
+  "sponsor": {
+    "url": "https://github.com/sponsors/acme"
+  },
+  "categories": [
+    "scrobbling-stats"
+  ],
+  "keywords": [
+    "scrobble",
+    "tunelog",
+    "stats"
+  ],
+  "icon": {
+    "path": "assets/icon.png",
+    "width": 512,
+    "height": 512
+  },
+  "banner": {
+    "path": "assets/banner.png",
+    "width": 1280,
+    "height": 720
+  },
+  "screenshots": [
+    {
+      "path": "assets/settings.png",
+      "width": 1280,
+      "height": 800,
+      "caption": "Connecting a Tunelog account",
+      "platform": "web"
+    },
+    {
+      "path": "assets/phone.png",
+      "width": 1179,
+      "height": 2556,
+      "caption": "The same setting on a phone",
+      "platform": "ios"
+    },
+    {
+      "path": "assets/profile.jpg",
+      "width": 1280,
+      "height": 800,
+      "caption": "Plays arriving on the profile"
+    }
+  ],
+  "entry": {
+    "server": "dist/server.js"
+  },
+  "hooks": {
+    "server": [
+      "onPlay",
+      "onScrobble"
+    ]
+  },
+  "permissions": {
+    "network": {
+      "reason": "Send your plays to Tunelog.",
+      "hosts": [
+        "api.tunelog.example"
+      ]
+    },
+    "listening.read": {
+      "reason": "Know what you play, to send it to your profile."
+    },
+    "storage": {
+      "reason": "Keep the plays that could not be sent yet."
+    }
+  },
+  "contributes": {
+    "settings": [
+      {
+        "key": "token",
+        "type": "secret",
+        "title": "Tunelog token",
+        "description": "From your Tunelog account, under Settings and then API.",
+        "scope": "user",
+        "required": true
+      },
+      {
+        "key": "nowPlaying",
+        "type": "boolean",
+        "title": "Show what I am playing",
+        "scope": "user",
+        "default": true
+      }
+    ],
+    "commands": [
+      {
+        "id": "test-connection",
+        "title": "Test the connection",
+        "run": "server"
+      }
+    ],
+    "menus": {
+      "settings/actions": [
+        {
+          "command": "test-connection"
+        }
+      ]
+    }
+  }
+}

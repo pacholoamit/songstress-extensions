@@ -1,0 +1,295 @@
+{
+  "manifestVersion": 1,
+  "id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+  "name": "\ud83c\udfb5\ud83c\udfb5\ud83c\udfb5\ud83c\udfb5\ud83c\udfb5\ud83c\udfb5\ud83c\udfb5\ud83c\udfb5\ud83c\udfb5\ud83c\udfb5\ud83c\udfb5\ud83c\udfb5\ud83c\udfb5\ud83c\udfb5\ud83c\udfb5\ud83c\udfb5\ud83c\udfb5\ud83c\udfb5\ud83c\udfb5\ud83c\udfb5\ud83c\udfb5\ud83c\udfb5\ud83c\udfb5\ud83c\udfb5\ud83c\udfb5\ud83c\udfb5\ud83c\udfb5\ud83c\udfb5\ud83c\udfb5\ud83c\udfb5\ud83c\udfb5\ud83c\udfb5\ud83c\udfb5\ud83c\udfb5\ud83c\udfb5\ud83c\udfb5\ud83c\udfb5\ud83c\udfb5\ud83c\udfb5\ud83c\udfb5\ud83c\udfb5\ud83c\udfb5\ud83c\udfb5\ud83c\udfb5\ud83c\udfb5\ud83c\udfb5\ud83c\udfb5\ud83c\udfb5\ud83c\udfb5\ud83c\udfb5",
+  "version": "1.0.0-rc.1+build.5",
+  "description": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"[[[[[[[[[[[[[[[[[[[[{{{{{{{{{{{{{{{{{{{{\\",
+  "engines": {
+    "songstress": ">=0.1.0 <1.0.0-0"
+  },
+  "license": "LicenseRef-Custom-1.0+",
+  "keywords": [
+    "kkkkkkkkkkkkkkkkkkkkkkkkkkkkkk",
+    "a.b-c",
+    "0",
+    "one",
+    "two",
+    "three",
+    "four",
+    "five",
+    "six",
+    "seven"
+  ],
+  "icon": {
+    "path": "assets/My Icon.v2.png",
+    "width": 512,
+    "height": 512
+  },
+  "banner": {
+    "path": "a/b/c/d/banner.jpg",
+    "width": 3840,
+    "height": 2160
+  },
+  "screenshots": [
+    {
+      "path": "s/1.png",
+      "width": 320,
+      "height": 320
+    },
+    {
+      "path": "s/2.png",
+      "width": 3840,
+      "height": 3840
+    },
+    {
+      "path": "s/3.png",
+      "width": 320,
+      "height": 3840,
+      "caption": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+    },
+    {
+      "path": "s/4.png",
+      "width": 3840,
+      "height": 320
+    },
+    {
+      "path": "s/5.webp",
+      "width": 1000,
+      "height": 1000
+    },
+    {
+      "path": "s/6.jpeg",
+      "width": 1000,
+      "height": 1000
+    }
+  ],
+  "entry": {
+    "server": "dist/server.js"
+  },
+  "permissions": {
+    "network": {
+      "reason": "rrrrrrrrrr",
+      "hosts": [
+        "example.com",
+        "*.example.co.uk",
+        "example.com:1",
+        "example.com:65535",
+        "xn--bcher-kva.example",
+        "a.b.c.d.example.museum",
+        "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.example",
+        "example.xn--p1ai",
+        "1.example"
+      ]
+    },
+    "network.local": {
+      "reason": "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+      "targets": [
+        "192.168.1.20",
+        "10.0.0.0/8",
+        "127.0.0.1:8096",
+        "nas.local",
+        "172.16.0.0/12",
+        "192.168.1.5/24",
+        "localhost:3000",
+        "172.31.255.255/32",
+        "printer"
+      ]
+    },
+    "storage": {
+      "reason": "Keep what the commands write."
+    },
+    "providers": {
+      "reason": "Needed for what the extension does."
+    },
+    "jobs": {
+      "reason": "Needed for what the extension does."
+    },
+    "routes": {
+      "reason": "Needed for what the extension does."
+    }
+  },
+  "contributes": {
+    "commands": [
+      {
+        "id": "command-0",
+        "title": "Command 0",
+        "run": "server"
+      },
+      {
+        "id": "command-1",
+        "title": "Command 1",
+        "run": "server"
+      },
+      {
+        "id": "command-2",
+        "title": "Command 2",
+        "run": "server"
+      },
+      {
+        "id": "command-3",
+        "title": "Command 3",
+        "run": "server"
+      },
+      {
+        "id": "command-4",
+        "title": "Command 4",
+        "run": "server"
+      },
+      {
+        "id": "command-5",
+        "title": "Command 5",
+        "run": "server"
+      },
+      {
+        "id": "command-6",
+        "title": "Command 6",
+        "run": "server"
+      },
+      {
+        "id": "command-7",
+        "title": "Command 7",
+        "run": "server"
+      },
+      {
+        "id": "command-8",
+        "title": "Command 8",
+        "run": "server"
+      },
+      {
+        "id": "command-9",
+        "title": "Command 9",
+        "run": "server"
+      }
+    ],
+    "menus": {
+      "song/context": [
+        {
+          "command": "command-0"
+        },
+        {
+          "command": "command-1"
+        },
+        {
+          "command": "command-2"
+        },
+        {
+          "command": "command-3"
+        },
+        {
+          "command": "command-4"
+        },
+        {
+          "command": "command-5"
+        },
+        {
+          "command": "command-6"
+        },
+        {
+          "command": "command-7"
+        },
+        {
+          "command": "command-8"
+        },
+        {
+          "command": "command-9"
+        }
+      ]
+    },
+    "settings": [
+      {
+        "key": "constructor",
+        "type": "string",
+        "title": "\ud83d\udc68\u200d\ud83d\udc69\u200d\ud83d\udc67",
+        "scope": "server",
+        "default": "\ud83c\udfb5\ud83c\udfb5\ud83c\udfb5",
+        "maxLength": 3
+      },
+      {
+        "key": "toString",
+        "type": "string",
+        "title": "\u0645\u06cc\u200c\u062e\u0648\u0627\u0647\u0645\u200f",
+        "scope": "user"
+      },
+      {
+        "key": "valueOf",
+        "type": "number",
+        "title": "TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT",
+        "scope": "device",
+        "default": -0.5,
+        "minimum": -0.5,
+        "maximum": -0.5
+      },
+      {
+        "key": "hasOwnProperty",
+        "type": "number",
+        "title": "Step",
+        "scope": "user",
+        "step": 0.001
+      },
+      {
+        "key": "kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk",
+        "type": "select",
+        "title": "Select",
+        "scope": "server",
+        "default": "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
+        "options": [
+          {
+            "value": "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
+            "title": "Longest"
+          },
+          {
+            "value": "VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV",
+            "title": "Another"
+          }
+        ]
+      }
+    ],
+    "jobs": [
+      {
+        "id": "a",
+        "title": "Shortest",
+        "every": "1m"
+      },
+      {
+        "id": "b",
+        "title": "Longest",
+        "every": "9999d"
+      }
+    ],
+    "routes": [
+      {
+        "id": "a",
+        "method": "GET",
+        "path": "/a"
+      },
+      {
+        "id": "b",
+        "method": "GET",
+        "path": "/a/:b"
+      },
+      {
+        "id": "c",
+        "method": "POST",
+        "path": "/a/:b"
+      },
+      {
+        "id": "d",
+        "method": "GET",
+        "path": "/v1.0/items_all/:itemId/x-y"
+      }
+    ],
+    "providers": {
+      "links": [
+        {
+          "id": "links",
+          "patterns": [
+            "a.co",
+            "example.com/album/",
+            "abc:",
+            "app+scheme.v2:"
+          ]
+        }
+      ]
+    }
+  }
+}

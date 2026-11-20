@@ -1,0 +1,15 @@
+Spotify Web, a Songstress extension
+
+A port of the Mornye Extension "spotify-web" 1.10.4:
+  Mornye Extension
+  Copyright 2026 zarzet
+  This product includes software developed by zarzet.
+  SPDX-License-Identifier: LGPL-3.0-only
+
+Ported to the Songstress extension SDK in 2026 by the Songstress authors:
+the same Spotify web player requests and readings, rewritten in TypeScript as
+providers. The port is LGPL-3.0-only as the work it derives from; see
+LICENSE (the GNU Lesser General Public License, version 3) and COPYING (the
+GNU General Public License, version 3, which it builds on).
+
+It runs on a Songstress server only, never in a phone's app.

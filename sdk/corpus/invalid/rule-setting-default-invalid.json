@@ -1,0 +1,60 @@
+{
+  "manifestVersion": 1,
+  "id": "acme.example",
+  "name": "Example",
+  "version": "1.0.0",
+  "description": "An example extension.",
+  "engines": {
+    "songstress": "^0.1.0"
+  },
+  "contributes": {
+    "settings": [
+      {
+        "key": "a",
+        "type": "string",
+        "title": "A",
+        "scope": "user",
+        "default": "four",
+        "maxLength": 3
+      },
+      {
+        "key": "b",
+        "type": "number",
+        "title": "B",
+        "scope": "user",
+        "default": 0,
+        "minimum": 1
+      },
+      {
+        "key": "c",
+        "type": "number",
+        "title": "C",
+        "scope": "user",
+        "default": 11,
+        "minimum": 1,
+        "maximum": 10
+      },
+      {
+        "key": "d",
+        "type": "select",
+        "title": "D",
+        "scope": "user",
+        "default": "z",
+        "options": [
+          {
+            "value": "x",
+            "title": "X"
+          }
+        ]
+      },
+      {
+        "key": "e",
+        "type": "string",
+        "title": "E",
+        "scope": "user",
+        "default": "\ud83c\udfb5\ud83c\udfb5\ud83c\udfb5",
+        "maxLength": 3
+      }
+    ]
+  }
+}

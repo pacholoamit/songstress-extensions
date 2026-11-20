@@ -1,0 +1,2740 @@
+# The public surface of songstress 0.1.2.
+# Written by "pnpm --dir packages/extensions api:record". Never edit it by hand.
+
+== songstress ==
+
+API_PERMISSIONS:
+export declare const API_PERMISSIONS: Readonly<{
+    shared: Readonly<Record<string, Needs>>;
+    server: Readonly<Record<string, Needs>>;
+    client: Readonly<Record<string, Needs>>;
+}>;
+
+API_VERSION:
+export declare const API_VERSION = "0.1.2";
+
+Action:
+export type Action = InvokeAction | NavigateAction | PlayAction | QueueAction | OpenUrlAction | CopyAction | ShareAction | ToastAction | ConfirmAction | RefreshAction;
+
+Album:
+export interface Album {
+    id: string;
+    name: string;
+    artist: string;
+    artistId?: string;
+    year?: number;
+    genre?: string;
+    songCount?: number;
+    durationS?: number;
+    musicBrainzId?: string;
+}
+
+AlbumCard:
+export interface AlbumCard {
+    type: 'album';
+    albumId: string;
+}
+
+Artist:
+export interface Artist {
+    id: string;
+    name: string;
+    albumCount?: number;
+    musicBrainzId?: string;
+}
+
+ArtistCard:
+export interface ArtistCard {
+    type: 'artist';
+    artistId: string;
+}
+
+ArtistPhoto:
+export interface ArtistPhoto {
+    large: string;
+    medium?: string;
+    small?: string;
+}
+
+ArtistQuery:
+export interface ArtistQuery {
+    name: string;
+    songs: string[];
+    releases: string[];
+    isrcs: string[];
+    ids?: CatalogIds;
+}
+
+ArtworkProvider:
+export interface ArtworkProvider {
+    artistPhoto?(artist: ArtistQuery, context: ProviderContext): Awaitable<ArtistPhoto | null>;
+    albumCover?(album: {
+        artist: string;
+        title: string;
+    }, context: ProviderContext): Awaitable<string | null>;
+}
+
+AudioContainer:
+export type AudioContainer = 'flac' | 'm4a' | 'mp3' | 'ogg' | 'opus' | 'webm' | 'wav';
+
+AudioFacts:
+export interface AudioFacts {
+    codec?: string;
+    bitDepth?: number;
+    sampleRateHz?: number;
+    bitrateKbps?: number;
+}
+
+Awaitable:
+export type Awaitable<Value> = Value | Promise<Value>;
+
+BadgeBlock:
+export interface BadgeBlock {
+    type: 'badge';
+    text: string;
+    tone?: Tone;
+}
+
+BannerBlock:
+export interface BannerBlock {
+    type: 'banner';
+    tone: 'info' | 'success' | 'warning' | 'danger';
+    title: string;
+    text?: string;
+    button?: {
+        title: string;
+        action: Action;
+    };
+}
+
+Block:
+export type Block = StackBlock | SectionBlock | TextBlock | IconBlock | ImageBlock | BadgeBlock | ProgressBlock | BannerBlock | DividerBlock | SpacerBlock | CollapsibleBlock | ButtonBlock | MenuBlock | ShelfBlock | SongRow | AlbumCard | ArtistCard | PlaylistCard;
+
+ButtonBlock:
+export interface ButtonBlock {
+    type: 'button';
+    title: string;
+    action: Action;
+    icon?: IconName;
+    style?: 'primary' | 'secondary' | 'destructive';
+    disabled?: boolean;
+}
+
+Card:
+export interface Card {
+    type: 'card';
+    id: string;
+    title: string;
+    subtitle?: string;
+    image?: ImageSource;
+    action?: Action;
+    menu?: MenuEntry[];
+}
+
+CatalogAlbum:
+export interface CatalogAlbum {
+    id: string;
+    title: string;
+    artists: string[];
+    artistId?: string;
+    kind?: 'album' | 'single' | 'ep' | 'compilation';
+    releaseDate?: string;
+    trackCount?: number;
+    explicit?: boolean;
+    upc?: string;
+    coverUrl?: string;
+    url?: string;
+    ids?: CatalogIds;
+}
+
+CatalogAlbumDetail:
+export interface CatalogAlbumDetail extends CatalogAlbum {
+    tracks: CatalogTrack[];
+}
+
+CatalogArtist:
+export interface CatalogArtist {
+    id: string;
+    name: string;
+    imageUrl?: string;
+    url?: string;
+    ids?: CatalogIds;
+}
+
+CatalogArtistDetail:
+export interface CatalogArtistDetail extends CatalogArtist {
+    biography?: string;
+    albums: CatalogAlbum[];
+    topTracks?: CatalogTrack[];
+}
+
+CatalogIds:
+export type CatalogIds = Partial<Record<ProviderGroup, string>>;
+
+CatalogPlaylist:
+export interface CatalogPlaylist {
+    id: string;
+    title: string;
+    owner?: string;
+    description?: string;
+    trackCount?: number;
+    coverUrl?: string;
+    url?: string;
+}
+
+CatalogPlaylistDetail:
+export interface CatalogPlaylistDetail extends CatalogPlaylist {
+    tracks: CatalogTrack[];
+}
+
+CatalogTrack:
+export interface CatalogTrack {
+    id: string;
+    title: string;
+    version?: string;
+    artists: string[];
+    artistId?: string;
+    album?: string;
+    albumId?: string;
+    albumArtist?: string;
+    durationS?: number;
+    trackNumber?: number;
+    discNumber?: number;
+    releaseDate?: string;
+    isrc?: string;
+    explicit?: boolean;
+    coverUrl?: string;
+    url?: string;
+    ids?: CatalogIds;
+    audio?: AudioFacts;
+}
+
+CatalogType:
+export type CatalogType = "track" | "album" | "artist" | "playlist";
+
+CheckboxField:
+export interface CheckboxField extends FieldBase {
+    type: 'checkbox';
+    value?: boolean;
+}
+
+ClientApi:
+export interface ClientApi extends SharedApi {
+    hooks: ClientHooks;
+    commands: ClientCommands;
+    player: Player;
+    queue: Queue;
+}
+
+ClientCapabilities:
+export interface ClientCapabilities {
+    clientCode: boolean;
+    views: boolean;
+}
+
+ClientCommands:
+export interface ClientCommands extends Commands {
+    execute<Value = unknown>(id: string, input?: unknown): Promise<Value | undefined>;
+}
+
+ClientHooks:
+export interface ClientHooks extends SharedHooks {
+    onPlay(listener: (song: Song, state: PlayerState) => Awaitable<void>): Disposable;
+    onPause(listener: (song: Song, state: PlayerState) => Awaitable<void>): Disposable;
+    onTrackChange(listener: (song: Song | null, state: PlayerState) => Awaitable<void>): Disposable;
+    onSeek(listener: (positionS: number, state: PlayerState) => Awaitable<void>): Disposable;
+    onVolumeChange(listener: (volume: number) => Awaitable<void>): Disposable;
+    onQueueChange(listener: (queue: QueueState) => Awaitable<void>): Disposable;
+    onProgress(listener: (positionS: number, state: PlayerState) => Awaitable<void>): Disposable;
+}
+
+ClientInfo:
+export interface ClientInfo {
+    platform: Platform;
+    ui: number;
+    capabilities: ClientCapabilities;
+}
+
+CollapsibleBlock:
+export interface CollapsibleBlock {
+    type: 'collapsible';
+    title: string;
+    open?: boolean;
+    children: Block[];
+}
+
+CommandContext:
+export interface CommandContext {
+    userId: string;
+    source: 'menu' | 'action' | 'form' | 'settings' | 'code';
+    location?: MenuLocation;
+    client?: ClientInfo;
+    values?: FormValues;
+}
+
+CommandHandler:
+export type CommandHandler<Input = unknown> = (input: Input, context: CommandContext) => Awaitable<CommandOutcome | void>;
+
+CommandOutcome:
+export interface CommandOutcome {
+    action?: Action;
+    value?: unknown;
+}
+
+Commands:
+export interface Commands {
+    register<Input = unknown>(id: string, handler: CommandHandler<Input>): Disposable;
+}
+
+ConfirmAction:
+export interface ConfirmAction {
+    type: 'confirm';
+    title: string;
+    message?: string;
+    confirm?: string;
+    destructive?: boolean;
+    action: Action;
+}
+
+CopyAction:
+export interface CopyAction {
+    type: 'copy';
+    text: string;
+}
+
+DateField:
+export interface DateField extends FieldBase {
+    type: 'date-picker';
+    value?: string;
+    minimum?: string;
+    maximum?: string;
+}
+
+Destination:
+export type Destination = {
+    page: string;
+    params?: Record<string, string>;
+} | {
+    view: string;
+    params?: Record<string, string>;
+} | {
+    library: LibraryType;
+    id: string;
+};
+
+DetailScreen:
+export interface DetailScreen {
+    type: 'detail';
+    children: Block[];
+}
+
+Disposable:
+export interface Disposable {
+    dispose(): void;
+}
+
+DividerBlock:
+export interface DividerBlock {
+    type: 'divider';
+}
+
+DownloadAvailability:
+export interface DownloadAvailability {
+    available: boolean;
+    id?: string;
+}
+
+DownloadLocation:
+export type DownloadLocation = (StreamLocation & {
+    kind: 'file';
+}) | {
+    kind: 'segments';
+    urls: string[];
+    initUrl?: string;
+    headers?: Record<string, string>;
+    container: AudioContainer;
+};
+
+DownloadProvider:
+export interface DownloadProvider {
+    check(track: TrackQuery, context: ProviderContext): Awaitable<DownloadAvailability>;
+    locate(request: {
+        id: string;
+        quality: string;
+    }, context: ProviderContext): Awaitable<{
+        location: DownloadLocation;
+        tags?: TrackFacts;
+    } | null>;
+}
+
+EmptyState:
+export interface EmptyState {
+    title: string;
+    text?: string;
+    icon?: IconName;
+    button?: {
+        title: string;
+        action: Action;
+    };
+}
+
+Favorite:
+export type Favorite = {
+    type: 'song';
+    song: Song;
+} | {
+    type: 'album';
+    album: Album;
+} | {
+    type: 'artist';
+    artist: Artist;
+};
+
+FavoriteEvent:
+export interface FavoriteEvent {
+    userId: string;
+    favorite: boolean;
+    at: string;
+}
+
+Field:
+export type Field = TextField | SwitchField | CheckboxField | SliderField | PickerField | DateField;
+
+ForUser:
+export interface ForUser {
+    userId: string;
+}
+
+FormScreen:
+export interface FormScreen {
+    type: 'form';
+    sections: {
+        title?: string;
+        footer?: string;
+        fields: Field[];
+    }[];
+    submit: {
+        title: string;
+        command: string;
+        input?: unknown;
+    };
+}
+
+FormValues:
+export type FormValues = Record<string, string | number | boolean>;
+
+GridScreen:
+export interface GridScreen {
+    type: 'grid';
+    sections: {
+        title?: string;
+        items: (Card | AlbumCard | ArtistCard | PlaylistCard)[];
+    }[];
+    search?: {
+        placeholder?: string;
+    };
+    empty?: EmptyState;
+    nextCursor?: string;
+}
+
+Host:
+export interface Host {
+    info(): Promise<HostInfo>;
+}
+
+HostInfo:
+export interface HostInfo {
+    apiVersion: string;
+    side: Side;
+    extension: {
+        id: string;
+        version: string;
+    };
+    client?: ClientInfo;
+}
+
+IconBlock:
+export interface IconBlock {
+    type: 'icon';
+    name: IconName;
+    tone?: Tone;
+}
+
+IconName:
+export type IconName = string;
+
+ImageBlock:
+export interface ImageBlock {
+    type: 'image';
+    source: ImageSource;
+    description: string;
+    shape?: 'square' | 'wide' | 'circle';
+}
+
+ImageSource:
+export type ImageSource = {
+    cover: LibraryType;
+    id: string;
+} | {
+    url: string;
+};
+
+InvokeAction:
+export interface InvokeAction {
+    type: 'invoke';
+    command: string;
+    input?: unknown;
+}
+
+JobHandler:
+export type JobHandler = (run: JobRun) => Awaitable<void>;
+
+JobRun:
+export interface JobRun {
+    runId: string;
+    input?: JsonValue;
+    userId?: string;
+    progress(done: number, total?: number, note?: string): void;
+}
+
+Jobs:
+export interface Jobs {
+    register(id: string, handler: JobHandler): Disposable;
+    start(id: string, input?: unknown): Promise<string>;
+}
+
+JsonValue:
+export type JsonValue = string | number | boolean | null | JsonValue[] | {
+    [key: string]: JsonValue;
+};
+
+Library:
+export interface Library {
+    getSong(id: string): Promise<Song | null>;
+    getAlbum(id: string): Promise<Album | null>;
+    getArtist(id: string): Promise<Artist | null>;
+    getPlaylist(id: string): Promise<Playlist | null>;
+    getAlbumSongs(albumId: string): Promise<Song[]>;
+    getPlaylistSongs(playlistId: string): Promise<Song[]>;
+    search(text: string, options?: {
+        types?: Exclude<LibraryType, 'playlist'>[];
+        limit?: number;
+    }): Promise<LibrarySearchResults>;
+}
+
+LibraryChange:
+export interface LibraryChange {
+    added: string[];
+    changed: string[];
+    removed: string[];
+}
+
+LibrarySearchResults:
+export interface LibrarySearchResults {
+    songs: Song[];
+    albums: Album[];
+    artists: Artist[];
+}
+
+LibraryType:
+export type LibraryType = 'song' | 'album' | 'artist' | 'playlist';
+
+LinkProvider:
+export interface LinkProvider {
+    resolve(url: string, context: ProviderContext): Awaitable<LinkResult | null>;
+}
+
+LinkResult:
+export type LinkResult = {
+    type: 'track';
+    track: CatalogTrack;
+} | {
+    type: 'album';
+    album: CatalogAlbumDetail;
+} | {
+    type: 'artist';
+    artist: CatalogArtistDetail;
+} | {
+    type: 'playlist';
+    playlist: CatalogPlaylistDetail;
+};
+
+ListScreen:
+export interface ListScreen {
+    type: 'list';
+    sections: {
+        title?: string;
+        items: (Row | SongRow)[];
+    }[];
+    search?: {
+        placeholder?: string;
+    };
+    empty?: EmptyState;
+    nextCursor?: string;
+}
+
+LookupProvider:
+export interface LookupProvider {
+    track?(id: string, context: ProviderContext): Awaitable<CatalogTrack | null>;
+    album?(id: string, context: ProviderContext): Awaitable<CatalogAlbumDetail | null>;
+    artist?(id: string, context: ProviderContext): Awaitable<CatalogArtistDetail | null>;
+    playlist?(id: string, context: ProviderContext): Awaitable<CatalogPlaylistDetail | null>;
+}
+
+LyricsLine:
+export interface LyricsLine {
+    text: string;
+    startS?: number;
+}
+
+LyricsProvider:
+export interface LyricsProvider {
+    find(song: TrackQuery, context: ProviderContext): Awaitable<LyricsResult>;
+}
+
+LyricsResult:
+export type LyricsResult = {
+    status: 'found';
+    synced: boolean;
+    lines: LyricsLine[];
+} | {
+    status: 'instrumental';
+} | {
+    status: 'none';
+};
+
+MenuBlock:
+export interface MenuBlock {
+    type: 'menu';
+    title: string;
+    icon?: IconName;
+    items: MenuEntry[];
+}
+
+MenuEntry:
+export interface MenuEntry {
+    title: string;
+    icon?: IconName;
+    action: Action;
+    destructive?: boolean;
+}
+
+MenuLocation:
+export type MenuLocation = keyof Menus;
+
+MetadataProvider:
+export interface MetadataProvider {
+    releases?(artistId: string, context: ProviderContext): Awaitable<CatalogAlbum[]>;
+    topTracks?(artistId: string, context: ProviderContext): Awaitable<CatalogTrack[]>;
+    releaseTracks?(releaseId: string, context: ProviderContext): Awaitable<CatalogTrack[]>;
+    enrich?(track: TrackQuery, context: ProviderContext): Awaitable<TrackFacts | null>;
+}
+
+NavigateAction:
+export interface NavigateAction {
+    type: 'navigate';
+    to: Destination;
+    present?: 'page' | 'sheet';
+}
+
+Needs:
+export type Needs = PermissionName | null;
+
+Net:
+export interface Net {
+    fetch(url: string, request?: NetRequest): Promise<NetResponse>;
+}
+
+NetRequest:
+export interface NetRequest {
+    method?: 'GET' | 'HEAD' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
+    headers?: Record<string, string>;
+    body?: string;
+    bodyEncoding?: 'text' | 'base64';
+    responseEncoding?: 'text' | 'base64';
+    timeoutMs?: number;
+    redirect?: 'follow' | 'manual';
+}
+
+NetResponse:
+export interface NetResponse {
+    status: number;
+    url: string;
+    headers: Record<string, string>;
+    body: string;
+}
+
+OpenUrlAction:
+export interface OpenUrlAction {
+    type: 'openUrl';
+    url: string;
+}
+
+PageRenderer:
+export type PageRenderer = (context: RenderContext) => Awaitable<Screen>;
+
+Pages:
+export interface Pages {
+    register(id: string, render: PageRenderer): Disposable;
+}
+
+PanelContent:
+export interface PanelContent {
+    children: Block[];
+}
+
+PanelContext:
+export interface PanelContext {
+    userId: string;
+    client: ClientInfo;
+    song?: Song;
+    artist?: Artist;
+    album?: Album;
+}
+
+PanelRenderer:
+export type PanelRenderer = (context: PanelContext) => Awaitable<PanelContent | null>;
+
+Panels:
+export interface Panels {
+    register(id: string, render: PanelRenderer): Disposable;
+}
+
+PermissionName:
+export type PermissionName = keyof Permissions;
+
+PickerField:
+export interface PickerField extends FieldBase {
+    type: 'picker';
+    value?: string;
+    options: {
+        value: string;
+        title: string;
+    }[];
+}
+
+Platform:
+export type Platform = "web" | "desktop" | "ios" | "android";
+
+PlayAction:
+export interface PlayAction {
+    type: 'play';
+    what: Playable;
+}
+
+PlayEvent:
+export interface PlayEvent {
+    userId: string;
+    startedAt: string;
+    client?: string;
+}
+
+PlayProvider:
+export interface PlayProvider {
+    resolve(track: CatalogTrack, context: ProviderContext): Awaitable<StreamLocation | null>;
+}
+
+Playable:
+export type Playable = {
+    songIds: string[];
+} | {
+    albumId: string;
+} | {
+    artistId: string;
+} | {
+    playlistId: string;
+};
+
+Player:
+export interface Player {
+    getState(): Promise<PlayerState>;
+    play(): Promise<void>;
+    pause(): Promise<void>;
+    next(): Promise<void>;
+    previous(): Promise<void>;
+    seek(positionS: number): Promise<void>;
+}
+
+PlayerState:
+export interface PlayerState {
+    song: Song | null;
+    playing: boolean;
+    positionS: number;
+    durationS: number;
+    volume: number;
+}
+
+Playlist:
+export interface Playlist {
+    id: string;
+    name: string;
+    description?: string;
+    ownerId?: string;
+    public?: boolean;
+    songCount?: number;
+    durationS?: number;
+}
+
+PlaylistCard:
+export interface PlaylistCard {
+    type: 'playlist';
+    playlistId: string;
+}
+
+PlaylistChangeEvent:
+export interface PlaylistChangeEvent {
+    change: 'created' | 'updated' | 'deleted';
+    at: string;
+}
+
+ProgressBlock:
+export interface ProgressBlock {
+    type: 'progress';
+    value?: number;
+    label?: string;
+}
+
+ProviderContext:
+export interface ProviderContext {
+    userId?: string;
+}
+
+ProviderFailure:
+export declare class ProviderFailure extends Error {
+    readonly name = "ProviderFailure";
+    readonly code: ProviderFailureCode;
+    readonly retryAfterS?: number;
+    constructor(code: ProviderFailureCode, options?: {
+        message?: string;
+        retryAfterS?: number;
+    });
+}
+
+ProviderFailureCode:
+export type ProviderFailureCode = 'rate-limited' | 'sign-in-required' | 'not-configured' | 'unavailable';
+
+ProviderGroup:
+export type ProviderGroup = "musicbrainz" | "spotify" | "deezer" | "tidal" | "itunes" | "ytmusic";
+
+ProviderRegistry:
+export interface ProviderRegistry<Provider> {
+    register(id: string, provider: Provider): Disposable;
+}
+
+Providers:
+export interface Providers {
+    search: ProviderRegistry<SearchProvider>;
+    lookup: ProviderRegistry<LookupProvider>;
+    links: ProviderRegistry<LinkProvider>;
+    lyrics: ProviderRegistry<LyricsProvider>;
+    metadata: ProviderRegistry<MetadataProvider>;
+    artwork: ProviderRegistry<ArtworkProvider>;
+    scrobble: ProviderRegistry<ScrobbleProvider>;
+    recommend: ProviderRegistry<RecommendProvider>;
+    play: ProviderRegistry<PlayProvider>;
+    download: ProviderRegistry<DownloadProvider>;
+}
+
+Queue:
+export interface Queue {
+    get(): Promise<QueueState>;
+    add(songIds: string[], options?: {
+        next?: boolean;
+    }): Promise<void>;
+}
+
+QueueAction:
+export interface QueueAction {
+    type: 'queue';
+    what: Playable;
+    next?: boolean;
+}
+
+QueueState:
+export interface QueueState {
+    songs: Song[];
+    index: number;
+}
+
+RecommendProvider:
+export interface RecommendProvider {
+    similarTracks?(seed: RecommendSeed, limit: number, context: ProviderContext): Awaitable<RecommendedTrack[]>;
+    artistRadio?(artist: RecommendSeed, limit: number, context: ProviderContext): Awaitable<RecommendedTrack[]>;
+    contextMix?(seeds: RecommendSeed[], limit: number, context: ProviderContext): Awaitable<RecommendedTrack[]>;
+}
+
+RecommendSeed:
+export interface RecommendSeed {
+    title?: string;
+    artist?: string;
+    album?: string;
+    isrc?: string;
+    musicBrainzId?: string;
+    genres?: string[];
+}
+
+RecommendedTrack:
+export interface RecommendedTrack {
+    title: string;
+    artist: string;
+    album?: string;
+    isrc?: string;
+    musicBrainzId?: string;
+    durationS?: number;
+    coverUrl?: string;
+    ids?: CatalogIds;
+    score?: number;
+}
+
+RefreshAction:
+export interface RefreshAction {
+    type: 'refresh';
+}
+
+RenderContext:
+export interface RenderContext {
+    userId: string;
+    client: ClientInfo;
+    params: Record<string, string>;
+    search?: string;
+    cursor?: string;
+}
+
+RouteHandler:
+export type RouteHandler = (request: RouteRequest) => Awaitable<RouteResponse>;
+
+RouteRequest:
+export interface RouteRequest {
+    method: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
+    params: Record<string, string>;
+    query: Record<string, string>;
+    body?: JsonValue;
+    userId: string;
+}
+
+RouteResponse:
+export interface RouteResponse {
+    status?: number;
+    body?: unknown;
+}
+
+Routes:
+export interface Routes {
+    register(id: string, handler: RouteHandler): Disposable;
+}
+
+Row:
+export interface Row {
+    type: 'row';
+    id: string;
+    title: string;
+    subtitle?: string;
+    icon?: IconName;
+    image?: ImageSource;
+    badge?: BadgeBlock;
+    action?: Action;
+    menu?: MenuEntry[];
+}
+
+ScanSummary:
+export interface ScanSummary {
+    startedAt: string;
+    finishedAt: string;
+    added: number;
+    changed: number;
+    removed: number;
+}
+
+Screen:
+export type Screen = ListScreen | GridScreen | DetailScreen | FormScreen;
+
+ScrobbleEvent:
+export interface ScrobbleEvent {
+    userId: string;
+    playedAt: string;
+    client?: string;
+}
+
+ScrobblePlay:
+export interface ScrobblePlay {
+    song: Song;
+    userId: string;
+    playedAt: string;
+}
+
+ScrobbleProvider:
+export interface ScrobbleProvider {
+    scrobble(play: ScrobblePlay, context: ProviderContext): Awaitable<void>;
+    nowPlaying?(play: ScrobblePlay, context: ProviderContext): Awaitable<void>;
+}
+
+SearchProvider:
+export interface SearchProvider {
+    search(query: SearchQuery, context: ProviderContext): Awaitable<SearchResults>;
+}
+
+SearchQuery:
+export interface SearchQuery {
+    text: string;
+    types: CatalogType[];
+    limit: number;
+    offset: number;
+}
+
+SearchResults:
+export interface SearchResults {
+    tracks?: CatalogTrack[];
+    albums?: CatalogAlbum[];
+    artists?: CatalogArtist[];
+    playlists?: CatalogPlaylist[];
+}
+
+Secrets:
+export interface Secrets {
+    get(key: string, user?: ForUser): Promise<string | undefined>;
+    set(key: string, value: string, user?: ForUser): Promise<void>;
+    delete(key: string, user?: ForUser): Promise<void>;
+}
+
+SectionBlock:
+export interface SectionBlock {
+    type: 'section';
+    title?: string;
+    footer?: string;
+    children: Block[];
+}
+
+ServerApi:
+export interface ServerApi extends SharedApi {
+    hooks: ServerHooks;
+    settings: ServerSettings;
+    storage: ServerStore;
+    secrets: Secrets;
+    providers: Providers;
+    jobs: Jobs;
+    routes: Routes;
+    signIn: SignInRegistry;
+    library: Library;
+    users: Users;
+}
+
+ServerHooks:
+export interface ServerHooks extends SharedHooks {
+    onPlay(listener: (song: Song, play: PlayEvent) => Awaitable<void>): Disposable;
+    onScrobble(listener: (song: Song, play: ScrobbleEvent) => Awaitable<void>): Disposable;
+    onFavorite(listener: (item: Favorite, event: FavoriteEvent) => Awaitable<void>): Disposable;
+    onPlaylistChange(listener: (playlist: Playlist, event: PlaylistChangeEvent) => Awaitable<void>): Disposable;
+    onLibraryChange(listener: (change: LibraryChange) => Awaitable<void>): Disposable;
+    onScanComplete(listener: (scan: ScanSummary) => Awaitable<void>): Disposable;
+}
+
+ServerSettings:
+export interface ServerSettings extends Settings {
+    get<Value extends SettingValue = SettingValue>(key: string, user?: ForUser): Promise<Value | undefined>;
+}
+
+ServerStore:
+export interface ServerStore extends Store {
+    get<Value = unknown>(key: string, user?: ForUser): Promise<Value | undefined>;
+    set(key: string, value: unknown, user?: ForUser): Promise<void>;
+    delete(key: string, user?: ForUser): Promise<void>;
+    keys(prefix?: string, user?: ForUser): Promise<string[]>;
+}
+
+SettingChange:
+export interface SettingChange {
+    key: string;
+    value: SettingValue | undefined;
+    userId?: string;
+}
+
+SettingValue:
+export type SettingValue = string | number | boolean;
+
+Settings:
+export interface Settings {
+    get<Value extends SettingValue = SettingValue>(key: string): Promise<Value | undefined>;
+    onChange(listener: (change: SettingChange) => Awaitable<void>): Disposable;
+}
+
+ShareAction:
+export interface ShareAction {
+    type: 'share';
+    title?: string;
+    text?: string;
+    url?: string;
+}
+
+SharedApi:
+export interface SharedApi {
+    hooks: SharedHooks;
+    commands: Commands;
+    ui: Ui;
+    settings: Settings;
+    storage: Store;
+    net: Net;
+    host: Host;
+}
+
+SharedHooks:
+export interface SharedHooks {
+    onPlay(listener: (song: Song) => Awaitable<void>): Disposable;
+}
+
+ShelfBlock:
+export interface ShelfBlock {
+    type: 'shelf';
+    title: string;
+    items: (Card | SongRow | AlbumCard | ArtistCard | PlaylistCard)[];
+}
+
+Side:
+export type Side = "server" | "client";
+
+SignInHandler:
+export interface SignInHandler {
+    start(request: SignInStart): Awaitable<SignInPage>;
+    finish(returned: SignInReturn): Awaitable<SignedIn>;
+    signOut?(): Awaitable<void>;
+}
+
+SignInPage:
+export interface SignInPage {
+    url: string;
+}
+
+SignInRegistry:
+export interface SignInRegistry {
+    register(handler: SignInHandler): Disposable;
+}
+
+SignInReturn:
+export interface SignInReturn {
+    url: string;
+    redirectUrl: string;
+}
+
+SignInStart:
+export interface SignInStart {
+    redirectUrl: string;
+    state: string;
+}
+
+SignedIn:
+export interface SignedIn {
+    account: string;
+}
+
+Size:
+export type Size = 'small' | 'medium' | 'large';
+
+SliderField:
+export interface SliderField extends FieldBase {
+    type: 'slider';
+    value?: number;
+    minimum: number;
+    maximum: number;
+    step?: number;
+}
+
+Song:
+export interface Song {
+    id: string;
+    title: string;
+    artist: string;
+    artistId?: string;
+    album?: string;
+    albumId?: string;
+    durationS?: number;
+    track?: number;
+    disc?: number;
+    year?: number;
+    genre?: string;
+    isrc?: string;
+    musicBrainzId?: string;
+}
+
+SongRow:
+export interface SongRow {
+    type: 'song';
+    songId: string;
+}
+
+SongstressError:
+export declare class SongstressError extends Error {
+    readonly name = "SongstressError";
+    readonly code: SongstressErrorCode;
+    constructor(code: SongstressErrorCode, message: string);
+}
+
+SongstressErrorCode:
+export type SongstressErrorCode = 'no-host' | 'permission-denied' | 'not-available' | 'limit-exceeded' | 'invalid' | 'failed';
+
+SpacerBlock:
+export interface SpacerBlock {
+    type: 'spacer';
+    size?: Size;
+}
+
+StackBlock:
+export interface StackBlock {
+    type: 'stack';
+    direction?: 'vertical' | 'horizontal';
+    gap?: Size;
+    align?: 'start' | 'center' | 'end';
+    children: Block[];
+}
+
+Store:
+export interface Store {
+    get<Value = unknown>(key: string): Promise<Value | undefined>;
+    set(key: string, value: unknown): Promise<void>;
+    delete(key: string): Promise<void>;
+    keys(prefix?: string): Promise<string[]>;
+}
+
+StreamLocation:
+export interface StreamLocation {
+    url: string;
+    headers?: Record<string, string>;
+    container: AudioContainer;
+}
+
+SwitchField:
+export interface SwitchField extends FieldBase {
+    type: 'switch';
+    value?: boolean;
+}
+
+TextBlock:
+export interface TextBlock {
+    type: 'text';
+    text: string;
+    style?: 'title' | 'heading' | 'body' | 'caption';
+    tone?: Tone;
+}
+
+TextField:
+export interface TextField extends FieldBase {
+    type: 'text-field';
+    value?: string;
+    placeholder?: string;
+    multiline?: boolean;
+    maxLength?: number;
+    required?: boolean;
+}
+
+ToastAction:
+export interface ToastAction {
+    type: 'toast';
+    message: string;
+    tone?: 'default' | 'success' | 'warning' | 'danger';
+}
+
+Tone:
+export type Tone = 'default' | 'muted' | 'accent' | 'success' | 'warning' | 'danger' | 'info';
+
+TrackFacts:
+export interface TrackFacts {
+    isrc?: string;
+    ids?: CatalogIds;
+    releaseDate?: string;
+    genre?: string;
+    label?: string;
+    explicit?: boolean;
+}
+
+TrackQuery:
+export interface TrackQuery {
+    title: string;
+    artist: string;
+    album?: string;
+    durationS?: number;
+    isrc?: string;
+    ids?: CatalogIds;
+}
+
+UI_VERSION:
+export declare const UI_VERSION = 1;
+
+Ui:
+export interface Ui {
+    pages: Pages;
+    panels: Panels;
+}
+
+User:
+export interface User {
+    id: string;
+    name: string;
+}
+
+Users:
+export interface Users {
+    get(id: string): Promise<User | null>;
+    list(): Promise<User[]>;
+}
+
+songstress:
+export declare const sharedApi: SharedApi;
+
+== songstress/server ==
+
+API_VERSION: as above
+
+Action: as above
+
+Album: as above
+
+AlbumCard: as above
+
+Artist: as above
+
+ArtistCard: as above
+
+ArtistPhoto: as above
+
+ArtistQuery: as above
+
+ArtworkProvider: as above
+
+AudioContainer: as above
+
+AudioFacts: as above
+
+Awaitable: as above
+
+BadgeBlock: as above
+
+BannerBlock: as above
+
+Block: as above
+
+ButtonBlock: as above
+
+Card: as above
+
+CatalogAlbum: as above
+
+CatalogAlbumDetail: as above
+
+CatalogArtist: as above
+
+CatalogArtistDetail: as above
+
+CatalogIds: as above
+
+CatalogPlaylist: as above
+
+CatalogPlaylistDetail: as above
+
+CatalogTrack: as above
+
+CatalogType: as above
+
+CheckboxField: as above
+
+ClientApi: as above
+
+ClientCapabilities: as above
+
+ClientCommands: as above
+
+ClientHooks: as above
+
+ClientInfo: as above
+
+CollapsibleBlock: as above
+
+CommandContext: as above
+
+CommandHandler: as above
+
+CommandOutcome: as above
+
+Commands: as above
+
+ConfirmAction: as above
+
+CopyAction: as above
+
+DateField: as above
+
+Destination: as above
+
+DetailScreen: as above
+
+Disposable: as above
+
+DividerBlock: as above
+
+DownloadAvailability: as above
+
+DownloadLocation: as above
+
+DownloadProvider: as above
+
+EmptyState: as above
+
+Favorite: as above
+
+FavoriteEvent: as above
+
+Field: as above
+
+ForUser: as above
+
+FormScreen: as above
+
+FormValues: as above
+
+GridScreen: as above
+
+Host: as above
+
+HostInfo: as above
+
+IconBlock: as above
+
+IconName: as above
+
+ImageBlock: as above
+
+ImageSource: as above
+
+InvokeAction: as above
+
+JobHandler: as above
+
+JobRun: as above
+
+Jobs: as above
+
+JsonValue: as above
+
+Library: as above
+
+LibraryChange: as above
+
+LibrarySearchResults: as above
+
+LibraryType: as above
+
+LinkProvider: as above
+
+LinkResult: as above
+
+ListScreen: as above
+
+LookupProvider: as above
+
+LyricsLine: as above
+
+LyricsProvider: as above
+
+LyricsResult: as above
+
+MenuBlock: as above
+
+MenuEntry: as above
+
+MenuLocation: as above
+
+MetadataProvider: as above
+
+NavigateAction: as above
+
+Net: as above
+
+NetRequest: as above
+
+NetResponse: as above
+
+OpenUrlAction: as above
+
+PageRenderer: as above
+
+Pages: as above
+
+PanelContent: as above
+
+PanelContext: as above
+
+PanelRenderer: as above
+
+Panels: as above
+
+PermissionName: as above
+
+PickerField: as above
+
+Platform: as above
+
+PlayAction: as above
+
+PlayEvent: as above
+
+PlayProvider: as above
+
+Playable: as above
+
+Player: as above
+
+PlayerState: as above
+
+Playlist: as above
+
+PlaylistCard: as above
+
+PlaylistChangeEvent: as above
+
+ProgressBlock: as above
+
+ProviderContext: as above
+
+ProviderFailure: as above
+
+ProviderFailureCode: as above
+
+ProviderGroup: as above
+
+ProviderRegistry: as above
+
+Providers: as above
+
+Queue: as above
+
+QueueAction: as above
+
+QueueState: as above
+
+RecommendProvider: as above
+
+RecommendSeed: as above
+
+RecommendedTrack: as above
+
+RefreshAction: as above
+
+RenderContext: as above
+
+RouteHandler: as above
+
+RouteRequest: as above
+
+RouteResponse: as above
+
+Routes: as above
+
+Row: as above
+
+ScanSummary: as above
+
+Screen: as above
+
+ScrobbleEvent: as above
+
+ScrobblePlay: as above
+
+ScrobbleProvider: as above
+
+SearchProvider: as above
+
+SearchQuery: as above
+
+SearchResults: as above
+
+Secrets: as above
+
+SectionBlock: as above
+
+ServerApi: as above
+
+ServerHooks: as above
+
+ServerSettings: as above
+
+ServerStore: as above
+
+SettingChange: as above
+
+SettingValue: as above
+
+Settings: as above
+
+ShareAction: as above
+
+SharedApi: as above
+
+SharedHooks: as above
+
+ShelfBlock: as above
+
+Side: as above
+
+SignInHandler: as above
+
+SignInPage: as above
+
+SignInRegistry: as above
+
+SignInReturn: as above
+
+SignInStart: as above
+
+SignedIn: as above
+
+Size: as above
+
+SliderField: as above
+
+Song: as above
+
+SongRow: as above
+
+SongstressError: as above
+
+SongstressErrorCode: as above
+
+SpacerBlock: as above
+
+StackBlock: as above
+
+Store: as above
+
+StreamLocation: as above
+
+SwitchField: as above
+
+TextBlock: as above
+
+TextField: as above
+
+ToastAction: as above
+
+Tone: as above
+
+TrackFacts: as above
+
+TrackQuery: as above
+
+UI_VERSION: as above
+
+Ui: as above
+
+User: as above
+
+Users: as above
+
+songstress:
+export declare const serverApi: ServerApi;
+
+== songstress/client ==
+
+API_VERSION: as above
+
+Action: as above
+
+Album: as above
+
+AlbumCard: as above
+
+Artist: as above
+
+ArtistCard: as above
+
+ArtistPhoto: as above
+
+ArtistQuery: as above
+
+ArtworkProvider: as above
+
+AudioContainer: as above
+
+AudioFacts: as above
+
+Awaitable: as above
+
+BadgeBlock: as above
+
+BannerBlock: as above
+
+Block: as above
+
+ButtonBlock: as above
+
+Card: as above
+
+CatalogAlbum: as above
+
+CatalogAlbumDetail: as above
+
+CatalogArtist: as above
+
+CatalogArtistDetail: as above
+
+CatalogIds: as above
+
+CatalogPlaylist: as above
+
+CatalogPlaylistDetail: as above
+
+CatalogTrack: as above
+
+CatalogType: as above
+
+CheckboxField: as above
+
+ClientApi: as above
+
+ClientCapabilities: as above
+
+ClientCommands: as above
+
+ClientHooks: as above
+
+ClientInfo: as above
+
+CollapsibleBlock: as above
+
+CommandContext: as above
+
+CommandHandler: as above
+
+CommandOutcome: as above
+
+Commands: as above
+
+ConfirmAction: as above
+
+CopyAction: as above
+
+DateField: as above
+
+Destination: as above
+
+DetailScreen: as above
+
+Disposable: as above
+
+DividerBlock: as above
+
+DownloadAvailability: as above
+
+DownloadLocation: as above
+
+DownloadProvider: as above
+
+EmptyState: as above
+
+Favorite: as above
+
+FavoriteEvent: as above
+
+Field: as above
+
+ForUser: as above
+
+FormScreen: as above
+
+FormValues: as above
+
+GridScreen: as above
+
+Host: as above
+
+HostInfo: as above
+
+IconBlock: as above
+
+IconName: as above
+
+ImageBlock: as above
+
+ImageSource: as above
+
+InvokeAction: as above
+
+JobHandler: as above
+
+JobRun: as above
+
+Jobs: as above
+
+JsonValue: as above
+
+Library: as above
+
+LibraryChange: as above
+
+LibrarySearchResults: as above
+
+LibraryType: as above
+
+LinkProvider: as above
+
+LinkResult: as above
+
+ListScreen: as above
+
+LookupProvider: as above
+
+LyricsLine: as above
+
+LyricsProvider: as above
+
+LyricsResult: as above
+
+MenuBlock: as above
+
+MenuEntry: as above
+
+MenuLocation: as above
+
+MetadataProvider: as above
+
+NavigateAction: as above
+
+Net: as above
+
+NetRequest: as above
+
+NetResponse: as above
+
+OpenUrlAction: as above
+
+PageRenderer: as above
+
+Pages: as above
+
+PanelContent: as above
+
+PanelContext: as above
+
+PanelRenderer: as above
+
+Panels: as above
+
+PermissionName: as above
+
+PickerField: as above
+
+Platform: as above
+
+PlayAction: as above
+
+PlayEvent: as above
+
+PlayProvider: as above
+
+Playable: as above
+
+Player: as above
+
+PlayerState: as above
+
+Playlist: as above
+
+PlaylistCard: as above
+
+PlaylistChangeEvent: as above
+
+ProgressBlock: as above
+
+ProviderContext: as above
+
+ProviderFailure: as above
+
+ProviderFailureCode: as above
+
+ProviderGroup: as above
+
+ProviderRegistry: as above
+
+Providers: as above
+
+Queue: as above
+
+QueueAction: as above
+
+QueueState: as above
+
+RecommendProvider: as above
+
+RecommendSeed: as above
+
+RecommendedTrack: as above
+
+RefreshAction: as above
+
+RenderContext: as above
+
+RouteHandler: as above
+
+RouteRequest: as above
+
+RouteResponse: as above
+
+Routes: as above
+
+Row: as above
+
+ScanSummary: as above
+
+Screen: as above
+
+ScrobbleEvent: as above
+
+ScrobblePlay: as above
+
+ScrobbleProvider: as above
+
+SearchProvider: as above
+
+SearchQuery: as above
+
+SearchResults: as above
+
+Secrets: as above
+
+SectionBlock: as above
+
+ServerApi: as above
+
+ServerHooks: as above
+
+ServerSettings: as above
+
+ServerStore: as above
+
+SettingChange: as above
+
+SettingValue: as above
+
+Settings: as above
+
+ShareAction: as above
+
+SharedApi: as above
+
+SharedHooks: as above
+
+ShelfBlock: as above
+
+Side: as above
+
+SignInHandler: as above
+
+SignInPage: as above
+
+SignInRegistry: as above
+
+SignInReturn: as above
+
+SignInStart: as above
+
+SignedIn: as above
+
+Size: as above
+
+SliderField: as above
+
+Song: as above
+
+SongRow: as above
+
+SongstressError: as above
+
+SongstressErrorCode: as above
+
+SpacerBlock: as above
+
+StackBlock: as above
+
+Store: as above
+
+StreamLocation: as above
+
+SwitchField: as above
+
+TextBlock: as above
+
+TextField: as above
+
+ToastAction: as above
+
+Tone: as above
+
+TrackFacts: as above
+
+TrackQuery: as above
+
+UI_VERSION: as above
+
+Ui: as above
+
+User: as above
+
+Users: as above
+
+songstress:
+export declare const clientApi: ClientApi;
+
+== songstress/manifest ==
+
+ArtworkSource:
+export interface ArtworkSource {
+    id: LocalId;
+    name?: Title;
+    supports: ("artist-photo" | "album-cover")[];
+}
+
+Banner:
+export interface Banner {
+    path: string;
+    width: number;
+    height: number;
+}
+
+BooleanSetting:
+export interface BooleanSetting {
+    key: SettingKey;
+    type: "boolean";
+    title: Title;
+    description?: Sentence;
+    scope: SettingScope;
+    default?: boolean;
+}
+
+CATEGORIES:
+export declare const CATEGORIES: readonly Category[];
+
+CLIENT_HOOKS:
+export declare const CLIENT_HOOKS: readonly ClientHook[];
+
+CatalogType: as above
+
+Category:
+export type Category = "sources" | "lyrics" | "metadata-artwork" | "scrobbling-stats" | "discovery" | "playback-audio" | "visualisers" | "themes" | "social-jam" | "library-tools" | "integrations" | "server-worker";
+
+ClientHook:
+export type ClientHook = "onPlay" | "onPause" | "onTrackChange" | "onSeek" | "onVolumeChange" | "onQueueChange" | "onProgress";
+
+Command:
+export interface Command {
+    id: LocalId;
+    title: Title;
+    run: Side;
+    description?: Sentence;
+    icon?: IconName;
+}
+
+Contributes:
+export interface Contributes {
+    commands?: Command[];
+    menus?: Menus;
+    settings?: Setting[];
+    pages?: Page[];
+    panels?: Panel[];
+    views?: View[];
+    themes?: Theme[];
+    providers?: SourcesByKind;
+    jobs?: Job[];
+    routes?: Route[];
+    signIn?: SignIn;
+}
+
+DownloadSource:
+export interface DownloadSource {
+    id: LocalId;
+    name?: Title;
+    qualities: Quality[];
+}
+
+Engines:
+export interface Engines {
+    songstress: string;
+}
+
+Entry:
+export interface Entry {
+    server?: ScriptPath;
+    client?: ScriptPath;
+}
+
+ExtensionId:
+export type ExtensionId = string;
+
+HOOK_PERMISSIONS:
+export declare const HOOK_PERMISSIONS: {
+    readonly server: Readonly<Record<ServerHook, PermissionName>>;
+    readonly client: Readonly<Record<ClientHook, PermissionName | null>>;
+};
+
+Hooks:
+export interface Hooks {
+    server?: ServerHook[];
+    client?: ClientHook[];
+}
+
+HostPattern:
+export type HostPattern = string;
+
+HttpsUrl:
+export type HttpsUrl = string;
+
+Icon:
+export interface Icon {
+    path: string;
+    width: 512;
+    height: 512;
+}
+
+IconName: as above
+
+Job:
+export interface Job {
+    id: LocalId;
+    title: Title;
+    every?: string;
+}
+
+KEYWORD_CODES:
+export declare const KEYWORD_CODES: {
+    readonly type: "SCHEMA_TYPE";
+    readonly required: "SCHEMA_REQUIRED";
+    readonly additionalProperties: "SCHEMA_UNKNOWN_PROPERTY";
+    readonly enum: "SCHEMA_ENUM";
+    readonly const: "SCHEMA_CONST";
+    readonly pattern: "SCHEMA_PATTERN";
+    readonly minLength: "SCHEMA_LENGTH";
+    readonly maxLength: "SCHEMA_LENGTH";
+    readonly minimum: "SCHEMA_RANGE";
+    readonly maximum: "SCHEMA_RANGE";
+    readonly exclusiveMinimum: "SCHEMA_RANGE";
+    readonly minItems: "SCHEMA_ITEM_COUNT";
+    readonly maxItems: "SCHEMA_ITEM_COUNT";
+    readonly uniqueItems: "SCHEMA_DUPLICATE_ITEM";
+    readonly minProperties: "SCHEMA_PROPERTY_COUNT";
+};
+
+Keyword:
+export type Keyword = string;
+
+LISTING_FIELDS:
+export declare const LISTING_FIELDS: readonly [
+    "license",
+    "repository",
+    "categories",
+    "icon",
+    "screenshots"
+];
+
+LISTING_LICENSES:
+export declare const LISTING_LICENSES: readonly string[];
+
+LISTING_MIN_SCREENSHOTS:
+export declare const LISTING_MIN_SCREENSHOTS = 3;
+
+LinkPattern:
+export type LinkPattern = string;
+
+LinkSource:
+export interface LinkSource {
+    id: LocalId;
+    name?: Title;
+    group?: ProviderGroup;
+    patterns: LinkPattern[];
+}
+
+LocalId:
+export type LocalId = string;
+
+LocalNetworkPermission:
+export interface LocalNetworkPermission {
+    reason: Reason;
+    targets?: LocalTarget[];
+}
+
+LocalTarget:
+export type LocalTarget = string;
+
+LookupSource:
+export interface LookupSource {
+    id: LocalId;
+    name?: Title;
+    group?: ProviderGroup;
+    types: CatalogType[];
+}
+
+MANIFEST_ERROR_CODES:
+export declare const MANIFEST_ERROR_CODES: {
+    MANIFEST_TOO_LARGE: string;
+    MANIFEST_TOO_DEEP: string;
+    JSON_INVALID: string;
+    JSON_DUPLICATE_KEY: string;
+    SCHEMA_TYPE: string;
+    SCHEMA_REQUIRED: string;
+    SCHEMA_UNKNOWN_PROPERTY: string;
+    SCHEMA_ENUM: string;
+    SCHEMA_CONST: string;
+    SCHEMA_PATTERN: string;
+    SCHEMA_LENGTH: string;
+    SCHEMA_RANGE: string;
+    SCHEMA_ITEM_COUNT: string;
+    SCHEMA_DUPLICATE_ITEM: string;
+    SCHEMA_PROPERTY_COUNT: string;
+    TEXT_UNSAFE: string;
+    ID_RESERVED: string;
+    VERSION_INVALID: string;
+    ENGINE_RANGE_INVALID: string;
+    ENGINE_UNSUPPORTED: string;
+    PATH_OUTSIDE_PACKAGE: string;
+    BANNER_NOT_16_9: string;
+    ENTRY_REQUIRED: string;
+    ENTRY_UNUSED: string;
+    PERMISSION_REQUIRED: string;
+    PERMISSION_UNUSED: string;
+    NETWORK_LOCAL_NOT_PRIVATE: string;
+    DUPLICATE_ID: string;
+    MENU_COMMAND_UNKNOWN: string;
+    ROUTE_DUPLICATE: string;
+    LINK_PATTERN_TOO_BROAD: string;
+    PROVIDER_PLAY_NEEDS_SEARCH: string;
+    PROVIDER_MISMATCH: string;
+    SETTING_DEFAULT_INVALID: string;
+    SETTING_RANGE_INVALID: string;
+    SETTING_OPTION_DUPLICATE: string;
+    LISTING_FIELD_REQUIRED: string;
+    LISTING_LICENSE: string;
+    LISTING_REPOSITORY: string;
+    LISTING_SCREENSHOTS: string;
+    LISTING_ACQUISITION: string;
+};
+
+MANIFEST_FILE:
+export declare const MANIFEST_FILE = "songstress.json";
+
+MANIFEST_PROFILES:
+export declare const MANIFEST_PROFILES: readonly ManifestProfile[];
+
+MANIFEST_SCHEMA:
+export declare const MANIFEST_SCHEMA: SchemaNode;
+
+MANIFEST_SCHEMA_ID:
+export declare const MANIFEST_SCHEMA_ID: string;
+
+MAX_MANIFEST_BYTES:
+export declare const MAX_MANIFEST_BYTES: number;
+
+MAX_MANIFEST_DEPTH:
+export declare const MAX_MANIFEST_DEPTH = 16;
+
+MENU_LOCATIONS:
+export declare const MENU_LOCATIONS: readonly MenuLocation[];
+
+Manifest:
+export interface Manifest {
+    $schema?: string;
+    manifestVersion: 1;
+    id: ExtensionId;
+    name: string;
+    version: string;
+    description: string;
+    engines: Engines;
+    license?: string;
+    repository?: HttpsUrl;
+    sponsor?: Sponsor;
+    categories?: Category[];
+    keywords?: Keyword[];
+    platforms?: Platform[];
+    icon?: Icon;
+    banner?: Banner;
+    screenshots?: Screenshot[];
+    entry?: Entry;
+    hooks?: Hooks;
+    permissions?: Permissions;
+    contributes?: Contributes;
+}
+
+ManifestErrorCode:
+export type ManifestErrorCode = keyof typeof MANIFEST_ERROR_CODES;
+
+ManifestIssue:
+export interface ManifestIssue {
+    code: ManifestErrorCode;
+    pointer: string;
+    message: string;
+}
+
+ManifestProfile:
+export type ManifestProfile = 'install' | 'listing';
+
+ManifestResult:
+export type ManifestResult = {
+    valid: true;
+    manifest: Manifest;
+    issues: [
+    ];
+} | {
+    valid: false;
+    issues: ManifestIssue[];
+};
+
+MenuItem:
+export interface MenuItem {
+    command: LocalId;
+}
+
+MenuItems:
+export type MenuItems = MenuItem[];
+
+MenuLocation: as above
+
+Menus:
+export interface Menus {
+    "song/context"?: MenuItems;
+    "album/context"?: MenuItems;
+    "artist/context"?: MenuItems;
+    "playlist/context"?: MenuItems;
+    "queue/item"?: MenuItems;
+    "player/actions"?: MenuItems;
+    sidebar?: MenuItems;
+    "settings/actions"?: MenuItems;
+}
+
+MetadataSource:
+export interface MetadataSource {
+    id: LocalId;
+    name?: Title;
+    group?: ProviderGroup;
+    supports: ("discography" | "enrich")[];
+}
+
+NetworkPermission:
+export interface NetworkPermission {
+    reason: Reason;
+    hosts: HostPattern[];
+}
+
+NumberSetting:
+export interface NumberSetting {
+    key: SettingKey;
+    type: "number";
+    title: Title;
+    description?: Sentence;
+    scope: SettingScope;
+    required?: boolean;
+    default?: number;
+    minimum?: number;
+    maximum?: number;
+    step?: number;
+}
+
+PANEL_LOCATIONS:
+export declare const PANEL_LOCATIONS: readonly PanelLocation[];
+
+PERMISSIONS:
+export declare const PERMISSIONS: readonly PermissionName[];
+
+PLATFORMS:
+export declare const PLATFORMS: readonly Platform[];
+
+PROVIDER_KINDS:
+export declare const PROVIDER_KINDS: readonly ProviderKind[];
+
+Page:
+export interface Page {
+    id: LocalId;
+    title: Title;
+    render: Side;
+    icon?: IconName;
+    sidebar?: boolean;
+}
+
+Panel:
+export interface Panel {
+    id: LocalId;
+    title: Title;
+    location: PanelLocation;
+    render: Side;
+}
+
+PanelLocation:
+export type PanelLocation = "now-playing" | "home" | "artist" | "album";
+
+Permission:
+export interface Permission {
+    reason: Reason;
+}
+
+PermissionName: as above
+
+Permissions:
+export interface Permissions {
+    network?: NetworkPermission;
+    "network.local"?: LocalNetworkPermission;
+    "library.read"?: Permission;
+    "users.read"?: Permission;
+    "listening.read"?: Permission;
+    "player.control"?: Permission;
+    providers?: Permission;
+    routes?: Permission;
+    jobs?: Permission;
+    storage?: Permission;
+    secrets?: Permission;
+}
+
+Platform: as above
+
+ProviderGroup: as above
+
+ProviderKind:
+export type ProviderKind = keyof SourcesByKind;
+
+Quality:
+export interface Quality {
+    id: LocalId;
+    title: Title;
+    lossless?: boolean;
+}
+
+RESERVED_PUBLISHERS:
+export declare const RESERVED_PUBLISHERS: readonly string[];
+
+Reason:
+export type Reason = string;
+
+RecommendSource:
+export interface RecommendSource {
+    id: LocalId;
+    name?: Title;
+    modes: ("track" | "artist" | "context")[];
+}
+
+Route:
+export interface Route {
+    id: LocalId;
+    method: "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
+    path: string;
+}
+
+SERVER_HOOKS:
+export declare const SERVER_HOOKS: readonly ServerHook[];
+
+Screenshot:
+export interface Screenshot {
+    path: string;
+    width: number;
+    height: number;
+    caption?: string;
+    platform?: Platform;
+}
+
+ScriptPath:
+export type ScriptPath = string;
+
+SearchSource:
+export interface SearchSource {
+    id: LocalId;
+    name?: Title;
+    group?: ProviderGroup;
+    types: CatalogType[];
+}
+
+SecretSetting:
+export interface SecretSetting {
+    key: SettingKey;
+    type: "secret";
+    title: Title;
+    description?: Sentence;
+    scope: "server" | "user";
+    required?: boolean;
+    placeholder?: Title;
+}
+
+SelectSetting:
+export interface SelectSetting {
+    key: SettingKey;
+    type: "select";
+    title: Title;
+    description?: Sentence;
+    scope: SettingScope;
+    required?: boolean;
+    default?: string;
+    options: SettingOption[];
+}
+
+Sentence:
+export type Sentence = string;
+
+ServerHook:
+export type ServerHook = "onPlay" | "onScrobble" | "onFavorite" | "onPlaylistChange" | "onLibraryChange" | "onScanComplete";
+
+Setting:
+export type Setting = StringSetting | SecretSetting | NumberSetting | BooleanSetting | SelectSetting;
+
+SettingKey:
+export type SettingKey = string;
+
+SettingOption:
+export interface SettingOption {
+    value: string;
+    title: Title;
+}
+
+SettingScope:
+export type SettingScope = "server" | "user" | "device";
+
+Side: as above
+
+SignIn:
+export interface SignIn {
+    scope: "server";
+    title?: Title;
+}
+
+Source:
+export interface Source {
+    id: LocalId;
+    name?: Title;
+}
+
+SourcesByKind:
+export interface SourcesByKind {
+    search?: SearchSource[];
+    lookup?: LookupSource[];
+    links?: LinkSource[];
+    lyrics?: Source[];
+    metadata?: MetadataSource[];
+    artwork?: ArtworkSource[];
+    scrobble?: Source[];
+    recommend?: RecommendSource[];
+    play?: Source[];
+    download?: DownloadSource[];
+}
+
+Sponsor:
+export interface Sponsor {
+    url: HttpsUrl;
+}
+
+StringSetting:
+export interface StringSetting {
+    key: SettingKey;
+    type: "string";
+    title: Title;
+    description?: Sentence;
+    scope: SettingScope;
+    required?: boolean;
+    default?: string;
+    placeholder?: Title;
+    maxLength?: number;
+}
+
+Theme:
+export interface Theme {
+    id: LocalId;
+    label: Title;
+    path: string;
+}
+
+Title:
+export type Title = string;
+
+UNSAFE_CODE_POINTS:
+export declare const UNSAFE_CODE_POINTS: readonly (readonly [
+    from: number,
+    to: number
+])[];
+
+ValidateOptions:
+export interface ValidateOptions {
+    profile?: ManifestProfile;
+    apiVersion?: string;
+}
+
+Version:
+export interface Version {
+    readonly major: number;
+    readonly minor: number;
+    readonly patch: number;
+    readonly prerelease: readonly string[];
+    readonly build: string;
+}
+
+VersionRange:
+export interface VersionRange {
+    readonly from: Version;
+    readonly before: Version | null;
+    readonly exact: boolean;
+}
+
+View:
+export interface View {
+    id: LocalId;
+    title: Title;
+    path: string;
+    icon?: IconName;
+    sidebar?: boolean;
+}
+
+compareVersions:
+export declare function compareVersions(a: Version, b: Version): number;
+
+parseManifest:
+export declare function parseManifest(input: string | Uint8Array, options?: ValidateOptions): ManifestResult;
+
+parseRange:
+export declare function parseRange(text: string): VersionRange | null;
+
+parseVersion:
+export declare function parseVersion(text: string): Version | null;
+
+satisfiesRange:
+export declare function satisfiesRange(version: Version, range: VersionRange): boolean;
+
+validateManifest:
+export declare function validateManifest(value: unknown, options?: ValidateOptions): ManifestResult;
+
+== songstress/testing ==
+
+HookArguments:
+export type HookArguments<Name extends HookName> = ArgumentsOf<ListenerOf<ServerHooks, Name> | ListenerOf<ClientHooks, Name>>;
+
+HookName:
+export type HookName = keyof ServerHooks | keyof ClientHooks;
+
+MockCall:
+export interface MockCall {
+    readonly member: string;
+    readonly args: readonly unknown[];
+}
+
+MockHost:
+export interface MockHost {
+    readonly calls: readonly MockCall[];
+    readonly requests: readonly MockRequest[];
+    emit<Name extends HookName>(hook: Name, ...args: HookArguments<Name>): Promise<void>;
+    run(command: string, input?: unknown, context?: Partial<CommandContext>): Promise<CommandOutcome | undefined>;
+    provider<Kind extends keyof Providers>(kind: Kind, id: string): ProviderOf<Kind>;
+    registered<Handler = unknown>(member: string, id?: string): Handler;
+    remove(): void;
+}
+
+MockHostOptions:
+export interface MockHostOptions {
+    side?: Side;
+    manifest?: MockManifest;
+    settings?: Record<string, SettingValue | undefined | ((userId: string | undefined) => SettingValue | undefined)>;
+    fetch?: (url: string, request: NetRequest) => Awaitable<Partial<NetResponse>>;
+    answers?: Record<string, (...args: never[]) => unknown>;
+}
+
+MockManifest:
+export interface MockManifest {
+    readonly id?: string;
+    readonly version?: string;
+    readonly hooks?: {
+        readonly server?: readonly string[];
+        readonly client?: readonly string[];
+    };
+    readonly permissions?: object;
+}
+
+MockRequest:
+export interface MockRequest {
+    readonly url: string;
+    readonly request: NetRequest;
+}
+
+ProviderOf:
+export type ProviderOf<Kind extends keyof Providers> = Providers[Kind] extends ProviderRegistry<infer Provider> ? Provider : never;
+
+createMockHost:
+export declare function createMockHost(options?: MockHostOptions): MockHost;
+
+== members ==
+
+shared hooks.onPlay needs listening.read
+shared commands.register needs nothing
+shared ui.pages.register needs nothing
+shared ui.panels.register needs nothing
+shared settings.get needs nothing
+shared settings.onChange needs nothing
+shared storage.get needs storage
+shared storage.set needs storage
+shared storage.delete needs storage
+shared storage.keys needs storage
+shared net.fetch needs network
+shared host.info needs nothing
+server hooks.onPlay needs listening.read
+server hooks.onScrobble needs listening.read
+server hooks.onFavorite needs listening.read
+server hooks.onPlaylistChange needs library.read
+server hooks.onLibraryChange needs library.read
+server hooks.onScanComplete needs library.read
+server commands.register needs nothing
+server ui.pages.register needs nothing
+server ui.panels.register needs nothing
+server settings.get needs nothing
+server settings.onChange needs nothing
+server storage.get needs storage
+server storage.set needs storage
+server storage.delete needs storage
+server storage.keys needs storage
+server net.fetch needs network
+server host.info needs nothing
+server secrets.get needs secrets
+server secrets.set needs secrets
+server secrets.delete needs secrets
+server providers.search.register needs providers
+server providers.lookup.register needs providers
+server providers.links.register needs providers
+server providers.lyrics.register needs providers
+server providers.metadata.register needs providers
+server providers.artwork.register needs providers
+server providers.scrobble.register needs providers
+server providers.recommend.register needs providers
+server providers.play.register needs providers
+server providers.download.register needs providers
+server jobs.register needs jobs
+server jobs.start needs jobs
+server routes.register needs routes
+server signIn.register needs secrets
+server library.getSong needs library.read
+server library.getAlbum needs library.read
+server library.getArtist needs library.read
+server library.getPlaylist needs library.read
+server library.getAlbumSongs needs library.read
+server library.getPlaylistSongs needs library.read
+server library.search needs library.read
+server users.get needs users.read
+server users.list needs users.read
+client hooks.onPlay needs listening.read
+client hooks.onPause needs listening.read
+client hooks.onTrackChange needs listening.read
+client hooks.onSeek needs listening.read
+client hooks.onVolumeChange needs nothing
+client hooks.onQueueChange needs listening.read
+client hooks.onProgress needs listening.read
+client commands.register needs nothing
+client commands.execute needs nothing
+client ui.pages.register needs nothing
+client ui.panels.register needs nothing
+client settings.get needs nothing
+client settings.onChange needs nothing
+client storage.get needs storage
+client storage.set needs storage
+client storage.delete needs storage
+client storage.keys needs storage
+client net.fetch needs network
+client host.info needs nothing
+client player.getState needs listening.read
+client player.play needs player.control
+client player.pause needs player.control
+client player.next needs player.control
+client player.previous needs player.control
+client player.seek needs player.control
+client queue.get needs listening.read
+client queue.add needs player.control

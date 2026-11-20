@@ -1,0 +1,34 @@
+{
+  "manifestVersion": 1,
+  "id": "acme.example",
+  "name": "Example",
+  "version": "1.0.0",
+  "description": "An example extension.",
+  "engines": {
+    "songstress": "^0.1.0"
+  },
+  "contributes": {
+    "settings": [
+      {
+        "key": "a",
+        "type": "select",
+        "title": "A",
+        "scope": "user",
+        "options": [
+          {
+            "value": "x",
+            "title": "X"
+          },
+          {
+            "value": "y",
+            "title": "Y"
+          },
+          {
+            "value": "x",
+            "title": "X again"
+          }
+        ]
+      }
+    ]
+  }
+}

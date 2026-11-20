@@ -1,0 +1,10 @@
+{
+  "manifestVersion": 1,
+  "id": "acme.example",
+  "name": "Example",
+  "version": "1.0.0",
+  "description": "An example extension.",
+  "engines": {
+    "songstress": ">=2.0.0 <1.0.0"
+  }
+}

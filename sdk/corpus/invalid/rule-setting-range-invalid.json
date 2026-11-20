@@ -1,0 +1,22 @@
+{
+  "manifestVersion": 1,
+  "id": "acme.example",
+  "name": "Example",
+  "version": "1.0.0",
+  "description": "An example extension.",
+  "engines": {
+    "songstress": "^0.1.0"
+  },
+  "contributes": {
+    "settings": [
+      {
+        "key": "a",
+        "type": "number",
+        "title": "A",
+        "scope": "user",
+        "minimum": 10,
+        "maximum": 5
+      }
+    ]
+  }
+}

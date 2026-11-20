@@ -1,0 +1,81 @@
+{
+  "manifestVersion": 1,
+  "id": "acme.example",
+  "name": "Example",
+  "version": "1.0.0",
+  "description": "An example extension.",
+  "engines": {
+    "songstress": "^0.1.0"
+  },
+  "hooks": {
+    "server": [
+      "onScrobble"
+    ],
+    "client": [
+      "onVolumeChange"
+    ]
+  },
+  "permissions": {
+    "listening.read": {
+      "reason": "Needed for what the extension does."
+    },
+    "providers": {
+      "reason": "Needed for what the extension does."
+    },
+    "jobs": {
+      "reason": "Needed for what the extension does."
+    },
+    "routes": {
+      "reason": "Needed for what the extension does."
+    }
+  },
+  "contributes": {
+    "commands": [
+      {
+        "id": "a",
+        "title": "A",
+        "run": "server"
+      },
+      {
+        "id": "b",
+        "title": "B",
+        "run": "client"
+      }
+    ],
+    "pages": [
+      {
+        "id": "c",
+        "title": "C",
+        "render": "server"
+      }
+    ],
+    "panels": [
+      {
+        "id": "d",
+        "title": "D",
+        "location": "home",
+        "render": "client"
+      }
+    ],
+    "providers": {
+      "lyrics": [
+        {
+          "id": "e"
+        }
+      ]
+    },
+    "jobs": [
+      {
+        "id": "f",
+        "title": "F"
+      }
+    ],
+    "routes": [
+      {
+        "id": "g",
+        "method": "GET",
+        "path": "/g"
+      }
+    ]
+  }
+}

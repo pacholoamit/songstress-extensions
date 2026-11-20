@@ -1,0 +1,73 @@
+{
+  "manifestVersion": 1,
+  "id": "acme.example",
+  "name": "Example",
+  "version": "1.0.0",
+  "description": "An example extension.",
+  "engines": {
+    "songstress": "^0.1.0"
+  },
+  "entry": {
+    "server": "dist/server.js"
+  },
+  "hooks": {
+    "server": [
+      "onScrobble"
+    ]
+  },
+  "permissions": {
+    "listening.read": {
+      "reason": "Needed for what the extension does."
+    },
+    "jobs": {
+      "reason": "Needed for what the extension does."
+    },
+    "routes": {
+      "reason": "Needed for what the extension does."
+    },
+    "providers": {
+      "reason": "Needed for what the extension does."
+    }
+  },
+  "contributes": {
+    "jobs": [
+      {
+        "id": "sync",
+        "title": "Syncing",
+        "every": "30s"
+      }
+    ],
+    "routes": [
+      {
+        "id": "list",
+        "method": "GET",
+        "path": "charts"
+      }
+    ],
+    "providers": {
+      "links": [
+        {
+          "id": "links",
+          "patterns": [
+            "https://example.com/album/"
+          ]
+        }
+      ]
+    },
+    "commands": [
+      {
+        "id": "Do_It",
+        "title": "Do it",
+        "run": "server"
+      }
+    ],
+    "settings": [
+      {
+        "key": "api-key",
+        "type": "string",
+        "title": "Key",
+        "scope": "server"
+      }
+    ]
+  }
+}

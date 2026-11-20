@@ -1,0 +1,83 @@
+{
+  "manifestVersion": 1,
+  "id": "prism.spectrum",
+  "name": "Spectrum",
+  "version": "0.3.1",
+  "description": "A now-playing panel that moves with the music, and a page of its own.",
+  "engines": {
+    "songstress": "~0.1.0"
+  },
+  "platforms": [
+    "web",
+    "desktop"
+  ],
+  "categories": [
+    "visualisers"
+  ],
+  "entry": {
+    "client": "dist/client.js"
+  },
+  "hooks": {
+    "client": [
+      "onPlay",
+      "onPause",
+      "onTrackChange",
+      "onSeek",
+      "onVolumeChange",
+      "onProgress"
+    ]
+  },
+  "permissions": {
+    "listening.read": {
+      "reason": "Follow the song playing on this device."
+    }
+  },
+  "contributes": {
+    "panels": [
+      {
+        "id": "bars",
+        "title": "Spectrum",
+        "location": "now-playing",
+        "render": "client"
+      }
+    ],
+    "views": [
+      {
+        "id": "stage",
+        "title": "Spectrum stage",
+        "path": "views/stage.html",
+        "icon": "sparkles",
+        "sidebar": true
+      }
+    ],
+    "settings": [
+      {
+        "key": "style",
+        "type": "select",
+        "title": "Style",
+        "scope": "device",
+        "default": "bars",
+        "options": [
+          {
+            "value": "bars",
+            "title": "Bars"
+          },
+          {
+            "value": "wave",
+            "title": "Wave"
+          }
+        ]
+      },
+      {
+        "key": "sensitivity",
+        "type": "number",
+        "title": "Sensitivity",
+        "scope": "device",
+        "default": 5,
+        "minimum": 1,
+        "maximum": 10,
+        "step": 1
+      }
+    ]
+  }
+}

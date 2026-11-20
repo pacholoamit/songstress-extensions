@@ -1,0 +1,29 @@
+{
+  "manifestVersion": 1,
+  "id": "acme.tunelog-account",
+  "name": "Tunelog Account",
+  "version": "1.0.0",
+  "description": "Signs this server in to Tunelog, for what its other extensions ask of it.",
+  "engines": {
+    "songstress": "^0.1.0"
+  },
+  "entry": {
+    "server": "dist/server.js"
+  },
+  "permissions": {
+    "network": {
+      "reason": "Reach Tunelog to sign in.",
+      "hosts": [
+        "api.tunelog.example"
+      ]
+    },
+    "secrets": {
+      "reason": "Keep the tokens Tunelog hands out."
+    }
+  },
+  "contributes": {
+    "signIn": {
+      "scope": "server"
+    }
+  }
+}

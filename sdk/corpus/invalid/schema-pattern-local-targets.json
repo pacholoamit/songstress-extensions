@@ -1,0 +1,35 @@
+{
+  "manifestVersion": 1,
+  "id": "acme.example",
+  "name": "Example",
+  "version": "1.0.0",
+  "description": "An example extension.",
+  "engines": {
+    "songstress": "^0.1.0"
+  },
+  "entry": {
+    "server": "dist/server.js"
+  },
+  "hooks": {
+    "server": [
+      "onScrobble"
+    ]
+  },
+  "permissions": {
+    "listening.read": {
+      "reason": "Needed for what the extension does."
+    },
+    "network.local": {
+      "reason": "Needed for what the extension does.",
+      "targets": [
+        "nas.local",
+        "300.1.1.1",
+        "192.168.1.0/33",
+        "fe80::1",
+        "192.168.1.1/24:80",
+        "NAS.local",
+        "http://nas.local"
+      ]
+    }
+  }
+}

@@ -1,0 +1,167 @@
+{
+  "manifestVersion": 1,
+  "id": "acme.example",
+  "name": "Example",
+  "version": "1.0.0",
+  "description": "An example extension.",
+  "engines": {
+    "songstress": "^0.1.0"
+  },
+  "entry": {
+    "server": "dist/server.js"
+  },
+  "permissions": {
+    "providers": {
+      "reason": "Needed for what the extension does."
+    },
+    "jobs": {
+      "reason": "Needed for what the extension does."
+    },
+    "routes": {
+      "reason": "Needed for what the extension does."
+    },
+    "listening.read": {
+      "reason": "Send each member's plays to the service."
+    }
+  },
+  "contributes": {
+    "commands": [
+      {
+        "id": "a",
+        "title": "A",
+        "run": "server"
+      },
+      {
+        "id": "a",
+        "title": "A again",
+        "run": "server"
+      }
+    ],
+    "pages": [
+      {
+        "id": "p",
+        "title": "P",
+        "render": "server"
+      }
+    ],
+    "views": [
+      {
+        "id": "v",
+        "title": "V",
+        "path": "v.html"
+      },
+      {
+        "id": "p",
+        "title": "A view named like the page",
+        "path": "p.html"
+      }
+    ],
+    "panels": [
+      {
+        "id": "n",
+        "title": "N",
+        "location": "home",
+        "render": "server"
+      },
+      {
+        "id": "m",
+        "title": "M",
+        "location": "home",
+        "render": "server"
+      },
+      {
+        "id": "n",
+        "title": "N again",
+        "location": "album",
+        "render": "server"
+      }
+    ],
+    "themes": [
+      {
+        "id": "t",
+        "label": "T",
+        "path": "t.json"
+      },
+      {
+        "id": "t",
+        "label": "T again",
+        "path": "t2.json"
+      }
+    ],
+    "jobs": [
+      {
+        "id": "j",
+        "title": "J"
+      },
+      {
+        "id": "j",
+        "title": "J again"
+      }
+    ],
+    "routes": [
+      {
+        "id": "r",
+        "method": "GET",
+        "path": "/r"
+      },
+      {
+        "id": "r",
+        "method": "POST",
+        "path": "/r"
+      }
+    ],
+    "settings": [
+      {
+        "key": "s",
+        "type": "boolean",
+        "title": "S",
+        "scope": "user"
+      },
+      {
+        "key": "s",
+        "type": "string",
+        "title": "S again",
+        "scope": "server"
+      }
+    ],
+    "providers": {
+      "lyrics": [
+        {
+          "id": "x"
+        },
+        {
+          "id": "x"
+        }
+      ],
+      "scrobble": [
+        {
+          "id": "x"
+        }
+      ],
+      "download": [
+        {
+          "id": "x",
+          "qualities": [
+            {
+              "id": "q",
+              "title": "Q"
+            },
+            {
+              "id": "q",
+              "title": "Q again"
+            }
+          ]
+        },
+        {
+          "id": "y",
+          "qualities": [
+            {
+              "id": "q",
+              "title": "Q of another source"
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

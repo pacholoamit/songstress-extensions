@@ -1,0 +1,50 @@
+{
+  "manifestVersion": 1,
+  "id": "acme.example",
+  "name": "Example",
+  "version": "1.0.0",
+  "description": "An example extension.",
+  "engines": {
+    "songstress": "^0.1.0"
+  },
+  "entry": {
+    "server": "dist/server.js"
+  },
+  "hooks": {
+    "server": [
+      "onScrobble"
+    ]
+  },
+  "permissions": {
+    "listening.read": {
+      "reason": "Needed for what the extension does."
+    },
+    "routes": {
+      "reason": "Needed for what the extension does."
+    }
+  },
+  "contributes": {
+    "routes": [
+      {
+        "id": "a",
+        "method": "GET",
+        "path": "/charts/:period"
+      },
+      {
+        "id": "b",
+        "method": "POST",
+        "path": "/charts/:period"
+      },
+      {
+        "id": "c",
+        "method": "GET",
+        "path": "/charts/:range"
+      },
+      {
+        "id": "d",
+        "method": "GET",
+        "path": "/charts/week"
+      }
+    ]
+  }
+}

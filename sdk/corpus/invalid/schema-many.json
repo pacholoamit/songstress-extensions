@@ -1,0 +1,18 @@
+{
+  "manifestVersion": 1,
+  "id": "acme.example",
+  "name": "",
+  "version": 1,
+  "engines": {
+    "songstress": "^0.1.0"
+  },
+  "banana": true,
+  "keywords": [
+    "Loud"
+  ],
+  "platforms": [
+    "web",
+    "web",
+    "tv"
+  ]
+}

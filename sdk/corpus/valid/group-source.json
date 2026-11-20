@@ -1,0 +1,72 @@
+{
+  "manifestVersion": 1,
+  "id": "harbor.spotify-web",
+  "name": "Spotify Web",
+  "version": "1.10.4",
+  "description": "Reads Spotify's catalogue for listeners who have not connected an account.",
+  "engines": {
+    "songstress": ">=0.1.0 <0.2.0-0"
+  },
+  "entry": {
+    "server": "dist/server.js"
+  },
+  "permissions": {
+    "network": {
+      "reason": "Reach Spotify's public catalogue.",
+      "hosts": [
+        "open.spotify.com",
+        "api.spotify.com",
+        "api-partner.spotify.com"
+      ]
+    },
+    "providers": {
+      "reason": "Answer in the Spotify group, beside Songstress's own."
+    }
+  },
+  "contributes": {
+    "providers": {
+      "search": [
+        {
+          "id": "spotify-web",
+          "group": "spotify",
+          "types": [
+            "track",
+            "album",
+            "artist",
+            "playlist"
+          ]
+        }
+      ],
+      "lookup": [
+        {
+          "id": "spotify-web",
+          "group": "spotify",
+          "types": [
+            "track",
+            "album",
+            "artist"
+          ]
+        }
+      ],
+      "links": [
+        {
+          "id": "spotify-web",
+          "group": "spotify",
+          "patterns": [
+            "open.spotify.com",
+            "spotify:"
+          ]
+        }
+      ],
+      "metadata": [
+        {
+          "id": "spotify-web",
+          "group": "spotify",
+          "supports": [
+            "enrich"
+          ]
+        }
+      ]
+    }
+  }
+}

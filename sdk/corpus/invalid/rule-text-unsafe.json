@@ -1,0 +1,52 @@
+{
+  "manifestVersion": 1,
+  "id": "acme.example",
+  "name": "Tune\u202egol",
+  "version": "1.0.0",
+  "description": "Line one.\nLine two.",
+  "engines": {
+    "songstress": "^0.1.0"
+  },
+  "screenshots": [
+    {
+      "path": "a.png",
+      "width": 800,
+      "height": 600,
+      "caption": "Tab\there"
+    }
+  ],
+  "permissions": {
+    "storage": {
+      "reason": "Keep\u200byour\u200bsettings."
+    }
+  },
+  "entry": {
+    "server": "dist/server.js"
+  },
+  "contributes": {
+    "commands": [
+      {
+        "id": "go",
+        "title": "\ufeffGo",
+        "run": "server"
+      }
+    ],
+    "settings": [
+      {
+        "key": "a",
+        "type": "string",
+        "title": "Tagged\udb40\udc41",
+        "scope": "user",
+        "placeholder": "Deleted \u007f",
+        "default": "bell\u0007"
+      },
+      {
+        "key": "b",
+        "type": "string",
+        "title": "Isolate \u2066x\u2069",
+        "scope": "user",
+        "description": "Joined\u2060words"
+      }
+    ]
+  }
+}

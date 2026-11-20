@@ -1,0 +1,32 @@
+{
+  "$schema": "https://songstress.app/schema/extension/v1.json",
+  "manifestVersion": 1,
+  "id": "songstress.soundcloud",
+  "name": "SoundCloud",
+  "version": "1.0.0",
+  "description": "Search SoundCloud, open its tracks, sets and artists from a link, and acquire the tracks it streams in full.",
+  "engines": { "songstress": "^0.1.0" },
+  "license": "LGPL-3.0-only",
+  "repository": "https://github.com/pacholoamit/songstress-extensions",
+  "categories": ["sources"],
+  "keywords": ["soundcloud"],
+  "entry": { "server": "dist/server.js" },
+  "permissions": {
+    "network": {
+      "reason": "Reach SoundCloud's site and API, and the servers its audio streams from.",
+      "hosts": ["soundcloud.com", "api-v2.soundcloud.com", "on.soundcloud.com", "m.soundcloud.com", "*.sndcdn.com", "*.media-streaming.soundcloud.cloud"]
+    },
+    "providers": { "reason": "Add SoundCloud's results beside Songstress's own sources." },
+    "storage": { "reason": "Keep the client id SoundCloud's site hands out, rather than ask for it on every search." }
+  },
+  "contributes": {
+    "providers": {
+      "search": [{ "id": "soundcloud", "types": ["track", "album", "artist", "playlist"] }],
+      "lookup": [{ "id": "soundcloud", "types": ["track", "album", "artist", "playlist"] }],
+      "links": [{ "id": "soundcloud", "patterns": ["soundcloud.com"] }],
+      "metadata": [{ "id": "soundcloud", "supports": ["enrich"] }],
+      "play": [{ "id": "soundcloud" }],
+      "download": [{ "id": "soundcloud", "qualities": [{ "id": "aac-160", "title": "AAC up to 160 kbps" }] }]
+    }
+  }
+}

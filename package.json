@@ -1,0 +1,24 @@
+{
+  "name": "songstress-extensions",
+  "private": true,
+  "description": "Songstress's official extensions, one folder each, each released on its own (<id>@<version>), and the signed index every Songstress server reads, published on the index branch.",
+  "license": "SEE LICENSE IN README.md",
+  "type": "module",
+  "packageManager": "pnpm@9.15.9",
+  "engines": {
+    "node": ">=24.3"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit && pnpm --dir sdk typecheck",
+    "lint": "oxlint && pnpm --dir sdk lint",
+    "test": "vitest run && pnpm --dir sdk test",
+    "check": "songstress check ."
+  },
+  "devDependencies": {
+    "@types/node": "^24.19.2",
+    "oxlint": "^1.89.0",
+    "songstress": "workspace:sdk",
+    "typescript": "~6.0.3",
+    "vitest": "^5.0.5"
+  }
+}

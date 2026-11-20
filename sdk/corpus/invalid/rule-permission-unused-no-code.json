@@ -1,0 +1,33 @@
+{
+  "manifestVersion": 1,
+  "id": "acme.example",
+  "name": "Example",
+  "version": "1.0.0",
+  "description": "An example extension.",
+  "engines": {
+    "songstress": "^0.1.0"
+  },
+  "permissions": {
+    "network": {
+      "reason": "Needed for what the extension does.",
+      "hosts": [
+        "example.com"
+      ]
+    },
+    "storage": {
+      "reason": "Needed for what the extension does."
+    },
+    "listening.read": {
+      "reason": "Needed for what the extension does."
+    }
+  },
+  "contributes": {
+    "themes": [
+      {
+        "id": "a",
+        "label": "A",
+        "path": "a.json"
+      }
+    ]
+  }
+}

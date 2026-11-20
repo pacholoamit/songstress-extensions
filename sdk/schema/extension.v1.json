@@ -1,0 +1,1168 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://songstress.app/schema/extension/v1.json",
+  "title": "Songstress extension manifest",
+  "description": "The songstress.json file at the root of an extension's package: what the extension is, how it is listed, the code it ships, the permissions it asks for and everything it adds to Songstress.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["manifestVersion", "id", "name", "version", "description", "engines"],
+  "properties": {
+    "$schema": {
+      "description": "The address of this schema, so an editor can check the file as you type.",
+      "type": "string",
+      "maxLength": 200
+    },
+    "manifestVersion": {
+      "description": "The version of the manifest format. Always 1.",
+      "const": 1
+    },
+    "id": {
+      "description": "The extension's identity, as publisher.name. It never changes once the extension is installed anywhere.",
+      "$ref": "#/$defs/extensionId"
+    },
+    "name": {
+      "description": "The name people see.",
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 50
+    },
+    "version": {
+      "description": "The extension's own version, as a semantic version (1.4.0). A release is tagged with it.",
+      "type": "string",
+      "minLength": 5,
+      "maxLength": 64
+    },
+    "description": {
+      "description": "One or two sentences on what the extension does, shown under its name.",
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 160
+    },
+    "engines": {
+      "description": "The extension API the extension was written for.",
+      "$ref": "#/$defs/engines"
+    },
+    "license": {
+      "description": "The licence of the extension's code, as an SPDX identifier (MIT, Apache-2.0).",
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9.+-]*$",
+      "maxLength": 64
+    },
+    "repository": {
+      "description": "Where the source lives.",
+      "$ref": "#/$defs/httpsUrl"
+    },
+    "sponsor": {
+      "description": "Where people can support the author.",
+      "$ref": "#/$defs/sponsor"
+    },
+    "categories": {
+      "description": "The one category the extension is listed under.",
+      "type": "array",
+      "items": { "$ref": "#/$defs/category" },
+      "minItems": 1,
+      "maxItems": 1
+    },
+    "keywords": {
+      "description": "Free tags that help people find the extension.",
+      "type": "array",
+      "items": { "$ref": "#/$defs/keyword" },
+      "maxItems": 10,
+      "uniqueItems": true
+    },
+    "platforms": {
+      "description": "The Songstress apps the extension's interface and client code work in. Left out, it means all of them. Code in the server entry reaches every app whatever this says.",
+      "type": "array",
+      "items": { "$ref": "#/$defs/platform" },
+      "minItems": 1,
+      "maxItems": 4,
+      "uniqueItems": true
+    },
+    "icon": {
+      "description": "The extension's icon.",
+      "$ref": "#/$defs/icon"
+    },
+    "banner": {
+      "description": "The wide image on the extension's card.",
+      "$ref": "#/$defs/banner"
+    },
+    "screenshots": {
+      "description": "Captures of the extension at work. The official list asks for three to six.",
+      "type": "array",
+      "items": { "$ref": "#/$defs/screenshot" },
+      "minItems": 1,
+      "maxItems": 6
+    },
+    "entry": {
+      "description": "The extension's code: one JavaScript bundle for each side it runs on.",
+      "$ref": "#/$defs/entry"
+    },
+    "hooks": {
+      "description": "The hooks the extension's code listens to. Songstress starts the code when one of them fires.",
+      "$ref": "#/$defs/hooks"
+    },
+    "permissions": {
+      "description": "What the extension asks to be allowed to do. Nothing is allowed unless it is asked for here and then granted by a person.",
+      "$ref": "#/$defs/permissions"
+    },
+    "contributes": {
+      "description": "What the extension adds to Songstress.",
+      "$ref": "#/$defs/contributes"
+    }
+  },
+  "$defs": {
+    "extensionId": {
+      "description": "publisher.name, each part in lowercase letters, digits and single hyphens.",
+      "type": "string",
+      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*\\.[a-z0-9]+(?:-[a-z0-9]+)*$",
+      "maxLength": 80
+    },
+    "localId": {
+      "description": "A name unique among its kind inside one extension: lowercase letters, digits and single hyphens, starting with a letter.",
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$",
+      "maxLength": 40
+    },
+    "settingKey": {
+      "description": "A setting's name as code reads it: letters and digits, starting with a lowercase letter.",
+      "type": "string",
+      "pattern": "^[a-z][a-zA-Z0-9]*$",
+      "maxLength": 40
+    },
+    "iconName": {
+      "description": "A name from Songstress's icon set. A name an app does not know is drawn as the extension mark.",
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$",
+      "maxLength": 40
+    },
+    "title": {
+      "description": "A short label, on one line.",
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 60
+    },
+    "sentence": {
+      "description": "A sentence or two, on one line.",
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 160
+    },
+    "httpsUrl": {
+      "description": "An https address.",
+      "type": "string",
+      "pattern": "^https://[A-Za-z0-9._~:/?#@!$&'()*+,;=%[\\]-]+$",
+      "maxLength": 300
+    },
+    "sponsor": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["url"],
+      "properties": {
+        "url": {
+          "description": "The page where people can support the author.",
+          "$ref": "#/$defs/httpsUrl"
+        }
+      }
+    },
+    "engines": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["songstress"],
+      "properties": {
+        "songstress": {
+          "description": "The versions of the extension API the extension runs on, as a range: ^1.2.0, ~1.2.0, >=1.2.0, >=1.2.0 <2.0.0 or one exact version. Never *.",
+          "type": "string",
+          "minLength": 5,
+          "maxLength": 64
+        }
+      }
+    },
+    "category": {
+      "description": "A category of the official list.",
+      "enum": [
+        "sources",
+        "lyrics",
+        "metadata-artwork",
+        "scrobbling-stats",
+        "discovery",
+        "playback-audio",
+        "visualisers",
+        "themes",
+        "social-jam",
+        "library-tools",
+        "integrations",
+        "server-worker"
+      ]
+    },
+    "keyword": {
+      "description": "A tag: lowercase letters and digits, with single dots or hyphens between them.",
+      "type": "string",
+      "pattern": "^[a-z0-9]+(?:[.-][a-z0-9]+)*$",
+      "maxLength": 30
+    },
+    "platform": {
+      "description": "A Songstress app: the web app, the desktop app, the iPhone and iPad app, the Android app.",
+      "enum": ["web", "desktop", "ios", "android"]
+    },
+    "side": {
+      "description": "Where code runs: in the server entry or in the client entry.",
+      "enum": ["server", "client"]
+    },
+    "icon": {
+      "description": "A square PNG of 512 by 512 pixels.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "width", "height"],
+      "properties": {
+        "path": {
+          "description": "The PNG file, from the package root.",
+          "type": "string",
+          "pattern": "\\.png$",
+          "maxLength": 200
+        },
+        "width": { "description": "The image's width in pixels: 512.", "const": 512 },
+        "height": { "description": "The image's height in pixels: 512.", "const": 512 }
+      }
+    },
+    "banner": {
+      "description": "A 16:9 image, from 1280 by 720 up to 3840 by 2160 pixels.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "width", "height"],
+      "properties": {
+        "path": {
+          "description": "The PNG, JPEG or WebP file, from the package root.",
+          "type": "string",
+          "pattern": "\\.(?:png|jpg|jpeg|webp)$",
+          "maxLength": 200
+        },
+        "width": { "description": "The image's width in pixels.", "type": "integer", "minimum": 1280, "maximum": 3840 },
+        "height": { "description": "The image's height in pixels.", "type": "integer", "minimum": 720, "maximum": 2160 }
+      }
+    },
+    "screenshot": {
+      "description": "One capture, with the size it really has.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "width", "height"],
+      "properties": {
+        "path": {
+          "description": "The PNG, JPEG or WebP file, from the package root.",
+          "type": "string",
+          "pattern": "\\.(?:png|jpg|jpeg|webp)$",
+          "maxLength": 200
+        },
+        "width": { "description": "The image's width in pixels.", "type": "integer", "minimum": 320, "maximum": 3840 },
+        "height": { "description": "The image's height in pixels.", "type": "integer", "minimum": 320, "maximum": 3840 },
+        "caption": {
+          "description": "What the capture shows, also read aloud by screen readers.",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 120
+        },
+        "platform": {
+          "description": "The app the capture was taken in.",
+          "$ref": "#/$defs/platform"
+        }
+      }
+    },
+    "entry": {
+      "type": "object",
+      "additionalProperties": false,
+      "minProperties": 1,
+      "properties": {
+        "server": {
+          "description": "The bundle that runs on the user's server, in a sandbox. It hears every app's plays and does the work that must go on while no app is open.",
+          "$ref": "#/$defs/scriptPath"
+        },
+        "client": {
+          "description": "The bundle that runs inside an app while it is open, in a sandbox. It follows this device's player live. An app may not run client code at all: what must work everywhere belongs in the server entry.",
+          "$ref": "#/$defs/scriptPath"
+        }
+      }
+    },
+    "scriptPath": {
+      "description": "One JavaScript file, from the package root.",
+      "type": "string",
+      "pattern": "\\.js$",
+      "maxLength": 200
+    },
+    "hooks": {
+      "type": "object",
+      "additionalProperties": false,
+      "minProperties": 1,
+      "properties": {
+        "server": {
+          "description": "Hooks the server entry listens to.",
+          "type": "array",
+          "items": { "$ref": "#/$defs/serverHook" },
+          "minItems": 1,
+          "maxItems": 6,
+          "uniqueItems": true
+        },
+        "client": {
+          "description": "Hooks the client entry listens to.",
+          "type": "array",
+          "items": { "$ref": "#/$defs/clientHook" },
+          "minItems": 1,
+          "maxItems": 7,
+          "uniqueItems": true
+        }
+      }
+    },
+    "serverHook": {
+      "description": "A hook of the server entry.",
+      "enum": ["onPlay", "onScrobble", "onFavorite", "onPlaylistChange", "onLibraryChange", "onScanComplete"]
+    },
+    "clientHook": {
+      "description": "A hook of the client entry.",
+      "enum": ["onPlay", "onPause", "onTrackChange", "onSeek", "onVolumeChange", "onQueueChange", "onProgress"]
+    },
+    "reason": {
+      "description": "Why the extension needs this, in words the person granting it will read.",
+      "type": "string",
+      "minLength": 10,
+      "maxLength": 200
+    },
+    "permission": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["reason"],
+      "properties": {
+        "reason": { "$ref": "#/$defs/reason" }
+      }
+    },
+    "networkPermission": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["reason", "hosts"],
+      "properties": {
+        "reason": { "$ref": "#/$defs/reason" },
+        "hosts": {
+          "description": "The public hosts the extension may reach, over http or https.",
+          "type": "array",
+          "items": { "$ref": "#/$defs/hostPattern" },
+          "minItems": 1,
+          "maxItems": 20,
+          "uniqueItems": true
+        }
+      }
+    },
+    "hostPattern": {
+      "description": "A public host by name (api.example.com), or every host under a domain (*.example.com), with an optional port. Never an address, a scheme or a path.",
+      "type": "string",
+      "pattern": "^(?:\\*\\.)?(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\\.)+(?:[a-z]{2,63}|xn--[a-z0-9-]{1,59})(?::(?:6553[0-5]|655[0-2][0-9]|65[0-4][0-9]{2}|6[0-4][0-9]{3}|[1-5][0-9]{4}|[1-9][0-9]{0,3}))?$",
+      "maxLength": 260
+    },
+    "localNetworkPermission": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["reason"],
+      "properties": {
+        "reason": { "$ref": "#/$defs/reason" },
+        "targets": {
+          "description": "The targets on the user's own network the extension asks for. Left out, the admin names them when granting.",
+          "type": "array",
+          "items": { "$ref": "#/$defs/localTarget" },
+          "minItems": 1,
+          "maxItems": 20,
+          "uniqueItems": true
+        }
+      }
+    },
+    "localTarget": {
+      "description": "A target on the user's own network: an IPv4 address (192.168.1.20), a block of them (192.168.1.0/24) or a host name (nas.local), the address and the name with an optional port.",
+      "type": "string",
+      "pattern": "^(?:(?:(?:25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])\\.){3}(?:25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])(?:/(?:3[0-2]|[12]?[0-9])|:(?:6553[0-5]|655[0-2][0-9]|65[0-4][0-9]{2}|6[0-4][0-9]{3}|[1-5][0-9]{4}|[1-9][0-9]{0,3}))?|(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\\.)*[a-z](?:[a-z0-9-]{0,61}[a-z0-9])?(?::(?:6553[0-5]|655[0-2][0-9]|65[0-4][0-9]{2}|6[0-4][0-9]{3}|[1-5][0-9]{4}|[1-9][0-9]{0,3}))?)$",
+      "maxLength": 260
+    },
+    "permissions": {
+      "type": "object",
+      "additionalProperties": false,
+      "minProperties": 1,
+      "properties": {
+        "network": {
+          "description": "Reach the named public hosts.",
+          "$ref": "#/$defs/networkPermission"
+        },
+        "network.local": {
+          "description": "Reach targets on the user's own network.",
+          "$ref": "#/$defs/localNetworkPermission"
+        },
+        "library.read": {
+          "description": "Read the catalogue and hear when it changes.",
+          "$ref": "#/$defs/permission"
+        },
+        "users.read": {
+          "description": "Read members' ids and display names.",
+          "$ref": "#/$defs/permission"
+        },
+        "listening.read": {
+          "description": "Read a member's plays, what they are playing now and what they like. Each member grants it for themselves.",
+          "$ref": "#/$defs/permission"
+        },
+        "player.control": {
+          "description": "Start, pause, skip and seek the player of the device the code runs on, and add to its queue.",
+          "$ref": "#/$defs/permission"
+        },
+        "providers": {
+          "description": "Answer beside Songstress's own sources.",
+          "$ref": "#/$defs/permission"
+        },
+        "routes": {
+          "description": "Serve its own signed-in routes.",
+          "$ref": "#/$defs/permission"
+        },
+        "jobs": {
+          "description": "Run scheduled and background work.",
+          "$ref": "#/$defs/permission"
+        },
+        "storage": {
+          "description": "Keep its own data, under a quota.",
+          "$ref": "#/$defs/permission"
+        },
+        "secrets": {
+          "description": "Keep its own credentials, sealed.",
+          "$ref": "#/$defs/permission"
+        }
+      }
+    },
+    "contributes": {
+      "type": "object",
+      "additionalProperties": false,
+      "minProperties": 1,
+      "properties": {
+        "commands": {
+          "description": "Named actions the extension's code carries out.",
+          "type": "array",
+          "items": { "$ref": "#/$defs/command" },
+          "minItems": 1,
+          "maxItems": 50
+        },
+        "menus": {
+          "description": "Where the extension's commands appear in the apps.",
+          "$ref": "#/$defs/menus"
+        },
+        "settings": {
+          "description": "The settings Songstress draws and keeps for the extension, in the order they are shown.",
+          "type": "array",
+          "items": { "$ref": "#/$defs/setting" },
+          "minItems": 1,
+          "maxItems": 50
+        },
+        "pages": {
+          "description": "Pages the apps draw from a tree of Songstress's own components.",
+          "type": "array",
+          "items": { "$ref": "#/$defs/page" },
+          "minItems": 1,
+          "maxItems": 20
+        },
+        "panels": {
+          "description": "Sections drawn inside Songstress's own screens.",
+          "type": "array",
+          "items": { "$ref": "#/$defs/panel" },
+          "minItems": 1,
+          "maxItems": 10
+        },
+        "views": {
+          "description": "Free-form pages: the extension's own HTML in a sandboxed frame. An app may not show them at all.",
+          "type": "array",
+          "items": { "$ref": "#/$defs/view" },
+          "minItems": 1,
+          "maxItems": 10
+        },
+        "themes": {
+          "description": "Theme files the extension ships.",
+          "type": "array",
+          "items": { "$ref": "#/$defs/theme" },
+          "minItems": 1,
+          "maxItems": 20
+        },
+        "providers": {
+          "description": "Sources the extension adds beside Songstress's own, by kind.",
+          "$ref": "#/$defs/sourcesByKind"
+        },
+        "jobs": {
+          "description": "Scheduled and background work, shown in Activity.",
+          "type": "array",
+          "items": { "$ref": "#/$defs/job" },
+          "minItems": 1,
+          "maxItems": 20
+        },
+        "routes": {
+          "description": "Signed-in JSON routes under the extension's own prefix.",
+          "type": "array",
+          "items": { "$ref": "#/$defs/route" },
+          "minItems": 1,
+          "maxItems": 50
+        },
+        "signIn": {
+          "description": "A sign-in to the service the extension reaches, which a person starts and ends in Songstress.",
+          "$ref": "#/$defs/signIn"
+        }
+      }
+    },
+    "command": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "title", "run"],
+      "properties": {
+        "id": {
+          "description": "The command's name. Code registers its handler under it.",
+          "$ref": "#/$defs/localId"
+        },
+        "title": {
+          "description": "The label on the menu item or button that runs it.",
+          "$ref": "#/$defs/title"
+        },
+        "run": {
+          "description": "The entry that holds the command's handler.",
+          "$ref": "#/$defs/side"
+        },
+        "description": {
+          "description": "What the command does.",
+          "$ref": "#/$defs/sentence"
+        },
+        "icon": {
+          "description": "The icon beside the title.",
+          "$ref": "#/$defs/iconName"
+        }
+      }
+    },
+    "menus": {
+      "type": "object",
+      "additionalProperties": false,
+      "minProperties": 1,
+      "properties": {
+        "song/context": {
+          "description": "A song's menu. The command receives the song.",
+          "$ref": "#/$defs/menuItems"
+        },
+        "album/context": {
+          "description": "An album's menu. The command receives the album.",
+          "$ref": "#/$defs/menuItems"
+        },
+        "artist/context": {
+          "description": "An artist's menu. The command receives the artist.",
+          "$ref": "#/$defs/menuItems"
+        },
+        "playlist/context": {
+          "description": "A playlist's menu. The command receives the playlist.",
+          "$ref": "#/$defs/menuItems"
+        },
+        "queue/item": {
+          "description": "The menu of a song waiting in the queue. The command receives the song.",
+          "$ref": "#/$defs/menuItems"
+        },
+        "player/actions": {
+          "description": "The player's own menu. The command receives the song that is playing.",
+          "$ref": "#/$defs/menuItems"
+        },
+        "sidebar": {
+          "description": "The sidebar of the web and desktop apps.",
+          "$ref": "#/$defs/menuItems"
+        },
+        "settings/actions": {
+          "description": "Buttons on the extension's own settings page.",
+          "$ref": "#/$defs/menuItems"
+        }
+      }
+    },
+    "menuItems": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/menuItem" },
+      "minItems": 1,
+      "maxItems": 10,
+      "uniqueItems": true
+    },
+    "menuItem": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["command"],
+      "properties": {
+        "command": {
+          "description": "The id of one of the extension's commands.",
+          "$ref": "#/$defs/localId"
+        }
+      }
+    },
+    "settingScope": {
+      "description": "Who a setting belongs to: the whole server (the admin sets it), each member, or each device.",
+      "enum": ["server", "user", "device"]
+    },
+    "setting": {
+      "description": "One setting. Its type decides the control Songstress draws and what else it may say.",
+      "type": "object",
+      "required": ["type"],
+      "properties": {
+        "type": { "enum": ["string", "secret", "number", "boolean", "select"] }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "type": { "const": "string" } }, "required": ["type"] },
+          "then": { "$ref": "#/$defs/stringSetting" }
+        },
+        {
+          "if": { "properties": { "type": { "const": "secret" } }, "required": ["type"] },
+          "then": { "$ref": "#/$defs/secretSetting" }
+        },
+        {
+          "if": { "properties": { "type": { "const": "number" } }, "required": ["type"] },
+          "then": { "$ref": "#/$defs/numberSetting" }
+        },
+        {
+          "if": { "properties": { "type": { "const": "boolean" } }, "required": ["type"] },
+          "then": { "$ref": "#/$defs/booleanSetting" }
+        },
+        {
+          "if": { "properties": { "type": { "const": "select" } }, "required": ["type"] },
+          "then": { "$ref": "#/$defs/selectSetting" }
+        }
+      ]
+    },
+    "stringSetting": {
+      "description": "A line of text.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["key", "type", "title", "scope"],
+      "properties": {
+        "key": { "description": "The name code reads the setting by.", "$ref": "#/$defs/settingKey" },
+        "type": { "const": "string" },
+        "title": { "description": "The setting's label.", "$ref": "#/$defs/title" },
+        "description": { "description": "A line of help under the label.", "$ref": "#/$defs/sentence" },
+        "scope": { "$ref": "#/$defs/settingScope" },
+        "required": {
+          "description": "Songstress asks for it, and does not start the extension for whoever lacks it: anyone, a member or a device, by its scope.",
+          "type": "boolean"
+        },
+        "default": { "description": "The value until someone sets one.", "type": "string", "maxLength": 2000 },
+        "placeholder": { "description": "The hint shown while the field is empty.", "$ref": "#/$defs/title" },
+        "maxLength": {
+          "description": "The longest value accepted, in characters.",
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 2000
+        }
+      }
+    },
+    "secretSetting": {
+      "description": "A password, key or token. Songstress seals it, never shows it again and never sends it to an app. A device cannot keep one.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["key", "type", "title", "scope"],
+      "properties": {
+        "key": { "description": "The name code reads the setting by.", "$ref": "#/$defs/settingKey" },
+        "type": { "const": "secret" },
+        "title": { "description": "The setting's label.", "$ref": "#/$defs/title" },
+        "description": { "description": "A line of help under the label.", "$ref": "#/$defs/sentence" },
+        "scope": {
+          "description": "Who the secret belongs to: the whole server or each member.",
+          "enum": ["server", "user"]
+        },
+        "required": {
+          "description": "Songstress asks for it, and does not start the extension for whoever lacks it: anyone, a member or a device, by its scope.",
+          "type": "boolean"
+        },
+        "placeholder": { "description": "The hint shown while the field is empty.", "$ref": "#/$defs/title" }
+      }
+    },
+    "numberSetting": {
+      "description": "A number.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["key", "type", "title", "scope"],
+      "properties": {
+        "key": { "description": "The name code reads the setting by.", "$ref": "#/$defs/settingKey" },
+        "type": { "const": "number" },
+        "title": { "description": "The setting's label.", "$ref": "#/$defs/title" },
+        "description": { "description": "A line of help under the label.", "$ref": "#/$defs/sentence" },
+        "scope": { "$ref": "#/$defs/settingScope" },
+        "required": {
+          "description": "Songstress asks for it, and does not start the extension for whoever lacks it: anyone, a member or a device, by its scope.",
+          "type": "boolean"
+        },
+        "default": { "description": "The value until someone sets one.", "type": "number" },
+        "minimum": { "description": "The smallest value accepted.", "type": "number" },
+        "maximum": { "description": "The largest value accepted.", "type": "number" },
+        "step": {
+          "description": "The distance between two values the control offers.",
+          "type": "number",
+          "exclusiveMinimum": 0
+        }
+      }
+    },
+    "booleanSetting": {
+      "description": "A switch.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["key", "type", "title", "scope"],
+      "properties": {
+        "key": { "description": "The name code reads the setting by.", "$ref": "#/$defs/settingKey" },
+        "type": { "const": "boolean" },
+        "title": { "description": "The setting's label.", "$ref": "#/$defs/title" },
+        "description": { "description": "A line of help under the label.", "$ref": "#/$defs/sentence" },
+        "scope": { "$ref": "#/$defs/settingScope" },
+        "default": { "description": "The value until someone sets one.", "type": "boolean" }
+      }
+    },
+    "selectSetting": {
+      "description": "One choice from a list.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["key", "type", "title", "scope", "options"],
+      "properties": {
+        "key": { "description": "The name code reads the setting by.", "$ref": "#/$defs/settingKey" },
+        "type": { "const": "select" },
+        "title": { "description": "The setting's label.", "$ref": "#/$defs/title" },
+        "description": { "description": "A line of help under the label.", "$ref": "#/$defs/sentence" },
+        "scope": { "$ref": "#/$defs/settingScope" },
+        "required": {
+          "description": "Songstress asks for it, and does not start the extension for whoever lacks it: anyone, a member or a device, by its scope.",
+          "type": "boolean"
+        },
+        "default": { "description": "The value of the option chosen until someone picks one.", "type": "string", "maxLength": 80 },
+        "options": {
+          "description": "The choices, in the order they are shown.",
+          "type": "array",
+          "items": { "$ref": "#/$defs/settingOption" },
+          "minItems": 1,
+          "maxItems": 50
+        }
+      }
+    },
+    "settingOption": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["value", "title"],
+      "properties": {
+        "value": { "description": "What code reads when this option is chosen.", "type": "string", "minLength": 1, "maxLength": 80 },
+        "title": { "description": "The option's label.", "$ref": "#/$defs/title" }
+      }
+    },
+    "page": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "title", "render"],
+      "properties": {
+        "id": {
+          "description": "The page's name. Code registers its renderer under it, and it is the page's address.",
+          "$ref": "#/$defs/localId"
+        },
+        "title": { "description": "The page's heading.", "$ref": "#/$defs/title" },
+        "render": {
+          "description": "The entry that builds the page's tree. A page built in the server entry shows in every app.",
+          "$ref": "#/$defs/side"
+        },
+        "icon": { "description": "The icon of the page's sidebar entry.", "$ref": "#/$defs/iconName" },
+        "sidebar": {
+          "description": "Give the page an entry in the sidebar of the web and desktop apps.",
+          "type": "boolean"
+        }
+      }
+    },
+    "panelLocation": {
+      "description": "The Songstress screen a panel is drawn in: the player's now-playing view, Home, an artist's page or an album's page.",
+      "enum": ["now-playing", "home", "artist", "album"]
+    },
+    "panel": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "title", "location", "render"],
+      "properties": {
+        "id": {
+          "description": "The panel's name. Code registers its renderer under it.",
+          "$ref": "#/$defs/localId"
+        },
+        "title": { "description": "The panel's heading.", "$ref": "#/$defs/title" },
+        "location": { "$ref": "#/$defs/panelLocation" },
+        "render": {
+          "description": "The entry that builds the panel's tree.",
+          "$ref": "#/$defs/side"
+        }
+      }
+    },
+    "view": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "title", "path"],
+      "properties": {
+        "id": {
+          "description": "The view's name, and its address.",
+          "$ref": "#/$defs/localId"
+        },
+        "title": { "description": "The view's heading.", "$ref": "#/$defs/title" },
+        "path": {
+          "description": "The HTML file the frame opens, from the package root.",
+          "type": "string",
+          "pattern": "\\.html$",
+          "maxLength": 200
+        },
+        "icon": { "description": "The icon of the view's sidebar entry.", "$ref": "#/$defs/iconName" },
+        "sidebar": {
+          "description": "Give the view an entry in the sidebar of the web and desktop apps.",
+          "type": "boolean"
+        }
+      }
+    },
+    "theme": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "label", "path"],
+      "properties": {
+        "id": { "description": "The theme file's name inside the extension.", "$ref": "#/$defs/localId" },
+        "label": { "description": "The name of the theme family, as the picker shows it.", "$ref": "#/$defs/title" },
+        "path": {
+          "description": "The theme file, from the package root: a family of colour variants as JSON.",
+          "type": "string",
+          "pattern": "\\.json$",
+          "maxLength": 200
+        }
+      }
+    },
+    "catalogType": {
+      "description": "A kind of thing a source lists.",
+      "enum": ["track", "album", "artist", "playlist"]
+    },
+    "providerGroup": {
+      "description": "One of Songstress's own catalogues. A source that reads the same catalogue joins its group and speaks its ids.",
+      "enum": ["musicbrainz", "spotify", "deezer", "tidal", "itunes", "ytmusic"]
+    },
+    "sourcesByKind": {
+      "type": "object",
+      "additionalProperties": false,
+      "minProperties": 1,
+      "properties": {
+        "search": {
+          "description": "Sources that answer a search.",
+          "type": "array",
+          "items": { "$ref": "#/$defs/searchSource" },
+          "minItems": 1,
+          "maxItems": 5
+        },
+        "lookup": {
+          "description": "Sources that open one track, album, artist or playlist by its id.",
+          "type": "array",
+          "items": { "$ref": "#/$defs/lookupSource" },
+          "minItems": 1,
+          "maxItems": 5
+        },
+        "links": {
+          "description": "Sources that read a pasted link.",
+          "type": "array",
+          "items": { "$ref": "#/$defs/linkSource" },
+          "minItems": 1,
+          "maxItems": 5
+        },
+        "lyrics": {
+          "description": "Sources of lyrics.",
+          "type": "array",
+          "items": { "$ref": "#/$defs/source" },
+          "minItems": 1,
+          "maxItems": 5
+        },
+        "metadata": {
+          "description": "Sources of facts about artists, releases and tracks.",
+          "type": "array",
+          "items": { "$ref": "#/$defs/metadataSource" },
+          "minItems": 1,
+          "maxItems": 5
+        },
+        "artwork": {
+          "description": "Sources of artist photos and album covers.",
+          "type": "array",
+          "items": { "$ref": "#/$defs/artworkSource" },
+          "minItems": 1,
+          "maxItems": 5
+        },
+        "scrobble": {
+          "description": "Services that plays are reported to.",
+          "type": "array",
+          "items": { "$ref": "#/$defs/source" },
+          "minItems": 1,
+          "maxItems": 5
+        },
+        "recommend": {
+          "description": "Sources of recommendations.",
+          "type": "array",
+          "items": { "$ref": "#/$defs/recommendSource" },
+          "minItems": 1,
+          "maxItems": 5
+        },
+        "play": {
+          "description": "Sources that can play what their own search found. Switched off until the admin turns each on.",
+          "type": "array",
+          "items": { "$ref": "#/$defs/source" },
+          "minItems": 1,
+          "maxItems": 5
+        },
+        "download": {
+          "description": "Sources songs can be acquired from. Switched off until the admin turns each on.",
+          "type": "array",
+          "items": { "$ref": "#/$defs/downloadSource" },
+          "minItems": 1,
+          "maxItems": 5
+        }
+      }
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id"],
+      "properties": {
+        "id": {
+          "description": "The source's name inside the extension. Code registers the provider under it; the same id under several kinds is one source.",
+          "$ref": "#/$defs/localId"
+        },
+        "name": {
+          "description": "The source's name as people read it. Left out, it is the extension's name.",
+          "$ref": "#/$defs/title"
+        }
+      }
+    },
+    "searchSource": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "types"],
+      "properties": {
+        "id": {
+          "description": "The source's name inside the extension. Code registers the provider under it; the same id under several kinds is one source.",
+          "$ref": "#/$defs/localId"
+        },
+        "name": {
+          "description": "The source's name as people read it. Left out, it is the extension's name.",
+          "$ref": "#/$defs/title"
+        },
+        "group": {
+          "description": "The catalogue of Songstress's own whose results this source's are merged with. Left out, the source is a group of its own.",
+          "$ref": "#/$defs/providerGroup"
+        },
+        "types": {
+          "description": "What a search can find.",
+          "type": "array",
+          "items": { "$ref": "#/$defs/catalogType" },
+          "minItems": 1,
+          "maxItems": 4,
+          "uniqueItems": true
+        }
+      }
+    },
+    "lookupSource": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "types"],
+      "properties": {
+        "id": {
+          "description": "The source's name inside the extension. Code registers the provider under it; the same id under several kinds is one source.",
+          "$ref": "#/$defs/localId"
+        },
+        "name": {
+          "description": "The source's name as people read it. Left out, it is the extension's name.",
+          "$ref": "#/$defs/title"
+        },
+        "group": {
+          "description": "The catalogue of Songstress's own whose ids this source speaks. Left out, the source is a group of its own.",
+          "$ref": "#/$defs/providerGroup"
+        },
+        "types": {
+          "description": "What it can open by id.",
+          "type": "array",
+          "items": { "$ref": "#/$defs/catalogType" },
+          "minItems": 1,
+          "maxItems": 4,
+          "uniqueItems": true
+        }
+      }
+    },
+    "linkSource": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "patterns"],
+      "properties": {
+        "id": {
+          "description": "The source's name inside the extension. Code registers the provider under it; the same id under several kinds is one source.",
+          "$ref": "#/$defs/localId"
+        },
+        "name": {
+          "description": "The source's name as people read it. Left out, it is the extension's name.",
+          "$ref": "#/$defs/title"
+        },
+        "group": {
+          "description": "The catalogue of Songstress's own whose links this source reads. Left out, the source is a group of its own.",
+          "$ref": "#/$defs/providerGroup"
+        },
+        "patterns": {
+          "description": "The links it reads. The longest pattern that fits a link wins.",
+          "type": "array",
+          "items": { "$ref": "#/$defs/linkPattern" },
+          "minItems": 1,
+          "maxItems": 50,
+          "uniqueItems": true
+        }
+      }
+    },
+    "linkPattern": {
+      "description": "A host with an optional path that a link must begin with (soundcloud.com, example.com/album/), or an app link's scheme (spotify:). A host also takes links to the hosts under it.",
+      "type": "string",
+      "pattern": "^(?:[a-z][a-z0-9+.-]{1,30}:|(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\\.)+[a-z]{2,63}(?:/[A-Za-z0-9._~%/-]*)?)$",
+      "maxLength": 200
+    },
+    "metadataSource": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "supports"],
+      "properties": {
+        "id": {
+          "description": "The source's name inside the extension. Code registers the provider under it; the same id under several kinds is one source.",
+          "$ref": "#/$defs/localId"
+        },
+        "name": {
+          "description": "The source's name as people read it. Left out, it is the extension's name.",
+          "$ref": "#/$defs/title"
+        },
+        "group": {
+          "description": "The catalogue of Songstress's own whose artist ids this source speaks. Left out, the source is a group of its own.",
+          "$ref": "#/$defs/providerGroup"
+        },
+        "supports": {
+          "description": "What it answers: an artist's discography (their releases, their most played songs, a release's tracks), or the missing facts of one track.",
+          "type": "array",
+          "items": { "enum": ["discography", "enrich"] },
+          "minItems": 1,
+          "maxItems": 2,
+          "uniqueItems": true
+        }
+      }
+    },
+    "artworkSource": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "supports"],
+      "properties": {
+        "id": {
+          "description": "The source's name inside the extension. Code registers the provider under it; the same id under several kinds is one source.",
+          "$ref": "#/$defs/localId"
+        },
+        "name": {
+          "description": "The source's name as people read it. Left out, it is the extension's name.",
+          "$ref": "#/$defs/title"
+        },
+        "supports": {
+          "description": "The pictures it can find.",
+          "type": "array",
+          "items": { "enum": ["artist-photo", "album-cover"] },
+          "minItems": 1,
+          "maxItems": 2,
+          "uniqueItems": true
+        }
+      }
+    },
+    "recommendSource": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "modes"],
+      "properties": {
+        "id": {
+          "description": "The source's name inside the extension. Code registers the provider under it; the same id under several kinds is one source.",
+          "$ref": "#/$defs/localId"
+        },
+        "name": {
+          "description": "The source's name as people read it. Left out, it is the extension's name.",
+          "$ref": "#/$defs/title"
+        },
+        "modes": {
+          "description": "What it recommends from: one song, one artist, or a list of songs.",
+          "type": "array",
+          "items": { "enum": ["track", "artist", "context"] },
+          "minItems": 1,
+          "maxItems": 3,
+          "uniqueItems": true
+        }
+      }
+    },
+    "downloadSource": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "qualities"],
+      "properties": {
+        "id": {
+          "description": "The source's name inside the extension. Code registers the provider under it; the same id under several kinds is one source.",
+          "$ref": "#/$defs/localId"
+        },
+        "name": {
+          "description": "The source's name as people read it. Left out, it is the extension's name.",
+          "$ref": "#/$defs/title"
+        },
+        "qualities": {
+          "description": "The qualities it offers, best first. The admin picks one.",
+          "type": "array",
+          "items": { "$ref": "#/$defs/quality" },
+          "minItems": 1,
+          "maxItems": 20
+        }
+      }
+    },
+    "quality": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "title"],
+      "properties": {
+        "id": { "description": "The quality's name, as code receives it.", "$ref": "#/$defs/localId" },
+        "title": { "description": "The quality as people read it (AAC 256 kbps).", "$ref": "#/$defs/title" },
+        "lossless": { "description": "The audio is lossless.", "type": "boolean" }
+      }
+    },
+    "job": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "title"],
+      "properties": {
+        "id": {
+          "description": "The job's name. Code registers its handler under it.",
+          "$ref": "#/$defs/localId"
+        },
+        "title": { "description": "The job as Activity shows it.", "$ref": "#/$defs/title" },
+        "every": {
+          "description": "How often the job runs by itself: a number and m, h or d (15m, 6h, 1d). Left out, the job runs only when code starts it.",
+          "type": "string",
+          "pattern": "^[1-9][0-9]{0,3}[mhd]$"
+        }
+      }
+    },
+    "route": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "method", "path"],
+      "properties": {
+        "id": {
+          "description": "The route's name. Code registers its handler under it.",
+          "$ref": "#/$defs/localId"
+        },
+        "method": {
+          "description": "The HTTP method.",
+          "enum": ["GET", "POST", "PUT", "PATCH", "DELETE"]
+        },
+        "path": {
+          "description": "The path under the extension's own prefix: segments of lowercase letters, digits, dots, hyphens and underscores, or :name for a part the handler reads (/charts/:period).",
+          "type": "string",
+          "pattern": "^(?:/(?::[a-z][a-zA-Z0-9]{0,30}|[a-z0-9][a-z0-9._-]{0,60}))+$",
+          "maxLength": 200
+        }
+      }
+    },
+    "signIn": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["scope"],
+      "properties": {
+        "scope": {
+          "description": "Whose account it is. \"server\": one account for the whole server, which its admin signs in.",
+          "enum": ["server"]
+        },
+        "title": {
+          "description": "The service as the sign-in names it (Tunelog). Left out, the extension's name.",
+          "$ref": "#/$defs/title"
+        }
+      }
+    }
+  }
+}

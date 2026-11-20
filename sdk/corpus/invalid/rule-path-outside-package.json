@@ -1,0 +1,78 @@
+{
+  "manifestVersion": 1,
+  "id": "acme.example",
+  "name": "Example",
+  "version": "1.0.0",
+  "description": "An example extension.",
+  "engines": {
+    "songstress": "^0.1.0"
+  },
+  "icon": {
+    "path": "../icon.png",
+    "width": 512,
+    "height": 512
+  },
+  "banner": {
+    "path": "/srv/banner.png",
+    "width": 1280,
+    "height": 720
+  },
+  "screenshots": [
+    {
+      "path": "shots//one.png",
+      "width": 800,
+      "height": 600
+    },
+    {
+      "path": "shots\\two.png",
+      "width": 800,
+      "height": 600
+    },
+    {
+      "path": "C:/shots/three.png",
+      "width": 800,
+      "height": 600
+    },
+    {
+      "path": "./four.png",
+      "width": 800,
+      "height": 600
+    },
+    {
+      "path": "shots./five.png",
+      "width": 800,
+      "height": 600
+    },
+    {
+      "path": "shots/ok six.png",
+      "width": 800,
+      "height": 600
+    }
+  ],
+  "contributes": {
+    "views": [
+      {
+        "id": "a",
+        "title": "A",
+        "path": "views/%2e%2e/a.html"
+      },
+      {
+        "id": "b",
+        "title": "B",
+        "path": "views /b.html"
+      }
+    ],
+    "themes": [
+      {
+        "id": "c",
+        "label": "C",
+        "path": "themes/c?.json"
+      },
+      {
+        "id": "d",
+        "label": "D",
+        "path": "themes/d.json"
+      }
+    ]
+  }
+}

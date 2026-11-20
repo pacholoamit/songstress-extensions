@@ -1,0 +1,10 @@
+{
+  "manifestVersion": 1,
+  "id": "acme.example",
+  "name": "Café 音楽 🎵",
+  "version": "1.0.0",
+  "description": "¿Qué suena? 今何が 🎵",
+  "engines": {
+    "songstress": "^0.1.0"
+  }
+}

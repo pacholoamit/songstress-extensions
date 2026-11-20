@@ -1,0 +1,58 @@
+{
+  "$schema": "https://songstress.app/schema/extension/v1.json",
+  "manifestVersion": 1,
+  "id": "songstress.jiosaavn",
+  "name": "JioSaavn",
+  "version": "1.0.0",
+  "description": "Search JioSaavn, open its songs, albums, playlists and artists from a link, and acquire its songs in AAC.",
+  "engines": { "songstress": "^0.1.0" },
+  "license": "LGPL-3.0-only",
+  "repository": "https://github.com/pacholoamit/songstress-extensions",
+  "categories": ["sources"],
+  "keywords": ["jiosaavn", "india"],
+  "entry": { "server": "dist/server.js" },
+  "permissions": {
+    "network": {
+      "reason": "Reach JioSaavn's web API, and the server its audio is kept on.",
+      "hosts": ["www.jiosaavn.com", "aac.saavncdn.com"]
+    },
+    "providers": { "reason": "Add JioSaavn's results beside Songstress's own sources." }
+  },
+  "contributes": {
+    "settings": [
+      {
+        "key": "lang",
+        "type": "string",
+        "title": "Languages",
+        "description": "The languages JioSaavn searches in, by name and separated by commas: english, hindi, tamil.",
+        "scope": "server",
+        "default": "english",
+        "maxLength": 200
+      }
+    ],
+    "providers": {
+      "search": [{ "id": "jiosaavn", "types": ["track", "album", "artist", "playlist"] }],
+      "lookup": [{ "id": "jiosaavn", "types": ["track", "album", "artist", "playlist"] }],
+      "links": [
+        {
+          "id": "jiosaavn",
+          "patterns": ["jiosaavn.com/song/", "jiosaavn.com/album/", "jiosaavn.com/artist/", "jiosaavn.com/playlist/", "jiosaavn.com/s/playlist/", "jiosaavn.com/featured/"]
+        }
+      ],
+      "metadata": [{ "id": "jiosaavn", "supports": ["enrich"] }],
+      "play": [{ "id": "jiosaavn" }],
+      "download": [
+        {
+          "id": "jiosaavn",
+          "qualities": [
+            { "id": "aac-320", "title": "AAC 320 kbps" },
+            { "id": "aac-160", "title": "AAC 160 kbps" },
+            { "id": "aac-96", "title": "AAC 96 kbps" },
+            { "id": "aac-48", "title": "AAC 48 kbps" },
+            { "id": "aac-12", "title": "AAC 12 kbps" }
+          ]
+        }
+      ]
+    }
+  }
+}
