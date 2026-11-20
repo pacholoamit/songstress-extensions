@@ -132,6 +132,74 @@ describe('songstress check', () => {
     expect(lines.join('\n')).toContain('LISTING_FIELD_REQUIRED /icon')
   })
 
+  describe('a theme', () => {
+    const themed = (themes: unknown[]) =>
+      JSON.stringify({
+        manifestVersion: 1,
+        id: 'acme.dusk',
+        name: 'Dusk',
+        version: '1.0.0',
+        description: 'For the tests of songstress check.',
+        engines: { songstress: '^0.1.3' },
+        contributes: { themes },
+      })
+    const linesOf = async (files: Record<string, string>) => {
+      const root = folder(files)
+      return report(root, await check(root))
+    }
+
+    it('passes with looks the apps would show, written in the manifest or in its file, in any form of colour', async () => {
+      const file = JSON.stringify({ dark: { seed: 'hsl(141 61% 69%)' }, light: { colors: { accent: 'rgb(27 107 67)', border: '#0d1a121f' } } })
+      const { lines, ok } = await linesOf({
+        'songstress.json': themed([
+          { id: 'dusk', label: 'Dusk', appearance: 'dark', dark: { colors: { background: '#0a1510', accent: '#f5b556' } } },
+          { id: 'garden', label: 'Garden', appearance: 'both', path: 'themes/garden.json' },
+        ]),
+        'themes/garden.json': file,
+      })
+      expect(lines).toEqual(['ok    .: acme.dusk 1.0.0, released as v1.0.0 with acme.dusk-1.0.0.songstress'])
+      expect(ok).toBe(true)
+    })
+
+    it('fails a look an app would not show, at the look, and says by how much', async () => {
+      const { lines, ok } = await linesOf({
+        'songstress.json': themed([
+          { id: 'dim', label: 'Dim', appearance: 'dark', dark: { colors: { 'text.muted': 'rgb(51 51 51)' } } },
+          { id: 'glare', label: 'Glare', appearance: 'dark', dark: { colors: { background: 'hsl(0 0% 87%)' } } },
+        ]),
+      })
+      expect(ok).toBe(false)
+      expect(lines).toContain('        THEME_CONTRAST /contributes/themes/0/dark: text.muted on background is 1.66:1, under 4.50:1.')
+      expect(lines.some((line) => line.startsWith('        THEME_LUMINANCE /contributes/themes/1/dark: '))).toBe(true)
+    })
+
+    it('fails a colour of no form, or a translucent one where its place is opaque, at the colour', async () => {
+      const { lines, ok } = await linesOf({
+        'songstress.json': themed([
+          { id: 'haze', label: 'Haze', appearance: 'dark', dark: { colors: { text: 'rgba(250, 250, 250, 0.9)', accent: 'rgb(300, 70, 74)' } } },
+        ]),
+      })
+      expect(ok).toBe(false)
+      expect(lines).toContain('        THEME_COLOR_ALPHA /contributes/themes/0/dark/colors/text: "text" is translucent: only border and surface.hover may be.')
+      expect(lines.some((line) => line.startsWith('        THEME_COLOR /contributes/themes/0/dark/colors/accent: "rgb(300, 70, 74)" is not a colour'))).toBe(true)
+    })
+
+    it("fails a theme file the server would refuse, or a look in it, at the theme's path", async () => {
+      const { lines } = await linesOf({
+        'songstress.json': themed([
+          { id: 'paper', label: 'Paper', appearance: 'light', path: 'paper.json' },
+          { id: 'glare', label: 'Glare', appearance: 'dark', path: 'glare.json' },
+          { id: 'gone', label: 'Gone', appearance: 'dark', path: 'gone.json' },
+        ]),
+        'paper.json': JSON.stringify({ light: { colors: { accent: 'e50043' } } }),
+        'glare.json': JSON.stringify({ dark: { colors: { background: '#dddddd' } } }),
+      })
+      expect(lines.some((line) => line.startsWith('        SCHEMA_PATTERN /contributes/themes/0/path: paper.json at /light/colors/accent: "e50043" is not in the form asked here. Expected: A colour: #RGB,'))).toBe(true)
+      expect(lines.some((line) => line.startsWith('        THEME_LUMINANCE /contributes/themes/1/path: glare.json, dark: '))).toBe(true)
+      expect(lines).toContain("        THEME_FILE_MISSING /contributes/themes/2/path: The theme names gone.json, which is not in the extension's folder.")
+    })
+  })
+
   it('says so when the folder holds no extension at all', async () => {
     await expect(check(folder({ 'README.md': '#' }))).rejects.toThrow(/no songstress.json/)
   })

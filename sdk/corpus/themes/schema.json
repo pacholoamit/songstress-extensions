@@ -1,0 +1,10 @@
+{
+  "name": "Ember",
+  "dark": {
+    "colors": {
+      "text": "fafafa",
+      "surface.raised": "rgb(28 28 30"
+    },
+    "glow": []
+  }
+}

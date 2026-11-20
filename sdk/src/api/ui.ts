@@ -363,7 +363,9 @@ export interface InvokeAction {
 export interface NavigateAction {
   type: 'navigate'
   to: Destination
-  /** Left out, "page": pushed like any page. A sheet slides over the screen. */
+  /** Left out, "page": pushed like any page. A sheet slides over the screen.
+   * On the phones a sheet has no navigation bar, so a list or a grid that
+   * asks for `search` shows no search field there: present it as a page. */
   present?: 'page' | 'sheet'
 }
 

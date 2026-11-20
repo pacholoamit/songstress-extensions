@@ -20,6 +20,7 @@ export const MANIFEST_ERROR_CODES = {
   MANIFEST_TOO_DEEP: 'The manifest nests objects and lists more than 16 levels deep.',
   JSON_INVALID: 'The text is not UTF-8 JSON, or holds a number too large to read or a damaged character.',
   JSON_DUPLICATE_KEY: 'An object names the same key twice. The pointer names the key.',
+  THEME_FILE_TOO_LARGE: 'A theme file is larger than 16 KiB.',
 
   // ── schema: one code for each JSON Schema keyword that can fail ────────────
   SCHEMA_TYPE: 'A value is of the wrong type (keyword: type).',
@@ -57,6 +58,10 @@ export const MANIFEST_ERROR_CODES = {
   SETTING_DEFAULT_INVALID: "A setting's default is not a value the setting itself would accept.",
   SETTING_RANGE_INVALID: "A number setting's minimum is above its maximum.",
   SETTING_OPTION_DUPLICATE: 'Two options of a select setting share a value. The pointer names the later one.',
+  THEME_LOOKS:
+    "A theme's looks are not the ones its appearance names, or are written both in the manifest and in its file.",
+  THEME_COLOR: "A theme's colour is not one a theme may write, or a part of it is out of its range.",
+  THEME_COLOR_ALPHA: "A theme's colour is translucent where only border and surface.hover may be.",
 
   // ── listing ───────────────────────────────────────────────────────────────
   LISTING_FIELD_REQUIRED: 'A field the official list requires is missing. The pointer names the field.',

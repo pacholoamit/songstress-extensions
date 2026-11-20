@@ -20,12 +20,25 @@ const CASES: readonly (readonly [what: string, input: Uint8Array, profile: strin
 describe('the validator the published command carries', () => {
   it.each(CASES)('answers %s as the repository’s does', async (_what, input, profile) => {
     const [built, loaded] = await Promise.all([builtIn(), fromSources()])
-    expect(built(input, { profile })).toEqual(loaded(input, { profile }))
+    expect(built.validate(input, { profile })).toEqual(loaded.validate(input, { profile }))
+  })
+
+  it('reads a theme file and holds a look to the apps’ rules as the repository’s does', async () => {
+    const [built, loaded] = await Promise.all([builtIn(), fromSources()])
+    for (const file of ['{"dark": {"colors": {"accent": "#f5b556"}}}', '{"light": {}}', '{"dark": {"colors": {"text": "333"}}}']) {
+      expect(built.readThemeFile(bytes(file), 'dark'), file).toEqual(loaded.readThemeFile(bytes(file), 'dark'))
+    }
+    for (const look of [{ seed: '#7fe0a0' }, { colors: { 'text.muted': '#333333', border: '#ffffff1a' } }]) {
+      expect(built.checkLook('dark', look)).toEqual(loaded.checkLook('dark', look))
+    }
+    for (const look of [{ seed: 'hsl(141 61% 69%)' }, { colors: { border: 'rgb(255 255 255 / 10%)', accent: 'red' } }, 'dark']) {
+      expect(built.normalizeLook(look)).toEqual(loaded.normalizeLook(look))
+    }
   })
 
   it('refuses a profile there is none of, in the same words', async () => {
     const [built, loaded] = await Promise.all([builtIn(), fromSources()])
-    expect(() => built(EXAMPLE, { profile: 'lsiting' })).toThrow('unknown profile: lsiting')
-    expect(() => loaded(EXAMPLE, { profile: 'lsiting' })).toThrow('unknown profile: lsiting')
+    expect(() => built.validate(EXAMPLE, { profile: 'lsiting' })).toThrow('unknown profile: lsiting')
+    expect(() => loaded.validate(EXAMPLE, { profile: 'lsiting' })).toThrow('unknown profile: lsiting')
   })
 })

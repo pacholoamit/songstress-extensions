@@ -1,0 +1,55 @@
+{
+  "manifestVersion": 1,
+  "id": "nightowl.misspelt",
+  "name": "Misspelt",
+  "version": "1.0.0",
+  "description": "Looks with a colour cut short, a misspelt token, a colour's name, four glows, parts no look has, an unknown appearance and an empty look.",
+  "engines": {
+    "songstress": "^0.1.3"
+  },
+  "contributes": {
+    "themes": [
+      {
+        "id": "ember",
+        "label": "Ember",
+        "appearance": "dark",
+        "dark": {
+          "colors": {
+            "bacground": "#000000",
+            "border": "#27272a80",
+            "text.muted": "slategray",
+            "accent": "#ff464"
+          },
+          "glow": [
+            "#ff464a",
+            "#e50043",
+            "#aa002f",
+            "#5c0019"
+          ],
+          "artwork": {
+            "seed": "#ff464a"
+          }
+        }
+      },
+      {
+        "id": "linen",
+        "label": "Linen",
+        "appearance": "light",
+        "light": {
+          "colors": {
+            "accent": "#e50043"
+          },
+          "brand": {
+            "accent": "#e50043"
+          }
+        }
+      },
+      {
+        "id": "haze",
+        "label": "Haze",
+        "appearance": "auto",
+        "dark": {}
+      }
+    ]
+  }
+}

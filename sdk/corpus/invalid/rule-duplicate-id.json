@@ -80,11 +80,13 @@
       {
         "id": "t",
         "label": "T",
+        "appearance": "dark",
         "path": "t.json"
       },
       {
         "id": "t",
         "label": "T again",
+        "appearance": "dark",
         "path": "t2.json"
       }
     ],

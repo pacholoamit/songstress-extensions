@@ -20,6 +20,7 @@
       {
         "id": "a",
         "label": "A",
+        "appearance": "dark",
         "path": "themes/a.css"
       }
     ],

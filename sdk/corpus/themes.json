@@ -1,0 +1,115 @@
+{
+  "note": "Every theme file of the corpus with what a reader must answer for it, for a theme whose appearance is the one given. See README.md, \"Theme files\".",
+  "cases": [
+    {
+      "file": "themes/both.json",
+      "appearance": "both",
+      "valid": true,
+      "errors": [],
+      "note": "A dark look with every colour written, and a light one of four colours the rest is filled from."
+    },
+    {
+      "file": "themes/both.json",
+      "appearance": "dark",
+      "valid": false,
+      "errors": [
+        {
+          "code": "THEME_LOOKS",
+          "pointer": "/light"
+        }
+      ],
+      "note": "The same file for a dark theme, which has no light look."
+    },
+    {
+      "file": "themes/dark.json",
+      "appearance": "dark",
+      "valid": true,
+      "errors": [],
+      "note": "A dark look grown from a seed on a stage of its own, written as hsl(), with a translucent wash as rgb()."
+    },
+    {
+      "file": "themes/dark.json",
+      "appearance": "light",
+      "valid": false,
+      "errors": [
+        {
+          "code": "THEME_LOOKS",
+          "pointer": ""
+        },
+        {
+          "code": "THEME_LOOKS",
+          "pointer": "/dark"
+        }
+      ],
+      "note": "The same file for a light theme: it lacks the light look and has a dark one."
+    },
+    {
+      "file": "themes/not-json.json",
+      "appearance": "dark",
+      "valid": false,
+      "errors": [
+        {
+          "code": "JSON_INVALID",
+          "pointer": ""
+        }
+      ],
+      "note": "A trailing comma: not JSON."
+    },
+    {
+      "file": "themes/duplicate-key.json",
+      "appearance": "dark",
+      "valid": false,
+      "errors": [
+        {
+          "code": "JSON_DUPLICATE_KEY",
+          "pointer": "/dark/colors/accent"
+        }
+      ],
+      "note": "The accent written twice in one look."
+    },
+    {
+      "file": "themes/schema.json",
+      "appearance": "dark",
+      "valid": false,
+      "errors": [
+        {
+          "code": "SCHEMA_UNKNOWN_PROPERTY",
+          "pointer": "/name"
+        },
+        {
+          "code": "SCHEMA_PATTERN",
+          "pointer": "/dark/colors/text"
+        },
+        {
+          "code": "SCHEMA_PATTERN",
+          "pointer": "/dark/colors/surface.raised"
+        },
+        {
+          "code": "SCHEMA_ITEM_COUNT",
+          "pointer": "/dark/glow"
+        }
+      ],
+      "note": "What the schema refuses in a file: a name (the manifest gives it), a colour with no #, a colour left open, an empty glow."
+    },
+    {
+      "file": "themes/colors.json",
+      "appearance": "both",
+      "valid": false,
+      "errors": [
+        {
+          "code": "THEME_COLOR",
+          "pointer": "/dark/colors/accent"
+        },
+        {
+          "code": "THEME_COLOR_ALPHA",
+          "pointer": "/dark/colors/text"
+        },
+        {
+          "code": "THEME_COLOR_ALPHA",
+          "pointer": "/light/seed"
+        }
+      ],
+      "note": "A file whose looks are the ones its appearance names, with a colour that is none (hsl() with plain numbers between commas), a translucent text and a translucent seed. Its light look's translucent border passes."
+    }
+  ]
+}

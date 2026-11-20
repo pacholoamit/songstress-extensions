@@ -1,0 +1,381 @@
+{
+  "note": "Every form of colour a theme may write, each with its one form, and text that is no colour (SPEC.md, section 12, \"Colours\"). See README.md, \"Colours\".",
+  "translucent": [
+    "surface.hover",
+    "border"
+  ],
+  "valid": [
+    {
+      "value": "#abc",
+      "hex": "#aabbcc",
+      "note": "Three digits: each doubled."
+    },
+    {
+      "value": "#ABC",
+      "hex": "#aabbcc",
+      "note": "Either case; the one form is lower case."
+    },
+    {
+      "value": "#abcd",
+      "hex": "#aabbccdd",
+      "note": "Four digits: the fourth is the alpha."
+    },
+    {
+      "value": "#AABBCCFF",
+      "hex": "#aabbcc",
+      "note": "An alpha of FF is opaque, and the one form leaves it out."
+    },
+    {
+      "value": "#aabbcc80",
+      "hex": "#aabbcc80",
+      "note": "Eight digits: translucent."
+    },
+    {
+      "value": "#6CB6FF",
+      "hex": "#6cb6ff",
+      "note": "Six digits."
+    },
+    {
+      "value": "#fff0",
+      "hex": "#ffffff00",
+      "note": "Wholly transparent is translucent too."
+    },
+    {
+      "value": "rgb(108, 182, 255)",
+      "hex": "#6cb6ff",
+      "note": "Between commas."
+    },
+    {
+      "value": "rgb(108 182 255)",
+      "hex": "#6cb6ff",
+      "note": "Between spaces."
+    },
+    {
+      "value": "rgba(108, 182, 255, 0.5)",
+      "hex": "#6cb6ff80",
+      "note": "An alpha of 0 to 1, rounded to the nearest of 255 steps (127.5 is 128)."
+    },
+    {
+      "value": "rgb(108 182 255 / 50%)",
+      "hex": "#6cb6ff80",
+      "note": "An alpha after a slash, as a percentage."
+    },
+    {
+      "value": "rgb(100%, 0%, 50%)",
+      "hex": "#ff0080",
+      "note": "Channels as percentages, all of one kind between commas."
+    },
+    {
+      "value": "rgb(100% 0 50%)",
+      "hex": "#ff0080",
+      "note": "Between spaces, numbers and percentages may mix."
+    },
+    {
+      "value": "rgba(0, 0, 0, 1)",
+      "hex": "#000000",
+      "note": "An alpha of 1 is opaque."
+    },
+    {
+      "value": "rgba(0,0,0)",
+      "hex": "#000000",
+      "note": "rgba() without an alpha, as rgb()."
+    },
+    {
+      "value": "rgb(0, 0, 0, 0.25)",
+      "hex": "#00000040",
+      "note": "rgb() with an alpha, as rgba()."
+    },
+    {
+      "value": "rgb(  1 ,  2 , 3  )",
+      "hex": "#010203",
+      "note": "Space around the parts."
+    },
+    {
+      "value": "rgb(127.5, 0, 0)",
+      "hex": "#800000",
+      "note": "A channel with a fraction rounds half up."
+    },
+    {
+      "value": "rgb(+5, 0, 0)",
+      "hex": "#050000",
+      "note": "A plus sign."
+    },
+    {
+      "value": "rgb(.5, 0, 0)",
+      "hex": "#010000",
+      "note": "A fraction with no whole part."
+    },
+    {
+      "value": "rgb(0 0 0 / 0)",
+      "hex": "#00000000",
+      "note": "An alpha of 0."
+    },
+    {
+      "value": "rgb(238 245 238 / 8%)",
+      "hex": "#eef5ee14",
+      "note": "8% of 255 is 20.4, so 20 (14)."
+    },
+    {
+      "value": "rgb(255 255 255 / 10%)",
+      "hex": "#ffffff1a",
+      "note": "A hairline's wash."
+    },
+    {
+      "value": "hsl(210, 100%, 71%)",
+      "hex": "#6bb5ff",
+      "note": "Hue, saturation and lightness between commas, as CSS Color 4 turns them into red, green and blue."
+    },
+    {
+      "value": "hsl(210 100% 71%)",
+      "hex": "#6bb5ff",
+      "note": "Between spaces."
+    },
+    {
+      "value": "hsla(210, 100%, 71%, 0.5)",
+      "hex": "#6bb5ff80",
+      "note": "With an alpha."
+    },
+    {
+      "value": "hsl(210 100 71)",
+      "hex": "#6bb5ff",
+      "note": "Between spaces, saturation and lightness may be plain numbers of percent."
+    },
+    {
+      "value": "hsl(0.5turn 100% 50%)",
+      "hex": "#00ffff",
+      "note": "A hue in turns."
+    },
+    {
+      "value": "hsl(200grad 100% 50%)",
+      "hex": "#00ffff",
+      "note": "A hue in gradians."
+    },
+    {
+      "value": "hsl(3.14159rad 100% 50%)",
+      "hex": "#00ffff",
+      "note": "A hue in radians."
+    },
+    {
+      "value": "hsl(-120, 100%, 50%)",
+      "hex": "#0000ff",
+      "note": "A hue below 0 goes round."
+    },
+    {
+      "value": "hsl(480, 100%, 50%)",
+      "hex": "#00ff00",
+      "note": "A hue past 360 goes round."
+    },
+    {
+      "value": "hsl(36deg 89% 65%)",
+      "hex": "#f5b656",
+      "note": "A hue in degrees."
+    },
+    {
+      "value": "hsl(150 35% 6%)",
+      "hex": "#0a150f",
+      "note": "A dark stage."
+    },
+    {
+      "value": "hsl(0 0% 100% / 0.1)",
+      "hex": "#ffffff1a",
+      "note": "hsl() with an alpha after a slash."
+    },
+    {
+      "value": "hsla(0, 0%, 0%, 0%)",
+      "hex": "#00000000",
+      "note": "An alpha of 0%."
+    },
+    {
+      "value": "hsl(120, 0%, 50%)",
+      "hex": "#808080",
+      "note": "No saturation: a grey, whatever the hue."
+    },
+    {
+      "value": "hsl(60 100% 25%)",
+      "hex": "#808000",
+      "note": "Olive."
+    }
+  ],
+  "invalid": [
+    {
+      "value": "red",
+      "note": "A colour's name."
+    },
+    {
+      "value": "currentColor",
+      "note": "currentColor."
+    },
+    {
+      "value": "transparent",
+      "note": "transparent is a name too."
+    },
+    {
+      "value": "var(--accent)",
+      "note": "A custom property."
+    },
+    {
+      "value": "linear-gradient(red, blue)",
+      "note": "A gradient."
+    },
+    {
+      "value": "oklch(0.7 0.1 200)",
+      "note": "oklch() is not one of a theme's forms in this version."
+    },
+    {
+      "value": "#ab",
+      "note": "Two digits."
+    },
+    {
+      "value": "#abcde",
+      "note": "Five digits."
+    },
+    {
+      "value": "#ggg",
+      "note": "Not hex."
+    },
+    {
+      "value": "abc",
+      "note": "No #."
+    },
+    {
+      "value": "#",
+      "note": "No digits."
+    },
+    {
+      "value": "",
+      "note": "Nothing."
+    },
+    {
+      "value": " #abc",
+      "note": "Space before it."
+    },
+    {
+      "value": "#abc ",
+      "note": "Space after it."
+    },
+    {
+      "value": "RGB(1,2,3)",
+      "note": "A function's name in upper case."
+    },
+    {
+      "value": "rgb (1,2,3)",
+      "note": "Space before the parenthesis."
+    },
+    {
+      "value": "rgb(1,2)",
+      "note": "Two channels."
+    },
+    {
+      "value": "rgb(1,2,3,4,5)",
+      "note": "Five parts."
+    },
+    {
+      "value": "rgb(1 2 3 4)",
+      "note": "Four parts between spaces, with no slash."
+    },
+    {
+      "value": "rgb(1, 2 3)",
+      "note": "Commas and spaces mixed."
+    },
+    {
+      "value": "rgb(1,2,3 / 0.5)",
+      "note": "A slash between commas."
+    },
+    {
+      "value": "rgb(1 2 3 /)",
+      "note": "A slash with no alpha."
+    },
+    {
+      "value": "rgb(1 2 3 / 0.5 / 1)",
+      "note": "Two slashes."
+    },
+    {
+      "value": "rgb(256, 0, 0)",
+      "note": "A channel above 255."
+    },
+    {
+      "value": "rgb(-1, 0, 0)",
+      "note": "A channel below 0."
+    },
+    {
+      "value": "rgb(101%, 0%, 0%)",
+      "note": "A channel above 100%."
+    },
+    {
+      "value": "rgb(50%, 0, 0)",
+      "note": "Percentages and numbers mixed between commas."
+    },
+    {
+      "value": "rgba(0, 0, 0, 1.5)",
+      "note": "An alpha above 1."
+    },
+    {
+      "value": "rgba(0, 0, 0, -0.1)",
+      "note": "An alpha below 0."
+    },
+    {
+      "value": "rgb(0 0 0 / 101%)",
+      "note": "An alpha above 100%."
+    },
+    {
+      "value": "hsl(120, 50, 50)",
+      "note": "Between commas, saturation and lightness are percentages."
+    },
+    {
+      "value": "hsl(120deg, 100%, 101%)",
+      "note": "A lightness above 100%."
+    },
+    {
+      "value": "hsl(120, -1%, 50%)",
+      "note": "A saturation below 0%."
+    },
+    {
+      "value": "hsl(120px, 50%, 50%)",
+      "note": "A hue in a unit that is no angle."
+    },
+    {
+      "value": "rgb(10deg, 0, 0)",
+      "note": "An angle for a channel."
+    },
+    {
+      "value": "rgb(none 0 0)",
+      "note": "none, which this version leaves out."
+    },
+    {
+      "value": "rgb(1e2, 0, 0)",
+      "note": "A number with an exponent."
+    },
+    {
+      "value": "rgb(1., 0, 0)",
+      "note": "A number that ends in its dot."
+    },
+    {
+      "value": "rgb(0,0,0,)",
+      "note": "A comma with nothing after it."
+    },
+    {
+      "value": "hsl(120 50% 50% / 0.5 0.5)",
+      "note": "Two alphas."
+    },
+    {
+      "value": "rgb(0, 0, 0, 50deg)",
+      "note": "An angle for an alpha."
+    },
+    {
+      "value": "rgb(                                                            0 0 0)",
+      "note": "More than 64 characters."
+    },
+    {
+      "value": "rgb(,0,0)",
+      "note": "A part that is empty."
+    },
+    {
+      "value": "hsl(120 50% 50%, 1)",
+      "note": "Spaces, then a comma."
+    },
+    {
+      "value": "rgb(0 0 0)",
+      "note": "A no-break space, which is not CSS's whitespace."
+    }
+  ]
+}

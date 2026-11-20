@@ -62,7 +62,7 @@
       "profile": "install",
       "valid": true,
       "errors": [],
-      "note": "Themes and nothing else: no code, no permission."
+      "note": "Themes and nothing else: no code, no permission. One writes its dark look out, each colour in another of a theme's forms (hex of six, three or eight digits, rgb(), rgba(), hsl()), one grows from a seed, one keeps both its looks in a file."
     },
     {
       "file": "valid/scrobbler.json",
@@ -1581,6 +1581,110 @@
         }
       ],
       "note": "Two screenshots: the official list asks for three to six."
+    },
+    {
+      "file": "invalid/rule-theme-looks.json",
+      "profile": "install",
+      "valid": false,
+      "errors": [
+        {
+          "code": "THEME_LOOKS",
+          "pointer": "/contributes/themes/0"
+        },
+        {
+          "code": "THEME_LOOKS",
+          "pointer": "/contributes/themes/0/light"
+        },
+        {
+          "code": "THEME_LOOKS",
+          "pointer": "/contributes/themes/1"
+        },
+        {
+          "code": "THEME_LOOKS",
+          "pointer": "/contributes/themes/2/light"
+        },
+        {
+          "code": "THEME_LOOKS",
+          "pointer": "/contributes/themes/3"
+        }
+      ],
+      "note": "Themes whose looks are not the ones their appearance names: a dark one with only a light look, one of both with only a dark look, a light one written both here and in its file, a dark one with no look at all."
+    },
+    {
+      "file": "invalid/rule-theme-colors.json",
+      "profile": "install",
+      "valid": false,
+      "errors": [
+        {
+          "code": "THEME_COLOR",
+          "pointer": "/contributes/themes/0/dark/colors/accent"
+        },
+        {
+          "code": "THEME_COLOR",
+          "pointer": "/contributes/themes/0/dark/colors/surface"
+        },
+        {
+          "code": "THEME_COLOR_ALPHA",
+          "pointer": "/contributes/themes/0/dark/colors/text"
+        },
+        {
+          "code": "THEME_COLOR_ALPHA",
+          "pointer": "/contributes/themes/0/dark/glow/1"
+        },
+        {
+          "code": "THEME_COLOR_ALPHA",
+          "pointer": "/contributes/themes/0/dark/seed"
+        },
+        {
+          "code": "THEME_COLOR",
+          "pointer": "/contributes/themes/0/light/colors/info"
+        },
+        {
+          "code": "THEME_COLOR",
+          "pointer": "/contributes/themes/0/light/colors/text.muted"
+        }
+      ],
+      "note": "Colours the schema lets through and the rules refuse: a channel above 255, saturation and lightness written as plain numbers between commas, percentages and numbers mixed between commas, two slashes; a translucent text, seed and glow colour, where only border and surface.hover may be translucent (both are here, and pass)."
+    },
+    {
+      "file": "invalid/schema-theme-tokens.json",
+      "profile": "install",
+      "valid": false,
+      "errors": [
+        {
+          "code": "SCHEMA_UNKNOWN_PROPERTY",
+          "pointer": "/contributes/themes/0/dark/colors/bacground"
+        },
+        {
+          "code": "SCHEMA_PATTERN",
+          "pointer": "/contributes/themes/0/dark/colors/text.muted"
+        },
+        {
+          "code": "SCHEMA_PATTERN",
+          "pointer": "/contributes/themes/0/dark/colors/accent"
+        },
+        {
+          "code": "SCHEMA_ITEM_COUNT",
+          "pointer": "/contributes/themes/0/dark/glow"
+        },
+        {
+          "code": "SCHEMA_UNKNOWN_PROPERTY",
+          "pointer": "/contributes/themes/0/dark/artwork"
+        },
+        {
+          "code": "SCHEMA_UNKNOWN_PROPERTY",
+          "pointer": "/contributes/themes/1/light/brand"
+        },
+        {
+          "code": "SCHEMA_ENUM",
+          "pointer": "/contributes/themes/2/appearance"
+        },
+        {
+          "code": "SCHEMA_PROPERTY_COUNT",
+          "pointer": "/contributes/themes/2/dark"
+        }
+      ],
+      "note": "Looks the schema refuses: a misspelt token, a colour's name (a theme writes hex, rgb() or hsl()), a colour cut short, four glows, the player's and Wrapped's colours (no look has them: the player's is made from the theme's, and what is Songstress's own stays so), an appearance there is none of, an empty look."
     }
   ]
 }

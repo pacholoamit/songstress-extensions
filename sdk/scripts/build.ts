@@ -2,7 +2,7 @@
 // exports name its TypeScript sources; what is published is what this writes,
 // which package.json's publishConfig points at instead:
 //
-//   dist/index.js, server.js, client.js, manifest.js, testing.js
+//   dist/index.js, server.js, client.js, manifest.js, testing.js, theme.js
 //                    the entries as ES modules, bundled by rolldown, with
 //                    what they share in dist/chunks/ and the schema inside
 //   dist/cli.js      the songstress command, for Node, with its two
@@ -31,6 +31,7 @@ const ENTRIES = {
   client: 'src/client.ts',
   manifest: 'src/manifest.ts',
   testing: 'src/testing.ts',
+  theme: 'src/theme.ts',
 }
 
 /** The entries: no DOM, no Node, nothing left to install. */

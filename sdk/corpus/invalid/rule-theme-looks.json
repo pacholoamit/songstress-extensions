@@ -1,0 +1,50 @@
+{
+  "manifestVersion": 1,
+  "id": "nightowl.mixed-looks",
+  "name": "Mixed Looks",
+  "version": "1.0.0",
+  "description": "Themes whose looks are not the ones their appearance names.",
+  "engines": {
+    "songstress": "^0.1.3"
+  },
+  "contributes": {
+    "themes": [
+      {
+        "id": "dusk",
+        "label": "Dusk",
+        "appearance": "dark",
+        "light": {
+          "colors": {
+            "accent": "#7a3e00"
+          }
+        }
+      },
+      {
+        "id": "tide",
+        "label": "Tide",
+        "appearance": "both",
+        "dark": {
+          "colors": {
+            "accent": "#7fd1ff"
+          }
+        }
+      },
+      {
+        "id": "paper",
+        "label": "Paper",
+        "appearance": "light",
+        "path": "themes/paper.json",
+        "light": {
+          "colors": {
+            "accent": "#1d57a8"
+          }
+        }
+      },
+      {
+        "id": "nothing",
+        "label": "Nothing",
+        "appearance": "dark"
+      }
+    ]
+  }
+}

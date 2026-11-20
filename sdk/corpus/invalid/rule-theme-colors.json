@@ -1,0 +1,41 @@
+{
+  "manifestVersion": 1,
+  "id": "nightowl.off-colour",
+  "name": "Off Colour",
+  "version": "1.0.0",
+  "description": "Looks whose colours have the form of one and are not: a channel out of range, percentages and numbers mixed, a translucent text, seed and glow.",
+  "engines": {
+    "songstress": "^0.1.3"
+  },
+  "contributes": {
+    "themes": [
+      {
+        "id": "ember",
+        "label": "Ember",
+        "appearance": "both",
+        "dark": {
+          "seed": "#ff464a80",
+          "colors": {
+            "background": "rgb(16 17 23)",
+            "surface": "hsl(230, 15, 12)",
+            "border": "rgb(255 255 255 / 10%)",
+            "surface.hover": "hsla(0, 0%, 100%, 0.06)",
+            "text": "rgba(250, 250, 250, 0.9)",
+            "accent": "rgb(300, 70, 74)"
+          },
+          "glow": [
+            "#ff464a",
+            "hsl(343 100% 45% / 50%)"
+          ]
+        },
+        "light": {
+          "colors": {
+            "text.muted": "rgb(50%, 40, 30)",
+            "info": "rgb(0 115 153 / 0.5 / 1)",
+            "accent": "rgb(229 0 67)"
+          }
+        }
+      }
+    ]
+  }
+}

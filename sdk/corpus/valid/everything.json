@@ -301,6 +301,7 @@
       {
         "id": "chart-night",
         "label": "Chart Night",
+        "appearance": "dark",
         "path": "themes/chart-night.json"
       }
     ],

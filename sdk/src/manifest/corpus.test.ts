@@ -60,10 +60,11 @@ describe('the table', () => {
     }
   })
 
-  it('has a case for every code but the one no file is kept for', () => {
+  it('has a case for every code but the one no file is kept for, and the one only a theme file earns', () => {
     const pinned = new Set(CASES.flatMap((entry) => entry.errors.map((error) => error.code)))
     const unpinned = (Object.keys(MANIFEST_ERROR_CODES) as ManifestErrorCode[]).filter((code) => !pinned.has(code))
-    expect(unpinned).toEqual(['MANIFEST_TOO_LARGE'])
+    // A theme file's size limit is held in themes.test.ts, with no file kept for it either.
+    expect(unpinned).toEqual(['MANIFEST_TOO_LARGE', 'THEME_FILE_TOO_LARGE'])
   })
 
   it('says of each case what it shows, and agrees with itself', () => {

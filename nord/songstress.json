@@ -1,0 +1,33 @@
+{
+  "$schema": "https://songstress.app/schema/extension/v1.json",
+  "manifestVersion": 1,
+  "id": "songstress.nord",
+  "name": "Nord",
+  "version": "1.0.0",
+  "description": "Nord's arctic, north-bluish palette: Polar Night for dark and Snow Storm for light.",
+  "engines": {
+    "songstress": "^0.1.3"
+  },
+  "license": "MIT",
+  "repository": "https://github.com/pacholoamit/songstress-extensions",
+  "categories": [
+    "themes"
+  ],
+  "keywords": [
+    "nord",
+    "arctic",
+    "blue",
+    "dark",
+    "light"
+  ],
+  "contributes": {
+    "themes": [
+      {
+        "id": "nord",
+        "label": "Nord",
+        "appearance": "both",
+        "path": "themes/nord.json"
+      }
+    ]
+  }
+}

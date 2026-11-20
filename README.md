@@ -9,12 +9,15 @@ Songstress's official extensions: the ones made by Songstress's maintainer, whic
 | `jiosaavn/` | `songstress.jiosaavn` | Search, songs, albums, playlists and artists by id or link, a song's facts; a stream to audition and five AAC qualities to acquire (both off until an admin turns them on). Its setting: the languages it searches in | LGPL-3.0-only (the Mornye registry's version), from HemanthJabalpuri's MIT original (`COPYING`, `LICENSE`, `NOTICE`) |
 | `soundcloud/` | `songstress.soundcloud` | Search, tracks, sets and artists by id or link, an ISRC for a track; a progressive stream to audition, and the AAC stream to acquire (both off until an admin turns them on) | LGPL-3.0-only, a port of zarzet's Mornye extension (`COPYING`, `LICENSE`, `NOTICE`) |
 | `spotify-web/` | `songstress.spotify-web` | Spotify's web player's catalogue: search, links (`spotify:` ones too), a track's ISRC from Spotify's own metadata and its Deezer id. It joins the Spotify group | LGPL-3.0-only, a port of zarzet's Mornye extension (`COPYING`, `LICENSE`, `NOTICE`) |
+| `catppuccin/` | `songstress.catppuccin` | Themes: Catppuccin Latte, Frappé, Macchiato and Mocha | MIT (`LICENSE`); Catppuccin's palette, MIT (`NOTICE`) |
+| `dracula/` | `songstress.dracula` | Themes: Dracula, with Alucard for light | MIT (`LICENSE`); the Dracula Theme's palettes, MIT (`NOTICE`) |
+| `nord/` | `songstress.nord` | Themes: Nord, Polar Night and Snow Storm | MIT (`LICENSE`); Nord's palette, MIT (`NOTICE`) |
 
 They are the sources that were Mornye extensions. Nothing here is built into Songstress, its server image or an app: a server installs each from the official index, and a server that had the Mornye extension installed gets its version here in its place, with its settings, and tells its admins.
 
 **Bugs Music and Melon Music are not here.** Their Mornye versions (and Genie's) are ldw0403-netizen's K-Music, which publishes no licence, so their code could not be ported; Genie Music was written anew from its live pages. Bugs answers with a JavaScript-and-cookie bot challenge, and Melon's site does not answer outside Korea, so neither could be written or checked yet. A server that had either let it go and told its admins so.
 
-`shared/` is the code they share, built into each one's package. `sdk/` is the Songstress extension SDK (MIT), carried here until it is published on npm (below, "Refreshing the SDK"). `index/` makes and signs the official index (MIT).
+`shared/` is the code they share, built into each one's package. `sdk/` is the Songstress extension SDK (MIT), carried here until it is published on npm (below, "Refreshing the SDK"). `index/` makes and signs the official index (MIT). The themes are data, a manifest and its theme files with no code (sdk/SPEC.md, section 12); each folder's README says which colours were moved off its palette to read where the apps draw them. `sdk/` is the Songstress extension SDK (MIT), carried here until it is published on npm, and `theme/` the theme engine its `check` holds every look to, the apps' own (MIT). `index/` makes and signs the official index (MIT).
 
 ## What runs where
 

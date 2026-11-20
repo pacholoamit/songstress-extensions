@@ -18,6 +18,7 @@ const ENTRIES: readonly (readonly [name: string, file: string])[] = [
   ['songstress/client', 'src/client.ts'],
   ['songstress/manifest', 'src/manifest.ts'],
   ['songstress/testing', 'src/testing.ts'],
+  ['songstress/theme', 'src/theme.ts'],
 ]
 
 const OPTIONS: ts.CompilerOptions = {

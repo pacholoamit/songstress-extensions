@@ -66,11 +66,13 @@
       {
         "id": "c",
         "label": "C",
+        "appearance": "dark",
         "path": "themes/c?.json"
       },
       {
         "id": "d",
         "label": "D",
+        "appearance": "dark",
         "path": "themes/d.json"
       }
     ]

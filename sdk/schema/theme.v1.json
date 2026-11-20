@@ -1,0 +1,67 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://songstress.app/schema/theme/v1.json",
+  "title": "Songstress theme file",
+  "description": "A Songstress theme file: the looks of one theme, which an extension's manifest names by its path (SPEC.md, section 12).",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "$schema": {
+      "description": "The address of the theme file's schema, so an editor can check the file as you type.",
+      "type": "string",
+      "maxLength": 200
+    },
+    "dark": { "description": "The theme's dark look.", "$ref": "#/$defs/themeLook" },
+    "light": { "description": "The theme's light look.", "$ref": "#/$defs/themeLook" }
+  },
+  "$defs": {
+    "themeLook": {
+      "description": "A theme's look, dark or light: its colours, a seed for what they leave out, and the glow behind the stage.",
+      "type": "object",
+      "additionalProperties": false,
+      "minProperties": 1,
+      "properties": {
+        "seed": { "description": "One colour the look grows from where it names no other: the accent, with the stage and the text tinted by its hue.", "$ref": "#/$defs/themeColor" },
+        "colors": { "description": "The look's colour tokens. What it leaves out, an app fills in.", "$ref": "#/$defs/themeColors" },
+        "glow": {
+          "description": "Up to three colours for the ambient light behind the stage of the web and desktop apps.",
+          "type": "array",
+          "items": { "$ref": "#/$defs/themeColor" },
+          "minItems": 1,
+          "maxItems": 3
+        }
+      }
+    },
+    "themeColors": {
+      "description": "Colour tokens by name (SPEC.md, section 12). What a look leaves out, an app fills in.",
+      "type": "object",
+      "additionalProperties": false,
+      "minProperties": 1,
+      "properties": {
+        "background": { "description": "The stage behind every screen: lists, a tab's root, the window.", "$ref": "#/$defs/themeColor" },
+        "surface": { "description": "Grouped rows, cards and sheets on the stage, and Android's tab bar.", "$ref": "#/$defs/themeColor" },
+        "surface.raised": { "description": "What sits on a surface: menus, popovers, the disc of a pull to refresh.", "$ref": "#/$defs/themeColor" },
+        "surface.hover": { "description": "The wash under a pressed or hovered row, and behind secondary controls. It may be translucent.", "$ref": "#/$defs/themeColor" },
+        "sidebar": { "description": "The sidebar of the web and desktop apps.", "$ref": "#/$defs/themeColor" },
+        "border": { "description": "Hairlines between rows and around cards and fields. It may be translucent.", "$ref": "#/$defs/themeColor" },
+        "text": { "description": "Words: titles, rows, body copy.", "$ref": "#/$defs/themeColor" },
+        "text.muted": { "description": "The second voice: an artist under a title, a caption.", "$ref": "#/$defs/themeColor" },
+        "text.faint": { "description": "Placeholders, chevrons, and captions that repeat what is beside them.", "$ref": "#/$defs/themeColor" },
+        "accent": { "description": "The theme's colour in Songstress Red's place: icons, active states, progress, links, the tab bar's tint.", "$ref": "#/$defs/themeColor" },
+        "accent.fill": { "description": "A filled accent that carries a label: Play, a primary button, a selected segment, a badge.", "$ref": "#/$defs/themeColor" },
+        "accent.fill.pressed": { "description": "A filled accent under a press or the pointer, and the far end of Play's sweep.", "$ref": "#/$defs/themeColor" },
+        "accent.onFill": { "description": "The label on a filled accent, at rest and pressed.", "$ref": "#/$defs/themeColor" },
+        "success": { "description": "Lossless audio, done, connected.", "$ref": "#/$defs/themeColor" },
+        "warning": { "description": "Lossy audio, something to look at.", "$ref": "#/$defs/themeColor" },
+        "danger": { "description": "Delete, Sign Out, errors, a menu's destructive items.", "$ref": "#/$defs/themeColor" },
+        "info": { "description": "Work in progress: running, importing.", "$ref": "#/$defs/themeColor" }
+      }
+    },
+    "themeColor": {
+      "description": "A colour: #RGB, #RGBA, #RRGGBB or #RRGGBBAA, or rgb(), rgba(), hsl() or hsla() as CSS writes them, the name in lower case (SPEC.md, section 12, \"Colours\"). Only border and surface.hover may be translucent.",
+      "type": "string",
+      "maxLength": 64,
+      "pattern": "^(?:#(?:[0-9A-Fa-f]{3}|[0-9A-Fa-f]{4}|[0-9A-Fa-f]{6}|[0-9A-Fa-f]{8})|(?:rgb|rgba|hsl|hsla)\\([ \\t\\n\\r\\f0-9a-z.,%/+-]*\\))$"
+    }
+  }
+}

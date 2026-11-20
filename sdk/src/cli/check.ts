@@ -1,7 +1,8 @@
 // `songstress check [folder] [--profile install|listing]`: the manifest of
 // each extension a folder holds, checked as a server checks it when it
 // installs one (or, with --profile listing, as the Marketplace checks a
-// listing), and what its release is called. A folder holds one extension,
+// listing), its themes held to the rules the apps hold a look to before they
+// show it (SPEC.md, section 12), and what its release is called. A folder holds one extension,
 // songstress.json at its root, or several, each in a folder of its own of
 // any name (`<folder>/songstress.json`, release.ts), each id once. Run in
 // one extension's folder of a repository of several, it names that
@@ -11,7 +12,7 @@ import { readdir, readFile, realpath, stat } from 'node:fs/promises'
 import { homedir } from 'node:os'
 import { dirname, join, relative, resolve } from 'node:path'
 import { assetName, releaseTag, type Layout } from './release.ts'
-import { loadValidator } from './validator.ts'
+import { type CheckedTheme, type Checks, loadValidator } from './validator.ts'
 
 const MANIFEST = 'songstress.json'
 
@@ -101,22 +102,65 @@ async function extensionFolders(root: string, home: string): Promise<{ layout: L
   return { layout: 'several', folders: await manifestFolders(root) }
 }
 
+/** A theme's looks: written in its manifest, or read from its file (each of the file's problems a finding at the
+ * theme's `path`, naming the file); nothing when the file cannot be read. */
+async function looksOf(folder: string, theme: CheckedTheme, at: string, checks: Checks, found: Finding[]) {
+  if (theme.path === undefined) return theme
+  const where = `${at}/path`
+  const bytes = await readFile(join(folder, theme.path)).catch(() => undefined)
+  if (bytes === undefined) {
+    found.push({ code: 'THEME_FILE_MISSING', pointer: where, message: `The theme names ${theme.path}, which is not in the extension's folder.` })
+    return undefined
+  }
+  const read = checks.readThemeFile(bytes, theme.appearance)
+  if (read.valid) return read.file
+  for (const issue of read.issues) {
+    found.push({ code: issue.code, pointer: where, message: `${theme.path}${issue.pointer ? ` at ${issue.pointer}` : ''}: ${issue.message}` })
+  }
+  return undefined
+}
+
+/** One look's problems under the apps' rules as findings: THEME_CONTRAST or THEME_LUMINANCE, at the look where
+ * the manifest writes it, at the theme's `path`, naming the file and the look, where its file does. The look is
+ * read as the apps read it, each colour in its one form. */
+function lookFindings(theme: CheckedTheme, at: string, appearance: 'dark' | 'light', look: object, checks: Checks): Finding[] {
+  return checks.checkLook(appearance, checks.normalizeLook(look) ?? {}).map((problem) => {
+    const code = problem.code === 'luminance' ? 'THEME_LUMINANCE' : 'THEME_CONTRAST'
+    if (theme.path === undefined) return { code, pointer: `${at}/${problem.at}`, message: problem.message }
+    return { code, pointer: `${at}/path`, message: `${theme.path}, ${problem.at}: ${problem.message}` }
+  })
+}
+
+/** Each theme's looks held to the apps' rules: what an app would not show, or a file it could not read. */
+async function themeFindings(folder: string, themes: readonly CheckedTheme[], checks: Checks): Promise<Finding[]> {
+  const found: Finding[] = []
+  for (const [index, theme] of themes.entries()) {
+    const at = `/contributes/themes/${index}`
+    const looks = await looksOf(folder, theme, at, checks, found)
+    for (const appearance of ['dark', 'light'] as const) {
+      const look = looks?.[appearance]
+      if (look !== undefined) found.push(...lookFindings(theme, at, appearance, look, checks))
+    }
+  }
+  return found
+}
+
 /** Each extension the folder holds, checked under the profile. `home` is the person's home folder, which is
  * never a repository of extensions (oneOfSeveral). */
 export async function check(root: string, profile = 'install', home = homedir()): Promise<{ layout: Layout; checked: Checked[] }> {
   const { layout, folders } = await extensionFolders(root, await real(home))
   if (folders.length === 0) throw new Error(`There is no ${MANIFEST} in ${root}, nor in a folder of it.`)
-  const validate = await loadValidator()
+  const checks = await loadValidator()
   const owners = new Map<string, string>()
   const checked: Checked[] = []
   for (const folder of folders) {
-    const result = validate(await readFile(join(folder, MANIFEST)), { profile })
+    const result = checks.validate(await readFile(join(folder, MANIFEST)), { profile })
     if (!result.valid) {
       checked.push({ folder, issues: result.issues })
       continue
     }
     const { id, version } = result.manifest
-    const issues: Finding[] = []
+    const issues: Finding[] = await themeFindings(folder, result.manifest.contributes?.themes ?? [], checks)
     const owner = owners.get(id)
     if (owner !== undefined) {
       issues.push({ code: 'ID_TWICE', pointer: '/id', message: `${id} is the id of ${relative(root, owner) || '.'} too: a repository holds each extension once.` })

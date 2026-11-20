@@ -74,9 +74,10 @@ function utf8Length(text: string): number {
   return bytes
 }
 
-/** The size of `input` in bytes of UTF-8. A text longer than the limit in
- * UTF-16 units is over it already, and is not walked to find by how much. */
-function sizeOf(input: string | Uint8Array): number {
+/** The size of `input` in bytes of UTF-8. A text longer than the manifest's
+ * limit in UTF-16 units is over it already, and is not walked to find by how
+ * much (a theme file's limit is smaller, so the answer holds for it too). */
+export function sizeOf(input: string | Uint8Array): number {
   if (typeof input !== 'string') return input.byteLength
   return input.length > MAX_MANIFEST_BYTES ? input.length : utf8Length(input)
 }

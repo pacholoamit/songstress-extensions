@@ -1,14 +1,14 @@
 # Songstress extensions: the specification
 
-Manifest version 1 · extension API 0.1.2
+Manifest version 1 · extension API 0.1.3
 
 This document says what a Songstress extension is, what its manifest holds, what its code may do and where each part of it works. It is written for people who build extensions. Three things in this package say the same in a form a program reads, and they win where this text and they differ:
 
 - `schema/extension.v1.json`, the manifest's JSON Schema;
-- the validator (`songstress/manifest`) with its corpus of manifests (`corpus/`);
+- the validator (`songstress/manifest`) with its corpus of manifests (`corpus/`), and the reader of a theme's colours (`songstress/theme`) with theirs (`corpus/colors.json`);
 - the API's types (`songstress`, `songstress/server`, `songstress/client`).
 
-The specification is ahead of the hosts that run it. It is version 0.x: it may still change between minor versions (section 13).
+The specification is ahead of the hosts that run it. It is version 0.x: it may still change between minor versions (section 14).
 
 ## Contents
 
@@ -23,14 +23,15 @@ The specification is ahead of the hosts that run it. It is version 0.x: it may s
 9. [The API](#9-the-api)
 10. [Declared interface](#10-declared-interface)
 11. [Providers](#11-providers)
-12. [Validation](#12-validation)
-13. [Versions and stability](#13-versions-and-stability)
-14. [Not in this version](#14-not-in-this-version)
-15. [Notes: what this follows](#15-notes-what-this-follows)
+12. [Themes](#12-themes)
+13. [Validation](#13-validation)
+14. [Versions and stability](#14-versions-and-stability)
+15. [Not in this version](#15-not-in-this-version)
+16. [Notes: what this follows](#16-notes-what-this-follows)
 
 ## 1. What an extension is
 
-An extension is a package: a folder with a manifest, `songstress.json`, at its root, and beside it whatever the manifest names. A theme is a manifest and a theme file. A scrobbler is a manifest and one JavaScript file.
+An extension is a package: a folder with a manifest, `songstress.json`, at its root, and beside it whatever the manifest names. A theme is a manifest, its colours written in it or in a theme file beside it. A scrobbler is a manifest and one JavaScript file.
 
 Six ideas hold the rest together.
 
@@ -267,7 +268,7 @@ What to notice:
 - **Every path in the manifest** is a plain path from the package root, with forward slashes: `assets/icon.png`. No name in it is empty or ends in a dot or a space (so no `.`, no `..`, no leading or doubled slash), and it holds none of `\ : * ? " < > | % #`.
 - **An entry** is one `.js` file: a classic script, readable JavaScript, with everything it needs inside it. No native code, no bytecode, nothing fetched when it is installed.
 - **Images** are PNG for the icon and PNG, JPEG or WebP for the rest (`.png`, `.jpg`, `.jpeg`, `.webp`, in lowercase), and the manifest states each one's size in pixels. Whoever installs or lists the package holds the files to what the manifest says.
-- **A theme file** and **a view's HTML file** are named by the manifest and kept in the package. Their own formats are not part of this document.
+- **A theme file** and **a view's HTML file** are named by the manifest and kept in the package. A theme file is section 12's, and a server holds it to that section when it installs the package; a view's own format is not part of this document.
 
 **The archive.** A package travels as one ZIP archive: the file an admin uploads, the asset of a GitHub release, what a development build sends to a server. Its root is the package's root: `songstress.json` at the top, with no folder around it. `songstress pack` writes one, and `songstress dev` sends one (README, "The command"). A server installs it only when all of this holds:
 
@@ -301,7 +302,7 @@ Every object in the manifest is closed: a field this document does not name is a
 | `name` | yes | The name people see. 1 to 50 characters. |
 | `version` | yes | The extension's own version, a [semantic version](https://semver.org) such as `1.4.0` or `2.0.0-beta.1`. A release is tagged with it. |
 | `description` | yes | One or two sentences, shown under the name. 1 to 160 characters. |
-| `engines.songstress` | yes | The versions of the extension API the extension runs on, as a range (section 13). `^0.1.0` is the usual answer. Never `*`. |
+| `engines.songstress` | yes | The versions of the extension API the extension runs on, as a range (section 14). `^0.1.0` is the usual answer. Never `*`. |
 
 ### Listing
 
@@ -424,7 +425,14 @@ Free-form pages: the extension's own HTML file, shown in a sandboxed frame kept 
 
 ### `themes`
 
-Theme files the extension ships. Up to 20: `id`, `label` (the family's name in the picker) and `path` (a `.json` file: a family of colour variants). A theme is data: it needs no entry and no permission.
+Themes for the picker. Up to 20, each with an `id`, a `label` (its name in the picker), an `appearance` (`dark`, `light` or `both`: the looks it has), and those looks: written here as `dark` and `light`, or in a theme file whose `path` it names (a `.json` file), never in both. Section 12 says what a look holds. A theme is data: it needs no entry and no permission.
+
+```json
+"themes": [
+  { "id": "mocha", "label": "Catppuccin Mocha", "appearance": "dark", "dark": { "colors": { "background": "#1e1e2e", "text": "#cdd6f4", "accent": "#cba6f7" } } },
+  { "id": "nord", "label": "Nord", "appearance": "both", "path": "themes/nord.json" }
+]
+```
 
 ### `providers`
 
@@ -528,7 +536,7 @@ They follow the player of the one device the code runs on, while its app is open
 | Permission | Allows | Unlocks | Granted by |
 |---|---|---|---|
 | `network` | Requests to the public hosts it names, over http or https. The address a name resolves to is checked when connecting and on every redirect | `net.fetch` | The admin |
-| `network.local` | Requests to targets on the user's own network | `net.fetch` to those targets | The admin, who confirms twice |
+| `network.local` | Requests to targets on the user's own network, from server code only | `net.fetch` to those targets, in the server entry | The admin, who confirms twice |
 | `library.read` | Reading the catalogue and hearing when it changes | `library.*`; `onPlaylistChange`, `onLibraryChange`, `onScanComplete` | The admin |
 | `users.read` | Members' ids and display names, nothing else | `users.*` | The admin |
 | `listening.read` | One member's plays, what they are playing now and what they like | `onPlay`, `onScrobble`, `onFavorite`; the client hooks; `player.getState`, `queue.get`; a `scrobble` provider, which is handed members' plays | That member, for themselves, once the admin has allowed the extension |
@@ -540,6 +548,8 @@ They follow the player of the one device the code runs on, while its app is open
 | `secrets` | Keeping the extension's own credentials, sealed | `secrets.*`; `signIn.register` | Listed at install, no question asked |
 
 A call the manifest did not ask for, or that nobody granted, fails with the code `permission-denied`. When an update asks for a permission the installed version did not have, the update waits until a person accepts it.
+
+`net.fetch` from client code goes to the public hosts `network` names and nowhere else: never to a target of `network.local`, which server code alone reaches, and the server's host refuses such a request whatever the manifest asks for.
 
 A hook's event carries the id of the member it concerns whether or not the extension may read their name; `users.read` turns an id into a name.
 
@@ -695,7 +705,128 @@ Every source has an `id` and may have a `name` (as people read it; left out, the
 - **`play` and `download`** are switched off until the admin turns each on, and the Marketplace lists no extension that has either (`LISTING_ACQUISITION`). A `play` provider plays what the `search` provider of the same id found (`PROVIDER_PLAY_NEEDS_SEARCH`). Both answer where the audio is, as addresses; Songstress fetches it, under the extension's own `network` permission on every hop, and joins segments itself. Nothing is decrypted.
 - **Failure.** "Nothing found" is an empty list or `null`. A failure Songstress knows what to do about is thrown as a `ProviderFailure` with one of four codes: `rate-limited` (with `retryAfterS`), `sign-in-required`, `not-configured`, `unavailable`. Anything else thrown counts as the provider being broken for now.
 
-## 12. Validation
+## 12. Themes
+
+A theme sets the colours the apps draw. Songstress's own look is the only one an app carries: every other theme is an extension's, which the server's admin installs, and each member picks from the themes installed there. A theme may set every colour token below, Songstress Red's place included. It sets no more than that: what is Songstress's own keeps its look whatever the theme ("What no theme reaches", below).
+
+### Looks
+
+A theme has a dark look, a light one or both, as its `appearance` says (section 5). A phone in dark mode shows a dark look and one in light mode a light look; Android is always dark. A person may take the dark look of one theme and the light look of another.
+
+A look is an object of these fields, every one optional, though a look holds at least one:
+
+- `colors`: the colour tokens below, by name, each a colour (below, "Colours").
+- `seed`: one colour the look grows from where it names no other. The seed is the accent, and the stage and the text take a little of its hue (in Material's HCT colour space: tones 6 and 92 in a dark look, 98 and 10 in a light one). A look of one seed is a whole theme.
+- `glow`: one to three colours for the ambient light behind the stage of the web and desktop apps. Without it, the accent.
+
+A dark look and a light look are written alike.
+
+### The tokens
+
+| Token | May be translucent | Where it shows |
+|---|---|---|
+| `background` | | The stage behind every screen: lists, a tab's root, the window |
+| `surface` | | Grouped rows, cards and sheets on the stage; Android's tab bar |
+| `surface.raised` | | What sits on a surface: menus, popovers, the disc of a pull to refresh |
+| `surface.hover` | yes | The wash under a pressed or hovered row, and behind secondary controls |
+| `sidebar` | | The sidebar of the web and desktop apps |
+| `border` | yes | Hairlines between rows, and around cards and fields |
+| `text` | | Words: titles, rows, body copy |
+| `text.muted` | | The second voice: an artist under a title, a caption |
+| `text.faint` | | Placeholders, chevrons, and captions that repeat what is beside them |
+| `accent` | | The theme's colour in Songstress Red's place: icons, active states, progress, links, the tab bar's tint, focus rings |
+| `accent.fill` | | A filled accent that carries a label: Play, a primary button, a selected segment, a badge |
+| `accent.fill.pressed` | | A filled accent under a press or the pointer, and the far end of Play's sweep |
+| `accent.onFill` | | The label on a filled accent, at rest and pressed |
+| `success` | | Lossless audio, done, connected |
+| `warning` | | Lossy audio, something to look at |
+| `danger` | | Delete, Sign Out, errors, a menu's destructive items |
+| `info` | | Work in progress: running, importing |
+
+The tokens are few on purpose: each is a role many parts of the apps share, never one control's. There is no token for one button's border or one row's hover; a part of the apps takes its colours from these roles, and a new token comes only when a role the apps draw has none (see "Versions").
+
+### Colours
+
+A colour is written in any of these forms, as CSS writes them:
+
+- hex: `#RGB`, `#RGBA`, `#RRGGBB` or `#RRGGBBAA`, in either case;
+- `rgb()` and `rgba()`, the two alike: three channels, each 0 to 255 or 0% to 100%, and an optional alpha, between commas (`rgb(108, 182, 255)`, `rgba(108, 182, 255, 0.5)`; the three channels of one kind) or between spaces with the alpha after a slash (`rgb(108 182 255 / 50%)`);
+- `hsl()` and `hsla()`, the two alike: a hue in degrees or as an angle (`deg`, `grad`, `rad`, `turn`), a saturation and a lightness from 0% to 100%, and an optional alpha, between commas or between spaces as `rgb()`'s are (between spaces, a saturation or a lightness may be a plain number of percent).
+
+An alpha is 0 to 1 or 0% to 100%. A function's name is in lower case; a colour is at most 64 characters. A name (`red`, `transparent`), `currentColor`, `var()`, a gradient and the other colour spaces (`oklch()` and its kind) are not colours a theme writes.
+
+Each colour is read into one form, `#rrggbb`, or `#rrggbbaa` when its alpha is below 1, in lower case, every part rounded to the nearest byte; it is all an app's engine, the rules below and the server ever see, and the server hands the apps every colour in it. Only `border` and `surface.hover` may be translucent: an alpha below 1 anywhere else, the seed and the glow included, is refused (`THEME_COLOR_ALPHA`, naming the token), as a colour in no form is (`THEME_COLOR`). `songstress/theme` reads them as the apps do: `parseColor` a colour, `normalizeLook` a whole look. The forms and their answers are `corpus/colors.json`.
+
+### What a look leaves out
+
+An app fills every token a look leaves out. It derives it from the look's own colours where it can, so a theme's few colours keep the apps' order of surfaces and voices:
+
+- the seed, for the accent and the tint of the stage and the text;
+- `surface` from the background with 8% of the text in it, and `sidebar` as the surface;
+- `surface.raised` from the surface with 6% of the text, `border` from the surface with 12%, and `surface.hover` as the text at 8%;
+- `text.muted` and `text.faint` from the text, 30% and 50% of the way to the background;
+- `accent.fill` from the accent as written, `accent.fill.pressed` from the fill 16% toward black, and `accent.onFill` as white or near black, whichever reads.
+
+Anything else it takes from Songstress's own look of the same appearance. A colour the app fills in is moved to the nearest tone of it that meets the rules below; a colour the look writes is never moved. So a look of three colours is a whole theme.
+
+### What no theme reaches
+
+These keep Songstress's own look whatever theme is showing, Songstress Red included, and no look has a field for them:
+
+- the logo and the app's icon;
+- Wrapped's stories and the share cards;
+- the first run, and its art;
+- supporters' medals and their tiers' art.
+
+The full player, and a page's header over its artwork's wash, are drawn dark in either appearance. No theme writes their colours either: each app makes them from the theme, as Songstress's dark neutrals (which those washes are made for) in the accent of the theme's dark look.
+
+No theme reaches what the system draws or the app's binary carries: the splash screen, widgets, the watch and car screens, the system's own menus, alerts and pickers; nor pictures (covers, avatars).
+
+### Colours that follow the tokens
+
+These are never written: each app makes them from the tokens.
+
+- An accent label on a grouped surface: the accent where it reads there (4.5:1), else the text.
+- Android's touch ripples, the text at 10%, and the tab bar's selected mark, the accent at 16%.
+- Android's snackbars: a light surface made from the text and the background, with the action in the first of `accent.fill.pressed`, `accent.fill` and `accent` that reads on it.
+- Android's own controls (switches, segmented buttons): Material 3's roles, the primary ones from the accent and the rest from the neutrals.
+- The disc behind a reaction's emoji: the dark look's text at 80%.
+- On the web and the desktop, focus rings and the charts' heat: from the accent.
+
+### The rules
+
+A look is shown only if it meets these, once it is filled. Contrast is WCAG 2's ratio.
+
+- The background's relative luminance is under 0.10 in a dark look and over 0.55 in a light one, so the system's bars read on it.
+- `text` on `background`, `surface`, `surface.raised` and `sidebar`: 4.5:1.
+- `text.muted` on `background` and `surface`: 4.5:1.
+- `text.faint` on `background`: 3:1. On `surface`: 3:1, and 2.9:1 in a light look.
+- `accent` on `background`: 4.5:1. On `surface`: 3:1.
+- `success` and `warning` on `background` and `surface`: 4.5:1, and 1.9:1 in a light look (iOS's own light green and orange).
+- `danger` and `info` on `background` and `surface`: 4.5:1.
+- `accent.onFill` on `accent.fill` and on `accent.fill.pressed`: 4.5:1.
+
+The rules are the apps' own. Each app holds a theme to them before it applies one: a look that fails is not shown, and the theme already showing stays. `songstress check` runs the apps' code and reports a look that fails as `THEME_CONTRAST` or `THEME_LUMINANCE`, with the ratio it reaches, so the official list never carries one. The manifest's validator holds a theme to its shape and each colour to its form and its place (`THEME_COLOR`, `THEME_COLOR_ALPHA`) wherever it runs, on a server that installs one too, and a server holds each theme file to the same when it installs the package (section 3).
+
+### A theme file
+
+A theme's looks may live in a file of their own, which the theme names by its `path`: a JSON object holding `dark`, `light` or both, written as the manifest would write them, and optionally its schema's address as `$schema` (`https://songstress.app/schema/theme/v1.json`; `schema/theme.v1.json` in this package). It is at most 16 KiB, read as strictly as the manifest is (section 13), and holds exactly the looks its theme's `appearance` names.
+
+```json
+{
+  "$schema": "https://songstress.app/schema/theme/v1.json",
+  "dark": { "colors": { "background": "#2e3440", "text": "#eceff4", "accent": "#88c0d0", "border": "rgb(236 239 244 / 12%)" } },
+  "light": { "colors": { "background": "#eceff4", "text": "#2e3440", "accent": "hsl(212, 42%, 40%)" } }
+}
+```
+
+`parseThemeFile`, in `songstress/manifest`, reads one for a tool, and answers its looks as written; `normalizeLook` puts each in its one form.
+
+### Versions
+
+The tokens are version 1, the theme file's schema with them. A token is never renamed and never changes its meaning. A new one comes with a new minor version of the API and a default that follows from the others: a manifest that writes it says so in `engines.songstress`, and an older server refuses it rather than misread it. Themes as this section has them came with API 0.1.3, so a manifest that has one asks for it: `"songstress": "^0.1.3"`.
+
+## 13. Validation
 
 One validator checks a manifest everywhere: in a tool, when a server installs, when a listing is submitted. It works in four stages, and a stage runs only when the ones before found nothing.
 
@@ -723,6 +854,7 @@ if (!result.valid) for (const issue of result.issues) console.log(issue.code, is
 | `MANIFEST_TOO_DEEP` | Objects and lists are nested more than 16 deep |
 | `JSON_INVALID` | The text is not UTF-8 JSON, or holds a number too large to read, or a damaged character (half a surrogate pair, or U+FFFD) |
 | `JSON_DUPLICATE_KEY` | An object names a key twice. The pointer names the key |
+| `THEME_FILE_TOO_LARGE` | A theme file is larger than 16 KiB. A theme file is read by the same four checks, its own size first |
 
 ### The schema's codes
 
@@ -749,7 +881,7 @@ One for each kind of thing the schema asks. For a missing or an unknown field th
 | `TEXT_UNSAFE` | Text holds a control, invisible or direction-changing character |
 | `ID_RESERVED` | The id's publisher is a name Songstress keeps for its API, or `songstress` from anywhere but the official list |
 | `VERSION_INVALID` | `version` is not a semantic version |
-| `ENGINE_RANGE_INVALID` | `engines.songstress` is not a range of section 13 |
+| `ENGINE_RANGE_INVALID` | `engines.songstress` is not a range of section 14 |
 | `ENGINE_UNSUPPORTED` | `engines.songstress` leaves out the API version of the host that is checking |
 | `PATH_OUTSIDE_PACKAGE` | A path is not a plain path inside the package |
 | `BANNER_NOT_16_9` | The banner's stated size is not 16:9 |
@@ -767,6 +899,9 @@ One for each kind of thing the schema asks. For a missing or an unknown field th
 | `SETTING_DEFAULT_INVALID` | A default its own setting would refuse |
 | `SETTING_RANGE_INVALID` | A minimum above its maximum |
 | `SETTING_OPTION_DUPLICATE` | Two options with the same value |
+| `THEME_LOOKS` | A theme's looks are not the ones its `appearance` names, or are written both in the manifest and in its file |
+| `THEME_COLOR` | A colour of a look is not one of a theme's forms, or a part of it is out of its range (section 12, "Colours") |
+| `THEME_COLOR_ALPHA` | A colour of a look is translucent where its place is opaque: anywhere but `border` and `surface.hover` |
 
 ### The listing's codes
 
@@ -778,7 +913,7 @@ One for each kind of thing the schema asks. For a missing or an unknown field th
 | `LISTING_SCREENSHOTS` | Fewer than three screenshots |
 | `LISTING_ACQUISITION` | The extension has a `play` or a `download` provider |
 
-## 13. Versions and stability
+## 14. Versions and stability
 
 Three numbers are in play.
 
@@ -808,7 +943,7 @@ The ends of `^` and `~` are npm's (`^1.2.0` stops before `2.0.0-0`). Membership 
 - An error code is never renamed and never changes its meaning.
 - A host runs an extension whose `engines.songstress` takes the host's API version, and refuses any other (`ENGINE_UNSUPPORTED`).
 
-## 14. Not in this version
+## 15. Not in this version
 
 Left out on purpose, so that nothing here promises what is not there. Each can be added without breaking an extension written today.
 
@@ -816,12 +951,12 @@ Left out on purpose, so that nothing here promises what is not there. Each can b
 - **Signed-out routes.** Every route is for a signed-in member. Where on the server an extension's routes are served is the host's to say.
 - **Conditions on menu items** (show this only when…), **keyboard shortcuts**, and **more than one language** for a manifest's text.
 - **A schedule by the clock.** A job runs every so often, not at a time of day.
-- **The format of a theme file**, and **the API a view's own script uses** with what it may reach. They belong to the themes and to the client runtime.
+- **The API a view's own script uses**, with what it may reach. It belongs to the client runtime.
 - **The numbers behind the caps** on a tree, on storage and on requests. The hosts set them.
 - **Anything on a watch, in a car or in a widget.**
 - **IPv6 addresses as `network.local` targets.** Name the device by its host name instead.
 
-## 15. Notes: what this follows
+## 16. Notes: what this follows
 
 Each detail below that this specification takes from an established system was checked against that system's own documentation on 2026-11-17. Where Songstress differs, the note says so.
 
@@ -830,7 +965,7 @@ Each detail below that this specification takes from an established system was c
 - A standalone manifest with its own format number, `manifestVersion`: Chrome's `manifest_version`, "the version of the manifest file format that your extension uses" ([Chrome: manifest file format](https://developer.chrome.com/docs/extensions/reference/manifest)).
 - `id` as `publisher.name`: "The id of an extension is always `${publisher}.${name}`"; `engines` "Cannot be `*`", with `^0.10.5` as its example; `sponsor` as "an object with a single property `url`" ([VS Code: extension manifest](https://code.visualstudio.com/api/references/extension-manifest)).
 - `version` and the order of versions: [Semantic Versioning 2.0.0](https://semver.org), rules 9 to 11, and its suggested regular expression (CC BY 3.0), here with each number held to 15 digits.
-- The ends of `^` and `~` ranges, `-0` included, and npm's own treatment of prereleases, which section 13 departs from: [node-semver](https://github.com/npm/node-semver#caret-ranges-123-025-004).
+- The ends of `^` and `~` ranges, `-0` included, and npm's own treatment of prereleases, which section 14 departs from: [node-semver](https://github.com/npm/node-semver#caret-ranges-123-025-004).
 
 **Contributions, commands and code**
 
