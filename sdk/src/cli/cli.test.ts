@@ -174,6 +174,9 @@ describe('songstress dev', () => {
       await until('the log printed', () => lines.some((line) => line.includes('hello from the host')))
       writeFileSync(join(folder, 'dist/server.js'), 'void 1;')
       await until('the push after a change', () => remote.pushes.length === 2)
+      // The stand-in counts a push when it arrives; the command says so once it has read the answer, which on a
+      // busy machine is after the count: stopping before then would cut that line off.
+      await until('the push after a change said', () => lines.filter((line) => line.startsWith('pushed acme.recorder 1.0.0')).length === 2)
     } finally {
       stop.abort()
       remote.close()

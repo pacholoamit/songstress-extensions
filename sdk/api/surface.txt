@@ -1,4 +1,4 @@
-# The public surface of songstress 0.1.2.
+# The public surface of songstress 0.1.3.
 # Written by "pnpm --dir packages/extensions api:record". Never edit it by hand.
 
 == songstress ==
@@ -11,7 +11,7 @@ export declare const API_PERMISSIONS: Readonly<{
 }>;
 
 API_VERSION:
-export declare const API_VERSION = "0.1.2";
+export declare const API_VERSION = "0.1.3";
 
 Action:
 export type Action = InvokeAction | NavigateAction | PlayAction | QueueAction | OpenUrlAction | CopyAction | ShareAction | ToastAction | ConfirmAction | RefreshAction;
@@ -2173,6 +2173,7 @@ export declare const MANIFEST_ERROR_CODES: {
     MANIFEST_TOO_DEEP: string;
     JSON_INVALID: string;
     JSON_DUPLICATE_KEY: string;
+    THEME_FILE_TOO_LARGE: string;
     SCHEMA_TYPE: string;
     SCHEMA_REQUIRED: string;
     SCHEMA_UNKNOWN_PROPERTY: string;
@@ -2205,6 +2206,9 @@ export declare const MANIFEST_ERROR_CODES: {
     SETTING_DEFAULT_INVALID: string;
     SETTING_RANGE_INVALID: string;
     SETTING_OPTION_DUPLICATE: string;
+    THEME_LOOKS: string;
+    THEME_COLOR: string;
+    THEME_COLOR_ALPHA: string;
     LISTING_FIELD_REQUIRED: string;
     LISTING_LICENSE: string;
     LISTING_REPOSITORY: string;
@@ -2229,6 +2233,9 @@ export declare const MAX_MANIFEST_BYTES: number;
 
 MAX_MANIFEST_DEPTH:
 export declare const MAX_MANIFEST_DEPTH = 16;
+
+MAX_THEME_FILE_BYTES:
+export declare const MAX_THEME_FILE_BYTES: number;
 
 MENU_LOCATIONS:
 export declare const MENU_LOCATIONS: readonly MenuLocation[];
@@ -2532,12 +2539,100 @@ export interface StringSetting {
     maxLength?: number;
 }
 
+THEME_APPEARANCES:
+export declare const THEME_APPEARANCES: readonly ThemeAppearance[];
+
+THEME_FILE_SCHEMA:
+export declare const THEME_FILE_SCHEMA: SchemaNode;
+
+THEME_FILE_SCHEMA_ID:
+export declare const THEME_FILE_SCHEMA_ID: string;
+
+THEME_TOKENS:
+export declare const THEME_TOKENS: readonly [
+    "background",
+    "surface",
+    "surface.raised",
+    "surface.hover",
+    "sidebar",
+    "border",
+    "text",
+    "text.muted",
+    "text.faint",
+    "accent",
+    "accent.fill",
+    "accent.fill.pressed",
+    "accent.onFill",
+    "success",
+    "warning",
+    "danger",
+    "info"
+];
+
 Theme:
 export interface Theme {
     id: LocalId;
     label: Title;
-    path: string;
+    appearance: "dark" | "light" | "both";
+    dark?: ThemeLook;
+    light?: ThemeLook;
+    path?: string;
 }
+
+ThemeAppearance:
+export type ThemeAppearance = Theme['appearance'];
+
+ThemeColor:
+export type ThemeColor = string;
+
+ThemeColors:
+export interface ThemeColors {
+    background?: ThemeColor;
+    surface?: ThemeColor;
+    "surface.raised"?: ThemeColor;
+    "surface.hover"?: ThemeColor;
+    sidebar?: ThemeColor;
+    border?: ThemeColor;
+    text?: ThemeColor;
+    "text.muted"?: ThemeColor;
+    "text.faint"?: ThemeColor;
+    accent?: ThemeColor;
+    "accent.fill"?: ThemeColor;
+    "accent.fill.pressed"?: ThemeColor;
+    "accent.onFill"?: ThemeColor;
+    success?: ThemeColor;
+    warning?: ThemeColor;
+    danger?: ThemeColor;
+    info?: ThemeColor;
+}
+
+ThemeFile:
+export interface ThemeFile {
+    $schema?: string;
+    dark?: ThemeLook;
+    light?: ThemeLook;
+}
+
+ThemeFileResult:
+export type ThemeFileResult = {
+    valid: true;
+    file: ThemeFile;
+    issues: [
+    ];
+} | {
+    valid: false;
+    issues: ManifestIssue[];
+};
+
+ThemeLook:
+export interface ThemeLook {
+    seed?: ThemeColor;
+    colors?: ThemeColors;
+    glow?: ThemeColor[];
+}
+
+ThemeToken:
+export type ThemeToken = (typeof THEME_TOKENS)[number];
 
 Title:
 export type Title = string;
@@ -2587,6 +2682,9 @@ export declare function parseManifest(input: string | Uint8Array, options?: Vali
 
 parseRange:
 export declare function parseRange(text: string): VersionRange | null;
+
+parseThemeFile:
+export declare function parseThemeFile(input: string | Uint8Array, appearance: ThemeAppearance): ThemeFileResult;
 
 parseVersion:
 export declare function parseVersion(text: string): Version | null;
@@ -2653,6 +2751,40 @@ export type ProviderOf<Kind extends keyof Providers> = Providers[Kind] extends P
 
 createMockHost:
 export declare function createMockHost(options?: MockHostOptions): MockHost;
+
+== songstress/theme ==
+
+MAX_COLOR_LENGTH:
+export declare const MAX_COLOR_LENGTH = 64;
+
+ParsedColor:
+export interface ParsedColor {
+    hex: string;
+    alpha: number;
+}
+
+THEME_TOKENS: as above
+
+TRANSLUCENT_TOKENS:
+export declare const TRANSLUCENT_TOKENS: readonly [
+    "surface.hover",
+    "border"
+];
+
+ThemeColors: as above
+
+ThemeLook: as above
+
+ThemeToken: as above
+
+normalizeColor:
+export declare function normalizeColor(value: string): string | undefined;
+
+normalizeLook:
+export declare function normalizeLook(look: unknown): ThemeLook | undefined;
+
+parseColor:
+export declare function parseColor(value: string): ParsedColor | undefined;
 
 == members ==
 

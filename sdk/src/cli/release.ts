@@ -19,7 +19,7 @@
 /** How a repository holds its extensions. */
 export type Layout = 'one' | 'several'
 
-/** A semantic version, as a release's tag carries it (SPEC.md, section 13). */
+/** A semantic version, as a release's tag carries it (SPEC.md, section 14). */
 const VERSION = /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?(?:\+[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?$/
 
 /** The tag of the extension's release at version. */

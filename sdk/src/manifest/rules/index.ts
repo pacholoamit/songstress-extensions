@@ -9,6 +9,7 @@ import { localTargets, requiredPermissions, unusedPermissions } from './permissi
 import type { Rule } from './rule'
 import { settings } from './settings'
 import { unsafeText } from './text'
+import { themeColors, themeLooks } from './themes'
 
 export { LISTING_RULES } from './listing'
 
@@ -30,4 +31,6 @@ export const RULES: readonly Rule[] = [
   playNeedsSearch,
   providerMismatch,
   settings,
+  themeLooks,
+  themeColors,
 ]

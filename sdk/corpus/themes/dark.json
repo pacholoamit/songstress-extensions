@@ -1,0 +1,9 @@
+{
+  "dark": {
+    "seed": "#7fe0a0",
+    "colors": {
+      "background": "hsl(150 35% 6%)",
+      "surface.hover": "rgb(241 247 242 / 12%)"
+    }
+  }
+}

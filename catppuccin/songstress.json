@@ -1,0 +1,50 @@
+{
+  "$schema": "https://songstress.app/schema/extension/v1.json",
+  "manifestVersion": 1,
+  "id": "songstress.catppuccin",
+  "name": "Catppuccin",
+  "version": "1.0.0",
+  "description": "Catppuccin's soothing pastels: Latte for light, and Frappé, Macchiato and Mocha for dark, from its own palette.",
+  "engines": {
+    "songstress": "^0.1.3"
+  },
+  "license": "MIT",
+  "repository": "https://github.com/pacholoamit/songstress-extensions",
+  "categories": [
+    "themes"
+  ],
+  "keywords": [
+    "catppuccin",
+    "pastel",
+    "dark",
+    "light"
+  ],
+  "contributes": {
+    "themes": [
+      {
+        "id": "latte",
+        "label": "Catppuccin Latte",
+        "appearance": "light",
+        "path": "themes/latte.json"
+      },
+      {
+        "id": "frappe",
+        "label": "Catppuccin Frappé",
+        "appearance": "dark",
+        "path": "themes/frappe.json"
+      },
+      {
+        "id": "macchiato",
+        "label": "Catppuccin Macchiato",
+        "appearance": "dark",
+        "path": "themes/macchiato.json"
+      },
+      {
+        "id": "mocha",
+        "label": "Catppuccin Mocha",
+        "appearance": "dark",
+        "path": "themes/mocha.json"
+      }
+    ]
+  }
+}

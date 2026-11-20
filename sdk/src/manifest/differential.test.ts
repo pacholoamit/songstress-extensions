@@ -45,9 +45,9 @@ describe('the differential fixture', () => {
     for (const count of passing) expect(count).toBeLessThan(built.cases.length / 2)
   })
 
-  it('answers every code somewhere, but the one no text under the size limit can earn', () => {
+  it('answers every code somewhere, but the one no text under the size limit can earn and the one only a theme file earns', () => {
     const answered = new Set(built.cases.flatMap((entry) => entry.answers.flat().map(([code]) => code)))
-    expect(Object.keys(MANIFEST_ERROR_CODES).filter((code) => !answered.has(code))).toEqual(['MANIFEST_TOO_LARGE'])
+    expect(Object.keys(MANIFEST_ERROR_CODES).filter((code) => !answered.has(code))).toEqual(['MANIFEST_TOO_LARGE', 'THEME_FILE_TOO_LARGE'])
   })
 
   it('stays well under 2 MB', () => {

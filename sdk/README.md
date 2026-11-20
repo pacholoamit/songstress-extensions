@@ -15,10 +15,12 @@ That starts a working extension, with this package installed. To add it to a pro
 | `songstress/server`, `songstress/client`, `songstress` | The API an extension's code is written against, as types, with a thin object that hands each call to Songstress. `server` is the entry that runs on the user's own server, `client` the one that runs inside an app; the bare name is what both have |
 | `songstress/manifest` | The types of the manifest, `songstress.json`, and its validator. It needs nothing but JavaScript, so it runs in a terminal, on a server and in a browser |
 | `songstress/testing` | A mock Songstress for your own tests |
+| `songstress/theme` | A theme's colours as the apps read them: `parseColor` reads any form a theme may write (hex, `rgb()`, `hsl()`) and `normalizeLook` puts a look in its one form, each colour `#rrggbb` or `#rrggbbaa`. It carries no schema, so an app imports it |
 | `songstress/sandbox` | The types of the few globals the sandbox has, so the compiler refuses the ones it lacks |
 | The `songstress` command | `check`, `build`, `pack` and `dev`: from a folder to an extension running on your server |
 | [SPEC.md](./SPEC.md) | The specification: what an extension is, the manifest field by field, the hooks, the permissions, the API, versions. Start here |
 | `schema/extension.v1.json` | The manifest's JSON Schema. Its address, `https://songstress.app/schema/extension/v1.json`, in a manifest's `$schema` makes an editor check the file as you type |
+| `schema/theme.v1.json` | A theme file's JSON Schema, at `https://songstress.app/schema/theme/v1.json`: the looks of one theme, its colour tokens named (SPEC.md, section 12) |
 | [corpus/](./corpus/README.md) | The manifests every reader of the format must agree on, with the answer for each: for whoever writes another one |
 
 ## An extension
@@ -68,7 +70,7 @@ Hold the compiler to the sandbox in `tsconfig.json`, and `fetch`, `process` and 
 
 | Command | Does |
 |---|---|
-| `check` | Checks the manifest of each extension the folder holds, as a server does when it installs one, and says what its release is called. `--profile listing` asks what the Marketplace asks on top: a licence, the repository, a category, an icon, screenshots. A folder holds one extension, or several, one folder each, each id once (SPEC.md, "A release"). Exits 1 when any fails: what a repository's CI runs |
+| `check` | Checks the manifest of each extension the folder holds, as a server does when it installs one, holds each of its themes to the rules the apps hold a look to (SPEC.md, section 12), and says what its release is called. `--profile listing` asks what the Marketplace asks on top: a licence, the repository, a category, an icon, screenshots. A folder holds one extension, or several, one folder each, each id once (SPEC.md, "A release"). Exits 1 when any fails: what a repository's CI runs |
 | `build` | Builds each entry the manifest names under `dist/` from its source under `src/` (`dist/server.js` from `src/server.ts`, `.tsx`, `.mts`, `.js` or `.mjs`): one classic script with all it imports inside it, an IIFE bundled by rolldown. An entry with no such source is left as your own build wrote it |
 | `pack` | Builds, then writes the package's archive, `<id>-<version>.songstress` (`--out <file>` to name it): the manifest, every file it names and the documents at the folder's root (README, LICENSE, NOTICE, CHANGELOG and the like), nothing else, stored in a ZIP that is the same byte for byte wherever it is made (SPEC.md, section 3). What a release carries, what a server installs from a file |
 | `dev` | Builds, packs and pushes it to your own server as a development install, switched on, granted what its manifest asks and seen by you alone; again whenever a file changes. Prints the extension's log as the server's host writes it. A build that fails or a package the server refuses is said, and the last good one keeps running |
@@ -136,7 +138,7 @@ if (result.valid) {
 
 ## Versions
 
-This package's version is the version of the extension API (`API_VERSION`), which a manifest's `engines.songstress` is held against: `^0.1.0` runs on every 0.1 host. It is 0.x, and may still change between minor versions. [CHANGELOG.md](./CHANGELOG.md) says what moved in each version, and SPEC.md, section 13, has the rules.
+This package's version is the version of the extension API (`API_VERSION`), which a manifest's `engines.songstress` is held against: `^0.1.0` runs on every 0.1 host. It is 0.x, and may still change between minor versions. [CHANGELOG.md](./CHANGELOG.md) says what moved in each version, and SPEC.md, section 14, has the rules.
 
 Questions and problems: <https://github.com/pacholoamit/songstress-extensions/issues>.
 

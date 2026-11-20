@@ -12,6 +12,8 @@ If you are writing a parser in another language, this file is your specification
 | `invalid/` | Manifests with something wrong: one kind of mistake a file, so a failure points at one rule |
 | `cases.json` | Every file with what a validator must answer for it |
 | `engines.json` | The truth table for `version` and `engines.songstress` |
+| `themes/`, `themes.json` | Theme files, and what a reader must answer for each (below, "Theme files") |
+| `colors.json` | Every form of colour a theme may write with its one form, and text that is no colour (below, "Colours") |
 
 Some files in `invalid/` are not JSON, and two are not UTF-8. Read every file as bytes.
 
@@ -166,6 +168,12 @@ That is the controls, the separators, the annotation characters and every code p
 
 **`SETTING_OPTION_DUPLICATE`** at `/contributes/settings/N/options/M/value`: an earlier option has that value.
 
+**`THEME_LOOKS`** for each theme of `contributes.themes`, its looks against its `appearance`: `dark` names a dark look, `light` a light one, `both` the two. A theme with no `path`: at `/contributes/themes/N` for each look its appearance names that it does not write (`dark`, `light`), and at `/contributes/themes/N/<look>` for each it writes that its appearance does not name. A theme with a `path`: at `/contributes/themes/N/<look>` for each look it writes, since its looks are in its file.
+
+**`THEME_COLOR`** at each colour of a look that the schema's pattern lets through and that is no colour (below, "Colours"): `/contributes/themes/N/<look>/seed`, `/contributes/themes/N/<look>/glow/M`, `/contributes/themes/N/<look>/colors/<token>`.
+
+**`THEME_COLOR_ALPHA`** at each colour of a look, at the same pointers, that is a colour whose alpha is below 1 where its place is opaque: the seed, a glow colour, and every token but `border` and `surface.hover`. The alpha is the one form's: `#rrggbbff` and `rgba(…, 1)` are opaque.
+
 ### 4. The listing rules
 
 Only under the `listing` profile, and reported together with the rules.
@@ -179,6 +187,29 @@ Only under the `listing` profile, and reported together with the rules.
 **`LISTING_SCREENSHOTS`** at `/screenshots`: fewer than three.
 
 **`LISTING_ACQUISITION`** at `/contributes/providers/play` and at `/contributes/providers/download`: each that is present.
+
+## Theme files
+
+A theme's looks may be in a file of its own, which its manifest names by its `path` (SPEC.md, section 12). A program that installs or checks a package reads each such file, for the `appearance` its theme gives, as it reads a manifest, in four stages, each run only when the ones before reported nothing; every pointer is into the file:
+
+1. **Size.** More than 16,384 bytes: `THEME_FILE_TOO_LARGE` at `""`. No file is kept for this either.
+2. **The reader.** As a manifest's, from its depth on: `MANIFEST_TOO_DEEP`, `JSON_INVALID`, `JSON_DUPLICATE_KEY`.
+3. **The schema.** `../schema/theme.v1.json`, keyword by keyword as for a manifest. Its definitions are the manifest schema's own theme definitions.
+4. **The looks.** `THEME_LOOKS` at `""` for each look the appearance names that the file does not hold, and at `/<look>` for each it holds that the appearance does not name; and with them `THEME_COLOR` and `THEME_COLOR_ALPHA` as for a manifest's looks, at `/<look>/seed`, `/<look>/glow/M` and `/<look>/colors/<token>`.
+
+`themes.json` holds `{ "cases": [...] }`, each case a `file` (from this folder), an `appearance`, `valid`, `errors` and a `note`, compared as `cases.json`'s are. How a look is drawn, its contrast above all, is the apps' own to check (SPEC.md, section 12), and no case here holds it.
+
+## Colours
+
+A theme writes a colour in any of these forms, and every reader turns it into one: `#rrggbb`, or `#rrggbbaa` when its alpha is below 1, in lower case (SPEC.md, section 12, "Colours"). The apps' engine, the rules a look is held to and the server see that form alone. `colors.json` holds `valid`, each a `value` and its `hex`, and `invalid`, each a `value` no reader takes; and `translucent`, the tokens that may have an alpha below 1.
+
+- **Hex:** `#` and 3, 4, 6 or 8 hex digits, in either case. Three or four are each doubled; the fourth or the last two are the alpha.
+- **`rgb()` and `rgba()`,** the two alike: three channels and an optional alpha, written between commas (`rgb(108, 182, 255)`, `rgba(108, 182, 255, 0.5)`) or between spaces with the alpha after a slash (`rgb(108 182 255 / 50%)`). A channel is a number from 0 to 255 or a percentage from 0% to 100%; between commas all three are of one kind.
+- **`hsl()` and `hsla()`,** the two alike: a hue, a saturation, a lightness and an optional alpha, between commas or between spaces as above. The hue is a number of degrees or an angle (`deg`, `grad`, `rad`, `turn`), any size: it goes round. Saturation and lightness are percentages from 0% to 100%; between spaces a plain number of percent will do. They become red, green and blue by CSS Color 4's `hslToRgb`.
+- **An alpha** is a number from 0 to 1 or a percentage from 0% to 100%.
+- **Numbers** are as CSS writes them, without an exponent: digits, with a fraction after a dot (`127.5`, `.5`), and an optional sign.
+- **Every part rounds** to the nearest byte, a half up: a channel `n` is `round(n)`, a percentage `p` is `round(p × 255 / 100)`, an alpha `a` is `round(a × 255)`, an `hsl()` channel `round(c × 255)`.
+- **Never:** a function's name in upper case, space before its parenthesis or around the whole value, anything but CSS's own whitespace (space, tab, line feed, carriage return, form feed), `none`, a name (`red`, `transparent`, `currentColor`), `var()`, a gradient, `oklch()` and the other spaces, more than 64 characters.
 
 ## `engines.json`
 

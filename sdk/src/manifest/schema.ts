@@ -1,8 +1,11 @@
 // The manifest's JSON Schema, and the closed lists it holds. The schema file
 // is the one place a name is written: the lists below, the generated types
-// and the validator all read it.
+// and the validator all read it. The theme tokens alone are written again, in
+// songstress/theme (src/theme/tokens.ts), which carries no schema into an
+// app; a test holds them to the schema's.
 
 import schema from '../../schema/extension.v1.json'
+import themeSchema from '../../schema/theme.v1.json'
 import type { SchemaNode } from './json'
 import type {
   Category,
@@ -13,7 +16,11 @@ import type {
   Platform,
   ServerHook,
   SourcesByKind,
+  Theme,
 } from './types.generated'
+
+export { THEME_TOKENS } from '../theme/tokens'
+export type { ThemeToken } from '../theme/tokens'
 
 /** The name of the manifest file, at the root of an extension's package. */
 export const MANIFEST_FILE = 'songstress.json'
@@ -35,6 +42,14 @@ export const MANIFEST_SCHEMA: SchemaNode = frozen(schema)
 /** The address the schema is published at, and its `$id`. */
 export const MANIFEST_SCHEMA_ID: string = schema.$id
 
+/** A theme file's JSON Schema (draft 2020-12): the looks of one theme, which
+ * a manifest's theme names by its `path`. Its definitions are the manifest
+ * schema's own (the theme tokens). */
+export const THEME_FILE_SCHEMA: SchemaNode = frozen(themeSchema)
+
+/** The address the theme file's schema is published at, and its `$id`. */
+export const THEME_FILE_SCHEMA_ID: string = themeSchema.$id
+
 /** A permission's name, as the manifest's `permissions` keys it. */
 export type PermissionName = keyof Permissions
 
@@ -43,6 +58,9 @@ export type MenuLocation = keyof Menus
 
 /** A kind of provider, as `contributes.providers` keys it. */
 export type ProviderKind = keyof SourcesByKind
+
+/** The looks a theme has, as its `appearance` names them. */
+export type ThemeAppearance = Theme['appearance']
 
 const defs = schema.$defs
 
@@ -54,3 +72,4 @@ export const PANEL_LOCATIONS = defs.panelLocation.enum as readonly PanelLocation
 export const PERMISSIONS = Object.keys(defs.permissions.properties) as readonly PermissionName[]
 export const MENU_LOCATIONS = Object.keys(defs.menus.properties) as readonly MenuLocation[]
 export const PROVIDER_KINDS = Object.keys(defs.sourcesByKind.properties) as readonly ProviderKind[]
+export const THEME_APPEARANCES = defs.theme.properties.appearance.enum as readonly ThemeAppearance[]

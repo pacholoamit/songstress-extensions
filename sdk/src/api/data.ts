@@ -108,9 +108,11 @@ export interface NetResponse {
 }
 
 /** The network. There is no global `fetch`: this is the only way out, and it
- * goes where the manifest's `network` permission names hosts (or, on the
- * user's own network, its `network.local` targets) and nowhere else. The
- * address a name resolves to is checked when connecting and on every
+ * goes where the manifest's `network` permission names hosts and nowhere
+ * else. Server code may also reach the user's own network, the targets of
+ * `network.local`; client code never does: from an app, a request goes to
+ * the public hosts `network` names alone, which the server's host holds it
+ * to. The address a name resolves to is checked when connecting and on every
  * redirect, and an answer larger than the host allows is refused. */
 export interface Net {
   fetch(url: string, request?: NetRequest): Promise<NetResponse>

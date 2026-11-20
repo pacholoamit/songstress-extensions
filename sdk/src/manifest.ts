@@ -21,8 +21,14 @@ export {
   PLATFORMS,
   PROVIDER_KINDS,
   SERVER_HOOKS,
+  THEME_APPEARANCES,
+  THEME_FILE_SCHEMA,
+  THEME_FILE_SCHEMA_ID,
+  THEME_TOKENS,
 } from './manifest/schema'
-export type { MenuLocation, PermissionName, ProviderKind } from './manifest/schema'
+export type { MenuLocation, PermissionName, ProviderKind, ThemeAppearance, ThemeToken } from './manifest/schema'
+export { MAX_THEME_FILE_BYTES, parseThemeFile } from './manifest/themes'
+export type { ThemeFileResult } from './manifest/themes'
 export { compareVersions, parseRange, parseVersion, satisfiesRange } from './manifest/semver'
 export type { Version, VersionRange } from './manifest/semver'
 export { KEYWORD_CODES } from './manifest/structure'

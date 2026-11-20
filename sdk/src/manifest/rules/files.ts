@@ -25,10 +25,10 @@ function listed(manifest: Manifest): Located[] {
     pointerOf('contributes', 'views', i, 'path'),
     view.path,
   ])
-  const themes = (manifest.contributes?.themes ?? []).map<Located>((theme, i) => [
-    pointerOf('contributes', 'themes', i, 'path'),
-    theme.path,
-  ])
+  // A theme whose looks are written in the manifest names no file.
+  const themes = (manifest.contributes?.themes ?? []).flatMap<Located>((theme, i) =>
+    theme.path === undefined ? [] : [[pointerOf('contributes', 'themes', i, 'path'), theme.path]],
+  )
   return [...screenshots, ...views, ...themes]
 }
 

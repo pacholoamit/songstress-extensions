@@ -1,0 +1,23 @@
+{
+  "name": "@songstress/theme",
+  "private": true,
+  "license": "MIT",
+  "version": "0.1.0",
+  "description": "The theme format's engine: the colour tokens, the maths, what fills a look's missing colours, and the rules a look is held to. The apps apply themes with it, and the SDK's songstress check carries it (MIT, as the SDK is).",
+  "type": "module",
+  "exports": {
+    "./looks": "./src/looks.ts",
+    "./tokens": "./src/tokens.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@material/material-color-utilities": "0.3.0"
+  },
+  "devDependencies": {
+    "typescript": "~6.0.3",
+    "vitest": "^5.0.5"
+  }
+}

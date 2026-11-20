@@ -1,9 +1,21 @@
 {
   "extends": "./tsconfig.base.json",
   "compilerOptions": {
-    "types": ["node"],
+    "types": [
+      "node"
+    ],
     "allowImportingTsExtensions": true
   },
-  "include": ["shared", "index", "*/src", "*.test.ts", "*/*.test.ts"],
-  "exclude": ["sdk", "node_modules"]
+  "include": [
+    "shared",
+    "index",
+    "*/src",
+    "*.test.ts",
+    "*/*.test.ts"
+  ],
+  "exclude": [
+    "sdk",
+    "theme",
+    "node_modules"
+  ]
 }

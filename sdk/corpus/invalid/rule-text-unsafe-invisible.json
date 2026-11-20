@@ -20,36 +20,43 @@
       {
         "id": "a",
         "label": "Annotated\ufff9",
+        "appearance": "dark",
         "path": "a.json"
       },
       {
         "id": "b",
         "label": "Shaped\u206f digits",
+        "appearance": "dark",
         "path": "b.json"
       },
       {
         "id": "c",
         "label": "\u845b\udb40\udd00\u98fe",
+        "appearance": "dark",
         "path": "c.json"
       },
       {
         "id": "d",
         "label": "Filler\u115f",
+        "appearance": "dark",
         "path": "d.json"
       },
       {
         "id": "e",
         "label": "Grapheme\u034fjoined",
+        "appearance": "dark",
         "path": "e.json"
       },
       {
         "id": "f",
         "label": "Khmer\u17b4",
+        "appearance": "dark",
         "path": "f.json"
       },
       {
         "id": "g",
         "label": "\u182e\u180b\u1823",
+        "appearance": "dark",
         "path": "g.json"
       }
     ]

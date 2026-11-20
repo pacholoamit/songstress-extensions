@@ -1,0 +1,15 @@
+{
+  "$schema": "https://songstress.app/schema/theme/v1.json",
+  "dark": {
+    "colors": {
+      "text": "#f1f7f2e6",
+      "accent": "hsl(150, 60, 70)"
+    }
+  },
+  "light": {
+    "seed": "rgb(27 107 67 / 99%)",
+    "colors": {
+      "border": "rgba(13, 26, 18, 0.12)"
+    }
+  }
+}

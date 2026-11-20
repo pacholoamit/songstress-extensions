@@ -26,6 +26,7 @@
       {
         "id": "a",
         "label": "A",
+        "appearance": "dark",
         "path": "a.json"
       }
     ]

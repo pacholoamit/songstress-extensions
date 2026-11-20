@@ -1,0 +1,33 @@
+{
+  "$schema": "https://songstress.app/schema/extension/v1.json",
+  "manifestVersion": 1,
+  "id": "songstress.dracula",
+  "name": "Dracula",
+  "version": "1.0.0",
+  "description": "Dracula for dark and Alucard for light, from the Dracula Theme's own palettes.",
+  "engines": {
+    "songstress": "^0.1.3"
+  },
+  "license": "MIT",
+  "repository": "https://github.com/pacholoamit/songstress-extensions",
+  "categories": [
+    "themes"
+  ],
+  "keywords": [
+    "dracula",
+    "alucard",
+    "purple",
+    "dark",
+    "light"
+  ],
+  "contributes": {
+    "themes": [
+      {
+        "id": "dracula",
+        "label": "Dracula",
+        "appearance": "both",
+        "path": "themes/dracula.json"
+      }
+    ]
+  }
+}

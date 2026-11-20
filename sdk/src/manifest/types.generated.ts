@@ -208,7 +208,7 @@ export interface Contributes {
   panels?: Panel[]
   /** Free-form pages: the extension's own HTML in a sandboxed frame. An app may not show them at all. */
   views?: View[]
-  /** Theme files the extension ships. */
+  /** The themes the extension adds to the picker: each a dark look, a light one, or both. */
   themes?: Theme[]
   /** Sources the extension adds beside Songstress's own, by kind. */
   providers?: SourcesByKind
@@ -402,14 +402,82 @@ export interface View {
   sidebar?: boolean
 }
 
+/** One theme the picker lists: a dark look, a light one, or both, written here or in a theme file. */
 export interface Theme {
-  /** The theme file's name inside the extension. */
+  /** The theme's name inside the extension. */
   id: LocalId
-  /** The name of the theme family, as the picker shows it. */
+  /** The theme's name, as the picker shows it. */
   label: Title
-  /** The theme file, from the package root: a family of colour variants as JSON. */
-  path: string
+  /** The looks the theme has: a dark one, a light one, or both. They are written here or in its file, never both. */
+  appearance: "dark" | "light" | "both"
+  /** The theme's dark look, written here. */
+  dark?: ThemeLook
+  /** The theme's light look, written here. */
+  light?: ThemeLook
+  /** A theme file holding the theme's looks instead, from the package root. */
+  path?: string
 }
+
+/** A theme file, which a theme names by its path: its looks, as the manifest would write them (schema/theme.v1.json). */
+export interface ThemeFile {
+  /** The address of the theme file's schema, so an editor can check the file as you type. */
+  $schema?: string
+  /** The theme's dark look. */
+  dark?: ThemeLook
+  /** The theme's light look. */
+  light?: ThemeLook
+}
+
+/** A theme's look, dark or light: its colours, a seed for what they leave out, and the glow behind the stage. */
+export interface ThemeLook {
+  /** One colour the look grows from where it names no other: the accent, with the stage and the text tinted by its hue. */
+  seed?: ThemeColor
+  /** The look's colour tokens. What it leaves out, an app fills in. */
+  colors?: ThemeColors
+  /** Up to three colours for the ambient light behind the stage of the web and desktop apps. */
+  glow?: ThemeColor[]
+}
+
+/** Colour tokens by name (SPEC.md, section 12). What a look leaves out, an app fills in. */
+export interface ThemeColors {
+  /** The stage behind every screen: lists, a tab's root, the window. */
+  background?: ThemeColor
+  /** Grouped rows, cards and sheets on the stage, and Android's tab bar. */
+  surface?: ThemeColor
+  /** What sits on a surface: menus, popovers, the disc of a pull to refresh. */
+  "surface.raised"?: ThemeColor
+  /** The wash under a pressed or hovered row, and behind secondary controls. It may be translucent. */
+  "surface.hover"?: ThemeColor
+  /** The sidebar of the web and desktop apps. */
+  sidebar?: ThemeColor
+  /** Hairlines between rows and around cards and fields. It may be translucent. */
+  border?: ThemeColor
+  /** Words: titles, rows, body copy. */
+  text?: ThemeColor
+  /** The second voice: an artist under a title, a caption. */
+  "text.muted"?: ThemeColor
+  /** Placeholders, chevrons, and captions that repeat what is beside them. */
+  "text.faint"?: ThemeColor
+  /** The theme's colour in Songstress Red's place: icons, active states, progress, links, the tab bar's tint. */
+  accent?: ThemeColor
+  /** A filled accent that carries a label: Play, a primary button, a selected segment, a badge. */
+  "accent.fill"?: ThemeColor
+  /** A filled accent under a press or the pointer, and the far end of Play's sweep. */
+  "accent.fill.pressed"?: ThemeColor
+  /** The label on a filled accent, at rest and pressed. */
+  "accent.onFill"?: ThemeColor
+  /** Lossless audio, done, connected. */
+  success?: ThemeColor
+  /** Lossy audio, something to look at. */
+  warning?: ThemeColor
+  /** Delete, Sign Out, errors, a menu's destructive items. */
+  danger?: ThemeColor
+  /** Work in progress: running, importing. */
+  info?: ThemeColor
+}
+
+/** A colour: #RGB, #RGBA, #RRGGBB or #RRGGBBAA, or rgb(), rgba(), hsl() or hsla() as CSS writes them, the name in lower case (SPEC.md, section 12, "Colours"). Only border and surface.hover may be translucent. */
+export type ThemeColor = string
 
 /** A kind of thing a source lists. */
 export type CatalogType = "track" | "album" | "artist" | "playlist"
