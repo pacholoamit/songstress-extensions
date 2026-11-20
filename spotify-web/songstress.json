@@ -10,6 +10,7 @@
   "repository": "https://github.com/pacholoamit/songstress-extensions",
   "categories": ["sources"],
   "keywords": ["spotify"],
+  "icon": { "path": "assets/icon.png", "width": 512, "height": 512 },
   "entry": { "server": "dist/server.js" },
   "permissions": {
     "network": {
