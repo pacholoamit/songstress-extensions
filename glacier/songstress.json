@@ -1,0 +1,36 @@
+{
+  "$schema": "https://songstress.app/schema/extension/v1.json",
+  "manifestVersion": 1,
+  "id": "songstress.glacier",
+  "name": "Glacier",
+  "version": "1.0.0",
+  "description": "Cold, clear and quiet: smoky blue-black with an ice-mint accent, and frost for the day.",
+  "engines": {
+    "songstress": "^0.1.3"
+  },
+  "license": "MIT",
+  "repository": "https://github.com/pacholoamit/songstress-extensions",
+  "categories": [
+    "themes"
+  ],
+  "keywords": [
+    "glacier",
+    "mint",
+    "cool"
+  ],
+  "icon": {
+    "path": "assets/icon.png",
+    "width": 512,
+    "height": 512
+  },
+  "contributes": {
+    "themes": [
+      {
+        "id": "glacier",
+        "label": "Glacier",
+        "appearance": "both",
+        "path": "themes/glacier.json"
+      }
+    ]
+  }
+}

@@ -1,4 +1,4 @@
-import { contrast, mix } from './color'
+import { contrast, mix, over, withAlpha } from './color'
 import type { ThemeAppearance, ThemeColors, ThemeToken } from './tokens'
 
 /*
@@ -66,6 +66,52 @@ const RULES: readonly Rule[] = [
   { fg: 'info', on: STAGE, min: WORDS },
   { fg: 'accent.onFill', on: ['accent.fill', 'accent.fill.pressed'], min: WORDS },
 ]
+
+/**
+ * The full player is themed as every screen is (SPEC.md section 12 of the
+ * SDK): drawn from the look showing, light when it is light. Its words and
+ * controls sit on a floor, the look's stage laid at PLAYER_FLOOR over the
+ * artwork's blur, so a cover shows through by the rest at most; they are held
+ * to the rules on that floor over the darkest artwork and the lightest alike.
+ * Under Songstress's own look the player keeps its own dark design.
+ */
+const PLAYER_FLOOR = 0.9
+
+/** The two artworks a floor is measured over: whatever a cover is, it lies between them. */
+const ARTWORKS = { black: '#000000', white: '#ffffff' } as const
+
+/** Where on the player a pair is measured. */
+export type PlayerGround = `the player over ${keyof typeof ARTWORKS} artwork`
+
+const PLAYER_RULES: readonly { fg: ThemeToken; min: number }[] = [
+  { fg: 'text', min: WORDS },
+  { fg: 'text.muted', min: WORDS },
+  // The scrubber and the active controls are parts. Play, a filled accent, is held to its label, as everywhere.
+  { fg: 'accent', min: PARTS },
+]
+
+/** A pair on the player that falls short: `fg` on `on` reaches `got`, under `min`. */
+export interface PlayerShortfall {
+  fg: ThemeToken
+  on: PlayerGround
+  got: number
+  min: number
+}
+
+/** Where a look's colours fall short on the player's floor: nothing, for one a client may show. With `only`, the
+ * rules of that one colour. */
+export function playerShortfalls(colors: ThemeColors, only?: ThemeToken): PlayerShortfall[] {
+  const found: PlayerShortfall[] = []
+  for (const [name, artwork] of Object.entries(ARTWORKS) as [keyof typeof ARTWORKS, string][]) {
+    const floor = over(withAlpha(colors.background, PLAYER_FLOOR), artwork)
+    for (const rule of PLAYER_RULES) {
+      if (only && rule.fg !== only) continue
+      const got = contrast(colors[rule.fg], floor)
+      if (got < rule.min) found.push({ fg: rule.fg, on: `the player over ${name} artwork`, got, min: rule.min })
+    }
+  }
+  return found
+}
 
 /** One pair that falls short: `fg` on `on` reaches `got`, under `min`. */
 export interface Shortfall {

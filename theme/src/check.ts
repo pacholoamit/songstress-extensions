@@ -1,5 +1,5 @@
 import { luminance } from './color'
-import { shortfalls } from './rules'
+import { playerShortfalls, shortfalls } from './rules'
 import type { ThemeVariant } from './tokens'
 
 /*
@@ -26,13 +26,18 @@ const LIGHT_MIN = 0.55
 
 const ratio = (n: number) => `${n.toFixed(2)}:1`
 
-/** The contrast rules a look falls short of (rules.ts), as a refusal words them. */
-function contrastProblems(variant: ThemeVariant): ThemeProblem[] {
-  return shortfalls(variant.colors, variant.appearance).map(({ fg, on, got, min }) => ({
+/** A pair that falls short, as a refusal words it. */
+const contrastProblem =
+  (variant: ThemeVariant) =>
+  ({ fg, on, got, min }: { fg: string; on: string; got: number; min: number }): ThemeProblem => ({
     code: 'contrast',
     at: variant.name,
     message: `${fg} on ${on} is ${ratio(got)}, under ${ratio(min)}.`,
-  }))
+  })
+
+/** The contrast rules a look falls short of on the stage (rules.ts). */
+function contrastProblems(variant: ThemeVariant): ThemeProblem[] {
+  return shortfalls(variant.colors, variant.appearance).map(contrastProblem(variant))
 }
 
 function luminanceProblems(variant: ThemeVariant): ThemeProblem[] {
@@ -44,6 +49,12 @@ function luminanceProblems(variant: ThemeVariant): ThemeProblem[] {
     return [{ code: 'luminance', at: variant.name, message: `A light theme's background is too dark (${lum.toFixed(2)}).` }]
   }
   return []
+}
+
+/** Where the full player falls short with a filled look: its words and controls on its floor (rules.ts), over
+ * dark and light artwork. Songstress's own look keeps its own player, so this is for a theme's look. */
+export function checkPlayer(variant: ThemeVariant): ThemeProblem[] {
+  return playerShortfalls(variant.colors).map(contrastProblem(variant))
 }
 
 /** What is wrong with a filled look: nothing, for one a client may apply. */

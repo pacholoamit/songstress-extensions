@@ -1,0 +1,42 @@
+{
+  "$schema": "https://songstress.app/schema/extension/v1.json",
+  "manifestVersion": 1,
+  "id": "songstress.one",
+  "name": "One Dark and One Light",
+  "version": "1.0.0",
+  "description": "Atom's One Dark and One Light, as GitHub drew them, in their own hsl() colours.",
+  "engines": {
+    "songstress": "^0.1.3"
+  },
+  "license": "MIT",
+  "repository": "https://github.com/pacholoamit/songstress-extensions",
+  "categories": [
+    "themes"
+  ],
+  "keywords": [
+    "one-dark",
+    "one-light",
+    "atom"
+  ],
+  "icon": {
+    "path": "assets/icon.png",
+    "width": 512,
+    "height": 512
+  },
+  "contributes": {
+    "themes": [
+      {
+        "id": "one-dark",
+        "label": "One Dark",
+        "appearance": "dark",
+        "path": "themes/one-dark.json"
+      },
+      {
+        "id": "one-light",
+        "label": "One Light",
+        "appearance": "light",
+        "path": "themes/one-light.json"
+      }
+    ]
+  }
+}

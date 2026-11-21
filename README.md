@@ -11,13 +11,23 @@ Songstress's official extensions: the ones made by Songstress's maintainer, whic
 | `spotify-web/` | `songstress.spotify-web` | Spotify's web player's catalogue: search, links (`spotify:` ones too), a track's ISRC from Spotify's own metadata and its Deezer id. It joins the Spotify group | LGPL-3.0-only, ported from zarzet's earlier extension (`COPYING`, `LICENSE`, `NOTICE`) |
 | `catppuccin/` | `songstress.catppuccin` | Themes: Catppuccin Latte, Frappé, Macchiato and Mocha | MIT (`LICENSE`); Catppuccin's palette, MIT (`NOTICE`) |
 | `dracula/` | `songstress.dracula` | Themes: Dracula, with Alucard for light | MIT (`LICENSE`); the Dracula Theme's palettes, MIT (`NOTICE`) |
+| `everforest/` | `songstress.everforest` | Theme: Everforest, dark and light | MIT (`LICENSE`); Everforest's palette, MIT (`NOTICE`) |
+| `glacier/` | `songstress.glacier` | Theme: Glacier, an original, dark and light | MIT (`LICENSE`) |
+| `gruvbox/` | `songstress.gruvbox` | Theme: Gruvbox, dark and light | MIT (`LICENSE`); Gruvbox's palette, MIT/X11 (`NOTICE`) |
+| `kanagawa/` | `songstress.kanagawa` | Theme: Kanagawa, Wave for dark and Lotus for light | MIT (`LICENSE`); Kanagawa's palette, MIT (`NOTICE`) |
+| `nocturne/` | `songstress.nocturne` | Theme: Nocturne, an original, dark | MIT (`LICENSE`) |
 | `nord/` | `songstress.nord` | Themes: Nord, Polar Night and Snow Storm | MIT (`LICENSE`); Nord's palette, MIT (`NOTICE`) |
+| `one/` | `songstress.one` | Themes: One Dark and One Light | MIT (`LICENSE`); Atom's One Dark and One Light, MIT (`NOTICE`) |
+| `rose-pine/` | `songstress.rose-pine` | Themes: Rosé Pine (Main and Dawn) and Rosé Pine Moon | MIT (`LICENSE`); Rosé Pine's palette, MIT (`NOTICE`) |
+| `solarized/` | `songstress.solarized` | Theme: Solarized, dark and light | MIT (`LICENSE`); Solarized's palette, MIT (`NOTICE`) |
+| `studio/` | `songstress.studio` | Theme: Studio, an original, dark and light | MIT (`LICENSE`) |
+| `tokyo-night/` | `songstress.tokyo-night` | Theme: Tokyo Night, Night for dark and Light for light | MIT (`LICENSE`); Tokyo Night's palette, MIT (`NOTICE`) |
 
 They are the sources that were extensions of Songstress's earlier extension system. Nothing here is built into Songstress, its server image or an app: a server installs each from the official index, and a server that had the earlier extension installed gets its version here in its place, with its settings, and tells its admins.
 
 **Bugs Music and Melon Music are not here.** Their earlier versions (and Genie's) are ldw0403-netizen's K-Music, which publishes no licence, so their code could not be ported; Genie Music was written anew from its live pages. Bugs answers with a JavaScript-and-cookie bot challenge, and Melon's site does not answer outside Korea, so neither could be written or checked yet. A server that had either let it go and told its admins so.
 
-`shared/` is the code they share, built into each one's package. `sdk/` is the Songstress extension SDK (MIT), carried here until it is published on npm (below, "Refreshing the SDK"). `index/` makes and signs the official index (MIT). The themes are data, a manifest and its theme files with no code (sdk/SPEC.md, section 12); each folder's README says which colours were moved off its palette to read where the apps draw them. `sdk/` is the Songstress extension SDK (MIT), carried here until it is published on npm, and `theme/` the theme engine its `check` holds every look to, the apps' own (MIT). `index/` makes and signs the official index (MIT).
+`shared/` is the code the ports share, built into each one's package. The themes are data, a manifest, its theme files and an icon in the theme's own colours, with no code (sdk/SPEC.md, section 12): ten well-known palettes, each under its MIT licence (`NOTICE`), and three of Songstress's own (Glacier, Studio, Nocturne). Each theme's README says which colours were moved off its palette to read where the apps draw them. `sdk/` is the Songstress extension SDK (MIT), carried here until it is published on npm (below, "Refreshing the SDK"), and `theme/` the theme engine its `check` holds every look to, the apps' own (MIT). `index/` makes and signs the official index (MIT).
 
 ## What runs where
 

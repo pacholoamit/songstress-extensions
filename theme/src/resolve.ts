@@ -1,5 +1,5 @@
 import { contrast, mix, withAlpha } from './color'
-import { PARTS, pressedFill, shortfalls } from './rules'
+import { PARTS, playerShortfalls, pressedFill, shortfalls } from './rules'
 import { apart, nearestTone, seedRoots } from './seed'
 import {
   THEME_TOKENS,
@@ -98,7 +98,9 @@ const FIXED: ReadonlySet<ThemeToken> = new Set<ThemeToken>([
  * colour's grounds first). */
 function fitted(token: ThemeToken, color: string, colors: ThemeColors, named: Own, appearance: ThemeAppearance): string {
   if (FIXED.has(token)) return color
-  const passes = (at: ThemeToken, value: Own) => shortfalls({ ...colors, ...value }, appearance, at).length === 0
+  // A colour passes where the stage's rules hold it and the player's floor does (rules.ts).
+  const passes = (at: ThemeToken, value: Own) =>
+    shortfalls({ ...colors, ...value }, appearance, at).length === 0 && playerShortfalls({ ...colors, ...value }, at).length === 0
   const labels = named['accent.onFill'] ? [named['accent.onFill']] : LABELS
   const labelled = (value: Own) => labels.some((label) => passes('accent.onFill', { ...value, 'accent.onFill': label }))
   if (token === 'accent.fill') {

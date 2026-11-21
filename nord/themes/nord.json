@@ -9,20 +9,21 @@
       "surface.hover": "#d8dee914",
       "border": "#eceff41f",
       "text": "#eceff4",
-      "text.muted": "#b5bcc9",
-      "text.faint": "#838da3",
+      "text.muted": "#bbc1cf",
+      "text.faint": "#8892a8",
       "accent": "#88c0d0",
       "accent.fill": "#88c0d0",
+      "accent.fill.pressed": "#78a7b5",
       "accent.onFill": "#2e3440",
       "success": "#a3be8c",
       "warning": "#ebcb8b",
-      "danger": "#fb919a",
-      "info": "#91b1d2"
+      "danger": "#ffa9af",
+      "info": "#d0a8c8"
     },
     "glow": [
       "#88c0d0",
       "#5e81ac",
-      "#b48ead"
+      "#8fbcbb"
     ]
   },
   "light": {
@@ -35,12 +36,13 @@
       "border": "#4c566a40",
       "text": "#2e3440",
       "text.muted": "#4c566a",
-      "accent": "#476a94",
-      "accent.fill": "#476a94",
+      "text.faint": "#7b8088",
+      "accent": "#446891",
+      "accent.fill": "#446891",
       "accent.onFill": "#eceff4",
-      "success": "#708a5a",
+      "success": "#6e8758",
       "warning": "#997c3d",
-      "danger": "#a34b55",
+      "danger": "#a04953",
       "info": "#416c6b"
     },
     "glow": [

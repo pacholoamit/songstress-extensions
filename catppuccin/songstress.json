@@ -19,6 +19,11 @@
     "dark",
     "light"
   ],
+  "icon": {
+    "path": "assets/icon.png",
+    "width": 512,
+    "height": 512
+  },
   "contributes": {
     "themes": [
       {
