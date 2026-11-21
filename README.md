@@ -1,89 +1,266 @@
-# songstress-extensions
+<p align="center">
+  <img src="assets/readme/songstress.png" width="96" height="96" alt="The Songstress app icon" />
+</p>
 
-Songstress's official extensions: the ones made by Songstress's maintainer, which every Songstress server can install from its catalogue. Other authors publish their extensions from their own GitHub repositories and submit them to the Marketplace on songstress.app; they never need to add them here.
+<h1 align="center">Songstress Extensions</h1>
 
-| Folder | Extension | What it adds | Licence |
-|---|---|---|---|
-| `apple-music/` | `songstress.apple-music` | Search, songs, albums, playlists and artists by id or link, a song's ISRC, and synced lyrics with your own Media User Token (a secret setting). It joins the iTunes group | LGPL-3.0-only, ported from zarzet's earlier extension (`COPYING`, `LICENSE`, `NOTICE`) |
-| `genie-music/` | `songstress.genie-music` | Search Genie Music's songs, albums and artists, and open them by id or link | MIT, written for Songstress from Genie's own pages (`LICENSE`) |
-| `jiosaavn/` | `songstress.jiosaavn` | Search, songs, albums, playlists and artists by id or link, a song's facts; a stream to audition and five AAC qualities to acquire (both off until an admin turns them on). Its setting: the languages it searches in | LGPL-3.0-only (the earlier registry's version), from HemanthJabalpuri's MIT original (`COPYING`, `LICENSE`, `NOTICE`) |
-| `soundcloud/` | `songstress.soundcloud` | Search, tracks, sets and artists by id or link, an ISRC for a track; a progressive stream to audition, and the AAC stream to acquire (both off until an admin turns them on) | LGPL-3.0-only, ported from zarzet's earlier extension (`COPYING`, `LICENSE`, `NOTICE`) |
-| `spotify-web/` | `songstress.spotify-web` | Spotify's web player's catalogue: search, links (`spotify:` ones too), a track's ISRC from Spotify's own metadata and its Deezer id. It joins the Spotify group | LGPL-3.0-only, ported from zarzet's earlier extension (`COPYING`, `LICENSE`, `NOTICE`) |
-| `catppuccin/` | `songstress.catppuccin` | Themes: Catppuccin Latte, Frappé, Macchiato and Mocha | MIT (`LICENSE`); Catppuccin's palette, MIT (`NOTICE`) |
-| `dracula/` | `songstress.dracula` | Themes: Dracula, with Alucard for light | MIT (`LICENSE`); the Dracula Theme's palettes, MIT (`NOTICE`) |
-| `everforest/` | `songstress.everforest` | Theme: Everforest, dark and light | MIT (`LICENSE`); Everforest's palette, MIT (`NOTICE`) |
-| `glacier/` | `songstress.glacier` | Theme: Glacier, an original, dark and light | MIT (`LICENSE`) |
-| `gruvbox/` | `songstress.gruvbox` | Theme: Gruvbox, dark and light | MIT (`LICENSE`); Gruvbox's palette, MIT/X11 (`NOTICE`) |
-| `kanagawa/` | `songstress.kanagawa` | Theme: Kanagawa, Wave for dark and Lotus for light | MIT (`LICENSE`); Kanagawa's palette, MIT (`NOTICE`) |
-| `nocturne/` | `songstress.nocturne` | Theme: Nocturne, an original, dark | MIT (`LICENSE`) |
-| `nord/` | `songstress.nord` | Themes: Nord, Polar Night and Snow Storm | MIT (`LICENSE`); Nord's palette, MIT (`NOTICE`) |
-| `one/` | `songstress.one` | Themes: One Dark and One Light | MIT (`LICENSE`); Atom's One Dark and One Light, MIT (`NOTICE`) |
-| `rose-pine/` | `songstress.rose-pine` | Themes: Rosé Pine (Main and Dawn) and Rosé Pine Moon | MIT (`LICENSE`); Rosé Pine's palette, MIT (`NOTICE`) |
-| `solarized/` | `songstress.solarized` | Theme: Solarized, dark and light | MIT (`LICENSE`); Solarized's palette, MIT (`NOTICE`) |
-| `studio/` | `songstress.studio` | Theme: Studio, an original, dark and light | MIT (`LICENSE`) |
-| `tokyo-night/` | `songstress.tokyo-night` | Theme: Tokyo Night, Night for dark and Light for light | MIT (`LICENSE`); Tokyo Night's palette, MIT (`NOTICE`) |
+<p align="center">
+  <b>More music. Your colours. Your code.</b><br />
+  The official extensions for <a href="https://songstress.app">Songstress</a>: more places to find music, and thirteen themes.<br />
+  Nothing here is built in. Your server installs what you choose, and you can build your own.
+</p>
 
-They are the sources that were extensions of Songstress's earlier extension system. Nothing here is built into Songstress, its server image or an app: a server installs each from the official index, and a server that had the earlier extension installed gets its version here in its place, with its settings, and tells its admins.
+<p align="center">
+  <a href="https://github.com/pacholoamit/songstress-extensions/actions/workflows/ports.yml"><img src="https://github.com/pacholoamit/songstress-extensions/actions/workflows/ports.yml/badge.svg" alt="The ports check on main" /></a>
+  <a href="#music-sources"><img src="https://img.shields.io/badge/music%20sources-5-e50043" alt="Five music sources" /></a>
+  <a href="#themes"><img src="https://img.shields.io/badge/themes-13-ff464a" alt="Thirteen themes" /></a>
+  <a href="sdk/README.md"><img src="https://img.shields.io/badge/SDK-MIT-4c4c58" alt="The SDK is MIT licensed" /></a>
+</p>
 
-**Bugs Music and Melon Music are not here.** Their earlier versions (and Genie's) are ldw0403-netizen's K-Music, which publishes no licence, so their code could not be ported; Genie Music was written anew from its live pages. Bugs answers with a JavaScript-and-cookie bot challenge, and Melon's site does not answer outside Korea, so neither could be written or checked yet. A server that had either let it go and told its admins so.
+<p align="center">
+  <a href="https://songstress.app">songstress.app</a> &nbsp;•&nbsp;
+  <a href="#install-an-extension">Install</a> &nbsp;•&nbsp;
+  <a href="#music-sources">Music sources</a> &nbsp;•&nbsp;
+  <a href="#themes">Themes</a> &nbsp;•&nbsp;
+  <a href="#build-your-own">Build your own</a> &nbsp;•&nbsp;
+  <a href="#working-in-this-repository">Contribute</a>
+</p>
 
-`shared/` is the code the ports share, built into each one's package. The themes are data, a manifest, its theme files and an icon in the theme's own colours, with no code (sdk/SPEC.md, section 12): ten well-known palettes, each under its MIT licence (`NOTICE`), and three of Songstress's own (Glacier, Studio, Nocturne). Each theme's README says which colours were moved off its palette to read where the apps draw them. `sdk/` is the Songstress extension SDK (MIT), carried here until it is published on npm (below, "Refreshing the SDK"), and `theme/` the theme engine its `check` holds every look to, the apps' own (MIT). `index/` makes and signs the official index (MIT).
+<br />
 
-## What runs where
+<p align="center">
+  <img src="assets/readme/extensions.png" width="100%" alt="The icons of the eighteen official extensions: five music sources and thirteen themes" />
+</p>
 
-Each extension's `src/server.ts` is its server entry, built by `songstress build` into one classic script (`dist/server.js`, not tracked) with `shared/` inside it: a catalogue source's search, lookups and links registered in one call (`register.ts`), the network with a browser's User-Agent and the SDK's failures (`http.ts`), a value kept in memory and in the extension's store (`kept.ts`), matching a song among a source's results (`match.ts`, `text.ts`), and addresses and base64 without the URL class the engine lacks (`url.ts`). Everything runs on the server, in its extension host, never in a phone's app.
+> [!NOTE]
+> **Coming with Songstress's extensions release.** Extensions, the Marketplace on songstress.app, and the `songstress` SDK on npm all arrive together. Until then you can build and test inside this repository, where `sdk/` holds the SDK.
 
-## The layout
+## Install an extension
 
-This repository holds several extensions, each in a folder of its own with its `songstress.json` (sdk/SPEC.md, "A release"). Each extension is released on its own: a release is tagged `<id>@<version>` with the whole id (`songstress.soundcloud@1.2.0`) and carries one asset, `<id>-<version>.songstress`. An extension's latest release is the newest full release whose tag names it; another extension's releases are not its own. A Songstress server installing from this repository by its link asks which extension, or takes the one a release link names.
+1. In Songstress, open **Manage ▸ Extensions**. Only admins see it.
+2. Choose **Browse extensions**, pick one, and choose **Install**.
+3. Songstress shows everything it asks to do. Tick what it may do, then turn it on. Nothing runs before you've seen it.
 
-## Releasing an extension
+**Rather use a link?** Choose **Add an extension**, paste `github.com/pacholoamit/songstress-extensions`, and pick the one you want. A `.songstress` file from a release works too.
 
-1. Raise the version in its `songstress.json`, through a pull request (the `ports` check must pass).
-2. Tag the merged commit `<id>@<version>` and push the tag. The `release` workflow packs that folder and publishes the release with its asset; it refuses a tag that does not name the manifest's id and version. A pre-release version (`1.3.0-beta.1`) is published as a pre-release, which the index never lists.
-3. The official index lists it once it is signed with the new version (below).
+**Themes** are installed the same way. Once an admin installs one, everyone on the server can choose it in **Settings ▸ Appearance**.
 
-## The official index
+## Music sources
 
-Every Songstress server reads the signed index from this repository's `index` branch, which holds `index.json` alone: `https://raw.githubusercontent.com/pacholoamit/songstress-extensions/index/index.json`. It is a DSSE envelope signed with Ed25519 (`index/README.md` has its format), listing each version by its package's SHA-256, the block list, and the publishers. Servers trust only the keys built into them, so a change anywhere else cannot list anything.
+Each one adds a catalogue to Search and opens its links. Songstress's own sources keep working beside them.
 
-The `index` workflow (`.github/workflows/index.yml`) makes it, after every release, whenever `main` changes one of the three files below, every Monday (an index holds 30 days, so it never lapses), and by hand (Actions, `index`, Run workflow). It lists each extension's three newest full releases, each version by its package as its release carries it (`index/cli.ts build`) and published at its release's own time (`index/releases.ts`), under the sequence after the last one's. It signs it with the key the `index` environment holds, reads it back with `index.pub`, commits it to the `index` branch, and tells songstress.app (`index/ping.ts`), which takes it only if its signature holds. The environment gives its secrets to `main` alone.
+| | Extension | What it adds | Licence |
+|:-:|---|---|---|
+| <img src="apple-music/assets/icon.png" width="44" height="44" alt="" /> | **Apple Music**<br /><sub>`songstress.apple-music`</sub> | Search Apple Music beside iTunes, and open its songs, albums, playlists and artists from a link. Adds each song's ISRC, and synced lyrics with your own Media User Token. | LGPL-3.0 |
+| <img src="spotify-web/assets/icon.png" width="44" height="44" alt="" /> | **Spotify Web**<br /><sub>`songstress.spotify-web`</sub> | Search Spotify's web catalogue beside Songstress's Spotify, and open its links, `spotify:` ones too. Fills in each track's ISRC and Deezer id. | LGPL-3.0 |
+| <img src="soundcloud/assets/icon.png" width="44" height="44" alt="" /> | **SoundCloud**<br /><sub>`songstress.soundcloud`</sub> | Search tracks, sets and artists, and open them from a link. It can stream a track to try it and acquire its AAC stream, both off until an admin turns them on. | LGPL-3.0 |
+| <img src="jiosaavn/assets/icon.png" width="44" height="44" alt="" /> | **JioSaavn**<br /><sub>`songstress.jiosaavn`</sub> | Search songs, albums, playlists and artists in the languages you choose, and open them from a link. It can stream a song to try it and acquire it in five AAC qualities, both off until an admin turns them on. | LGPL-3.0 |
+| <img src="genie-music/assets/icon.png" width="44" height="44" alt="" /> | **Genie Music**<br /><sub>`songstress.genie-music`</sub> | Search Genie Music's songs, albums and artists, and open them from a link. | MIT |
 
-What it says, besides the releases, is three files on `main`, each changed through a pull request:
+The four LGPL-3.0 sources are ports from Songstress's earlier extension system; each folder's `NOTICE` names their original authors. Genie Music was written anew from Genie's own pages.
 
-- `publishers.json`: the publishers this index vouches for, `[{ "name": "songstress", "verified": true }]`.
-- `blocklist.json`: versions every server switches off, `{ "id", "versions", "sha256", "reason", "at" }` each (`versions` left out means every version of the id; `sha256` names packages whatever their id).
-- `marketplace.json`: the ids songstress.app's directory shows. Every listed extension installs either way; one shown there meets the listing rules (`sdk/SPEC.md`, "Listing").
+**Bugs Music and Melon Music aren't here.** Their earlier versions publish no licence, so they couldn't be ported. Bugs answers bots with a challenge, and Melon's site doesn't answer outside Korea, so neither could be written and checked yet.
 
-### Setting it up, once
+## Themes
 
-1. On your own machine, never in this repository: `node index/cli.ts keygen ~/songstress-index.pem`. It prints the public key.
-2. Put the public key in `index.pub` through a pull request, and give it to the Songstress server (`officialKeys`, a release before the first index signed with it) and to songstress.app.
-3. Settings, Environments, New environment `index`. Deployment branches and tags: `main` only. Its secrets: `INDEX_SIGNING_KEY`, the whole `.pem` file; `INDEX_PING_SECRET`, the same value songstress.app holds as `EXTENSIONS_PING_SECRET` (32 characters or more).
-4. Run the `index` workflow by hand once.
+A theme recolours all of Songstress, the player included. Every look passes the readability rules the apps hold themselves to: words at 4.5:1 or better on every surface, over any album cover. Songstress's logo, Wrapped and share cards always stay its own.
 
-## Working on it
+**From palettes you know**
+
+<table>
+  <tr>
+    <td align="center" width="20%"><img src="catppuccin/assets/icon.png" width="64" height="64" alt="" /><br /><b>Catppuccin</b><br /><sub>Latte, Frappé, Macchiato and Mocha</sub></td>
+    <td align="center" width="20%"><img src="dracula/assets/icon.png" width="64" height="64" alt="" /><br /><b>Dracula</b><br /><sub>Dracula, and Alucard for light</sub></td>
+    <td align="center" width="20%"><img src="nord/assets/icon.png" width="64" height="64" alt="" /><br /><b>Nord</b><br /><sub>Polar Night, and Snow Storm for light</sub></td>
+    <td align="center" width="20%"><img src="gruvbox/assets/icon.png" width="64" height="64" alt="" /><br /><b>Gruvbox</b><br /><sub>Dark and light</sub></td>
+    <td align="center" width="20%"><img src="tokyo-night/assets/icon.png" width="64" height="64" alt="" /><br /><b>Tokyo Night</b><br /><sub>Night, and Light for the day</sub></td>
+  </tr>
+  <tr>
+    <td align="center" width="20%"><img src="rose-pine/assets/icon.png" width="64" height="64" alt="" /><br /><b>Rosé Pine</b><br /><sub>Main and Moon, and Dawn for light</sub></td>
+    <td align="center" width="20%"><img src="solarized/assets/icon.png" width="64" height="64" alt="" /><br /><b>Solarized</b><br /><sub>Dark and light</sub></td>
+    <td align="center" width="20%"><img src="one/assets/icon.png" width="64" height="64" alt="" /><br /><b>One</b><br /><sub>One Dark and One Light</sub></td>
+    <td align="center" width="20%"><img src="everforest/assets/icon.png" width="64" height="64" alt="" /><br /><b>Everforest</b><br /><sub>Dark and light</sub></td>
+    <td align="center" width="20%"><img src="kanagawa/assets/icon.png" width="64" height="64" alt="" /><br /><b>Kanagawa</b><br /><sub>Wave, dark only</sub></td>
+  </tr>
+</table>
+
+**Made for Songstress**
+
+<table>
+  <tr>
+    <td align="center" width="33%"><img src="glacier/assets/icon.png" width="64" height="64" alt="" /><br /><b>Glacier</b><br /><sub>Ice mint on smoky blue-black, and frost for the day</sub></td>
+    <td align="center" width="33%"><img src="studio/assets/icon.png" width="64" height="64" alt="" /><br /><b>Studio</b><br /><sub>Graphite with one lime signal light, dark and light</sub></td>
+    <td align="center" width="33%"><img src="nocturne/assets/icon.png" width="64" height="64" alt="" /><br /><b>Nocturne</b><br /><sub>Deep indigo lit in saffron, dark only</sub></td>
+  </tr>
+</table>
+
+Each theme's README lists any colour moved off its palette so that it reads where the apps draw it, and why.
+
+## Build your own
+
+An extension is a folder with a manifest, `songstress.json`, and the code or colours it names. You keep yours in your own GitHub repository and never need to add it here.
+
+### From idea to listed, in five steps
+
+**1. Start it**
 
 ```sh
-pnpm install
-pnpm typecheck && pnpm lint && pnpm test
-pnpm exec songstress check .          # every manifest, as a server checks it
-pnpm exec songstress pack soundcloud  # one package, as its release carries it
+npm create songstress-extension@latest
 ```
 
-Node 24.3 or later runs the `songstress` command as it is.
+It asks for a name, an id (`your-github-name.my-extension`) and a category, then writes a working extension: a manifest that passes its check, a typed entry, tests, and the workflows that check and release it. To start a theme instead, add `-- --theme`: a dark and a light look, with nothing to build.
 
-The tests:
+**2. Run it on your own server, live**
 
-- each extension's `server.test.ts`: its providers against a stand-in Songstress and a stand-in service (`shared/testing.ts`), with the answers the earlier versions' own tests used where they had them;
-- `official.test.ts`: every manifest is Songstress's own and passes the install profile, would pass the listing profile once it has its images, and packs the same package every time;
-- `index/*.test.ts`: the signed index (`index/README.md`), `publishers.json` as a server reads it, the releases it lists, and the ping to songstress.app.
+```sh
+cd my-extension
+export SONGSTRESS_SERVER=http://music.local:8090   # your Songstress server
+export SONGSTRESS_EMAIL=you@example.com            # an admin of it
+export SONGSTRESS_PASSWORD=...                     # or SONGSTRESS_TOKEN, an admin's session
+npx songstress dev
+```
 
-Songstress's own server tests install these extensions from packages recorded in its repository (`apps/pocketbase/internal/extensions/testdata`, test data that no build or image takes). Its `README.md` there says how to record them again from a checkout of this one, after a change here that its tests should see.
+`dev` builds your extension and installs it on your server as a development install that only you can see. Every time you save, it installs it again. Its log streams to your terminal.
 
-## Refreshing the SDK
+**3. Test it without a server**
 
-`sdk/` is a copy of the Songstress repository's `packages/extensions` (the `songstress` package), made to stand alone: its TypeScript config extends this repository's `tsconfig.base.json` and its typecheck is plain `tsc`. Until `songstress` is published on npm, an extension built here uses the SDK this copy holds, so refresh it when Songstress's SDK changes (a new API version, a new check). From a checkout of Songstress beside this one:
+```sh
+npm test
+```
+
+Your tests run against `songstress/testing`, a stand-in Songstress: fire a hook, run a command, call a provider, and see every call your code made. The [SDK's guide](sdk/README.md#test-it) has an example.
+
+**4. Check it and release it**
+
+```sh
+npx songstress check                     # what a server checks when it installs it
+npx songstress check --profile listing   # what the Marketplace asks on top
+git tag v0.1.0 && git push --tags        # the release workflow attaches <id>-0.1.0.songstress
+```
+
+Anyone can now install it from your repository's link.
+
+**5. List it**
+
+Submit your repository at [songstress.app/extensions/submit](https://songstress.app/extensions/submit). A person reviews it, then it's listed in the Marketplace.
+
+### What an extension can add
+
+| | |
+|---|---|
+| **Music providers** | Search, lookups and links, lyrics, artwork, metadata, scrobbling, recommendations, playback and downloads. Each one joins Songstress's own and never replaces it. |
+| **Hooks** | React to what happens, like a song starting (`onPlay`) or a play counting (`onScrobble`). |
+| **Commands and settings** | Buttons and settings that Songstress draws for you. |
+| **Screens** | Pages, panels, menu entries, status items in the player, questions and notices. You declare them, and every Songstress app draws them natively. |
+| **Client code** | Code that runs inside the apps, in a sandbox. |
+| **Themes** | Colours for all of Songstress, as data, with no code at all. |
+
+### Safe by design
+
+- Server code runs in your server's extension host, in a sandbox: the JavaScript language, timers, `console.log` and the `songstress` API, and nothing else. There's no Node and no `fetch`.
+- It reaches the network only through `songstress.net.fetch`, and only to the hosts its manifest names.
+- Every permission carries the reason you wrote for it, and an admin sees each one before anything runs.
+- Hold your compiler to the same rules: with `"types": ["songstress/sandbox"]` in `tsconfig.json`, `fetch`, `process` and the DOM don't compile.
+
+### The `songstress` command
+
+| Command | What it does |
+|---|---|
+| `songstress check` | Checks every manifest in the folder as a server does when it installs one, holds each theme to the readability rules, and names its release |
+| `songstress build` | Builds each entry under `src/` into one script under `dist/` |
+| `songstress pack` | Builds, then writes the package a release carries, `<id>-<version>.songstress` |
+| `songstress dev` | Installs it on your own server for you alone, again on every save, and streams its log |
+
+### Learn more
+
+- [The SDK's guide](sdk/README.md): the API, the stand-in Songstress for tests, and the command.
+- [The specification](sdk/SPEC.md): the manifest field by field, hooks, permissions, the API, screens, providers, themes and listing.
+- Small extensions to read: [`genie-music/`](genie-music) for a music source, [`glacier/`](glacier) for a theme, and [`sdk/examples/tunelog/`](sdk/examples/tunelog).
+- Questions and problems: [issues](https://github.com/pacholoamit/songstress-extensions/issues).
+
+## Working in this repository
+
+This is for changes to the official extensions. You need Node 24.3 or later and pnpm 9 (`corepack enable` gives you pnpm).
+
+```sh
+git clone https://github.com/pacholoamit/songstress-extensions.git
+cd songstress-extensions
+pnpm install
+pnpm verify          # types, lint, tests and every manifest's check: exactly what CI runs
+```
+
+To work on one against your own server:
+
+```sh
+cp .env.example .env    # your server, and an admin's email and password (or a session token)
+pnpm dev soundcloud     # builds it, installs it for you alone, again on every save
+```
+
+To pack one exactly as its release would: `pnpm exec songstress pack soundcloud`.
+
+**A new official theme:** copy a theme folder (`glacier/` is a good start), give it a new id and name in `songstress.json`, and change the colours in `themes/`. Colours can be hex, `rgb()` or `hsl()`. `pnpm check` names any pair that doesn't read, and `pnpm dev <folder>` shows it on your server as you go.
+
+### What's where
+
+| Path | What it is |
+|---|---|
+| `<name>/` | One extension: its `songstress.json`, its code in `src/` or its looks in `themes/`, `assets/icon.png`, its README and its licence files |
+| `shared/` | Code the music sources share (requests, matching songs, kept values), built into each one's package |
+| `sdk/` | The Songstress extension SDK, carried here until it's on npm |
+| `theme/` | The theme engine the apps use. `check` holds every look to it |
+| `index/` | Builds and signs the official index |
+
+### Tests
+
+- Each music source's `server.test.ts` runs its providers against a stand-in Songstress and a stand-in service (`shared/testing.ts`).
+- `official.test.ts` checks that every manifest is Songstress's own, passes the install checks, would pass the listing checks once it has its images, and packs the same package every time.
+- `index/*.test.ts` covers the signed index, `publishers.json` as a server reads it, the releases it lists, and the ping to songstress.app.
+
+## Releasing an official extension
+
+Each extension is released on its own, from a tag naming its whole id.
+
+1. Raise the version in its `songstress.json` in a pull request. The `ports` check must pass.
+2. Tag the merged commit `<id>@<version>` (for example `songstress.soundcloud@1.2.0`) and push the tag. The `release` workflow packs that folder and publishes a release with its one asset, `<id>-<version>.songstress`. It refuses a tag that doesn't match the manifest. A pre-release version (`1.3.0-beta.1`) is published as a pre-release, which the index never lists.
+3. The `index` workflow signs a new index with it, and every server sees the new version.
+
+After a change here that Songstress's own server tests should see, record their packages again: Songstress's `apps/pocketbase/internal/extensions/testdata/README.md` says how.
+
+<details>
+<summary><b>The official index</b></summary>
+
+<br />
+
+Every Songstress server reads the signed index from this repository's `index` branch, which holds `index.json` alone: `https://raw.githubusercontent.com/pacholoamit/songstress-extensions/index/index.json`. It's a DSSE envelope signed with Ed25519 (`index/README.md` has its format), listing each version by its package's SHA-256, the block list, and the publishers. Servers trust only the keys built into them, so a change anywhere else can't list anything.
+
+The `index` workflow (`.github/workflows/index.yml`) makes it after every release, whenever `main` changes one of the three files below, every Monday (an index holds for 30 days, so it never lapses), and by hand (Actions ▸ `index` ▸ Run workflow). It lists each extension's three newest full releases, each by its package as its release carries it (`index/cli.ts build`) and dated by its release (`index/releases.ts`). It signs the index with the key the `index` environment holds, reads it back with `index.pub`, commits it to the `index` branch, and tells songstress.app (`index/ping.ts`), which takes it only if its signature holds. The environment gives its secrets to `main` alone.
+
+Besides the releases, it says what three files on `main` say, each changed through a pull request:
+
+- `publishers.json`: the publishers this index vouches for, `[{ "name": "songstress", "verified": true }]`.
+- `blocklist.json`: versions every server switches off, each `{ "id", "versions", "sha256", "reason", "at" }`. Leaving out `versions` means every version of the id, and `sha256` names packages whatever their id.
+- `marketplace.json`: the ids songstress.app's directory shows. Every listed extension installs either way; one shown there meets the listing rules (`sdk/SPEC.md`, "Listing").
+
+</details>
+
+<details>
+<summary><b>Setting up the index, once</b></summary>
+
+<br />
+
+1. On your own machine, never in this repository: `node index/cli.ts keygen ~/songstress-index.pem`. It prints the public key.
+2. Put the public key in `index.pub` through a pull request, and give it to the Songstress server (`officialKeys`, in a release before the first index signed with it) and to songstress.app.
+3. In Settings ▸ Environments, add an environment named `index`. Its deployment branches and tags: `main` only. Its secrets: `INDEX_SIGNING_KEY`, the whole `.pem` file, and `INDEX_PING_SECRET`, the same value songstress.app holds as `EXTENSIONS_PING_SECRET` (32 characters or more).
+4. Run the `index` workflow by hand once.
+
+</details>
+
+<details>
+<summary><b>Refreshing the SDK</b></summary>
+
+<br />
+
+`sdk/` is a copy of the Songstress repository's `packages/extensions` (the `songstress` package), made to stand alone: its TypeScript config extends this repository's `tsconfig.base.json`, and its typecheck is plain `tsc`. Until `songstress` is published on npm, an extension built here uses the SDK this copy holds, so refresh it when Songstress's SDK changes (a new API version, a new check). From a checkout of Songstress beside this one:
 
 ```sh
 SONGSTRESS=../songstress   # the Songstress checkout to take the SDK from
@@ -99,7 +276,27 @@ const config = JSON.parse(fs.readFileSync("sdk/tsconfig.json", "utf8"))
 config.extends = "../tsconfig.base.json"
 fs.writeFileSync("sdk/tsconfig.json", JSON.stringify(config, null, 2) + "\n")
 '
-pnpm install && pnpm typecheck && pnpm lint && pnpm test && pnpm exec songstress check .
+pnpm install && pnpm verify
 ```
 
-Those are the copy's only differences from Songstress's: `git diff --stat sdk` should show the SDK's own changes and nothing else. Commit `sdk/` on its own, naming the Songstress commit it came from. Once `songstress` is on npm, `sdk/` goes and the root's `songstress` devDependency names the published version instead.
+Those are the copy's only differences from Songstress's: `git diff --stat sdk` should show the SDK's own changes and nothing else. Commit `sdk/` on its own, naming the Songstress commit it came from. Once `songstress` is on npm, `sdk/` goes, and the root's `songstress` devDependency names the published version instead.
+
+</details>
+
+## Licences
+
+This repository has no single licence. Each part carries its own:
+
+| Part | Licence |
+|---|---|
+| Apple Music, Spotify Web, SoundCloud and JioSaavn | LGPL-3.0-only, ported from Songstress's earlier extension system (each folder's `COPYING`, `LICENSE` and `NOTICE`) |
+| Genie Music | MIT (`LICENSE`) |
+| The themes | MIT (`LICENSE`), with each palette's own licence in its `NOTICE` |
+| `sdk/` and `theme/` | MIT (their `LICENSE`) |
+| `index/` | MIT |
+
+<br />
+
+<p align="center">
+  <sub>Made for <a href="https://songstress.app">Songstress</a>, the music server you run at home.</sub>
+</p>
