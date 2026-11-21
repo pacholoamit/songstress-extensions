@@ -65,22 +65,30 @@ The four LGPL-3.0 sources are ports from Songstress's earlier extension system; 
 
 A theme recolours all of Songstress, the player included. Every look passes the readability rules the apps hold themselves to: words at 4.5:1 or better on every surface, over any album cover. Songstress's logo, Wrapped and share cards always stay its own.
 
+Each picture is Songstress's Home with the theme installed, its looks side by side from left to right.
+
 **From palettes you know**
 
 <table>
   <tr>
-    <td align="center" width="20%"><img src="extensions/catppuccin/assets/icon.png" width="64" height="64" alt="" /><br /><b>Catppuccin</b><br /><sub>Latte, Frappé, Macchiato and Mocha</sub></td>
-    <td align="center" width="20%"><img src="extensions/dracula/assets/icon.png" width="64" height="64" alt="" /><br /><b>Dracula</b><br /><sub>Dracula, and Alucard for light</sub></td>
-    <td align="center" width="20%"><img src="extensions/nord/assets/icon.png" width="64" height="64" alt="" /><br /><b>Nord</b><br /><sub>Polar Night, and Snow Storm for light</sub></td>
-    <td align="center" width="20%"><img src="extensions/gruvbox/assets/icon.png" width="64" height="64" alt="" /><br /><b>Gruvbox</b><br /><sub>Dark and light</sub></td>
-    <td align="center" width="20%"><img src="extensions/tokyo-night/assets/icon.png" width="64" height="64" alt="" /><br /><b>Tokyo Night</b><br /><sub>Night, and Light for the day</sub></td>
+    <td width="50%" valign="top"><img src="assets/readme/themes/catppuccin.webp" alt="Songstress's Home in Catppuccin's four looks, from left to right Latte, Frappé, Macchiato and Mocha" /><br /><img src="extensions/catppuccin/assets/icon.png" width="20" height="20" alt="" /> <b>Catppuccin</b><br /><sub>Latte, Frappé, Macchiato and Mocha</sub></td>
+    <td width="50%" valign="top"><img src="assets/readme/themes/dracula.webp" alt="Songstress's Home in Dracula on the left and Alucard on the right" /><br /><img src="extensions/dracula/assets/icon.png" width="20" height="20" alt="" /> <b>Dracula</b><br /><sub>Dracula, and Alucard for light</sub></td>
   </tr>
   <tr>
-    <td align="center" width="20%"><img src="extensions/rose-pine/assets/icon.png" width="64" height="64" alt="" /><br /><b>Rosé Pine</b><br /><sub>Main and Moon, and Dawn for light</sub></td>
-    <td align="center" width="20%"><img src="extensions/solarized/assets/icon.png" width="64" height="64" alt="" /><br /><b>Solarized</b><br /><sub>Dark and light</sub></td>
-    <td align="center" width="20%"><img src="extensions/one/assets/icon.png" width="64" height="64" alt="" /><br /><b>One</b><br /><sub>One Dark and One Light</sub></td>
-    <td align="center" width="20%"><img src="extensions/everforest/assets/icon.png" width="64" height="64" alt="" /><br /><b>Everforest</b><br /><sub>Dark and light</sub></td>
-    <td align="center" width="20%"><img src="extensions/kanagawa/assets/icon.png" width="64" height="64" alt="" /><br /><b>Kanagawa</b><br /><sub>Wave, dark only</sub></td>
+    <td width="50%" valign="top"><img src="assets/readme/themes/nord.webp" alt="Songstress's Home in Nord's Polar Night on the left and Snow Storm on the right" /><br /><img src="extensions/nord/assets/icon.png" width="20" height="20" alt="" /> <b>Nord</b><br /><sub>Polar Night, and Snow Storm for light</sub></td>
+    <td width="50%" valign="top"><img src="assets/readme/themes/gruvbox.webp" alt="Songstress's Home in Gruvbox dark on the left and light on the right" /><br /><img src="extensions/gruvbox/assets/icon.png" width="20" height="20" alt="" /> <b>Gruvbox</b><br /><sub>Dark and light</sub></td>
+  </tr>
+  <tr>
+    <td width="50%" valign="top"><img src="assets/readme/themes/tokyo-night.webp" alt="Songstress's Home in Tokyo Night on the left and Tokyo Night Light on the right" /><br /><img src="extensions/tokyo-night/assets/icon.png" width="20" height="20" alt="" /> <b>Tokyo Night</b><br /><sub>Night, and Light for the day</sub></td>
+    <td width="50%" valign="top"><img src="assets/readme/themes/rose-pine.webp" alt="Songstress's Home in Rosé Pine's three looks, from left to right Main, Moon and Dawn" /><br /><img src="extensions/rose-pine/assets/icon.png" width="20" height="20" alt="" /> <b>Rosé Pine</b><br /><sub>Main and Moon, and Dawn for light</sub></td>
+  </tr>
+  <tr>
+    <td width="50%" valign="top"><img src="assets/readme/themes/solarized.webp" alt="Songstress's Home in Solarized dark on the left and light on the right" /><br /><img src="extensions/solarized/assets/icon.png" width="20" height="20" alt="" /> <b>Solarized</b><br /><sub>Dark and light</sub></td>
+    <td width="50%" valign="top"><img src="assets/readme/themes/one.webp" alt="Songstress's Home in One Dark on the left and One Light on the right" /><br /><img src="extensions/one/assets/icon.png" width="20" height="20" alt="" /> <b>One</b><br /><sub>One Dark and One Light</sub></td>
+  </tr>
+  <tr>
+    <td width="50%" valign="top"><img src="assets/readme/themes/everforest.webp" alt="Songstress's Home in Everforest dark on the left and light on the right" /><br /><img src="extensions/everforest/assets/icon.png" width="20" height="20" alt="" /> <b>Everforest</b><br /><sub>Dark and light</sub></td>
+    <td width="50%" valign="top"><img src="assets/readme/themes/kanagawa.webp" alt="Songstress's Home in Kanagawa Wave" /><br /><img src="extensions/kanagawa/assets/icon.png" width="20" height="20" alt="" /> <b>Kanagawa</b><br /><sub>Wave, dark only</sub></td>
   </tr>
 </table>
 
@@ -88,9 +96,11 @@ A theme recolours all of Songstress, the player included. Every look passes the 
 
 <table>
   <tr>
-    <td align="center" width="33%"><img src="extensions/glacier/assets/icon.png" width="64" height="64" alt="" /><br /><b>Glacier</b><br /><sub>Ice mint on smoky blue-black, and frost for the day</sub></td>
-    <td align="center" width="33%"><img src="extensions/studio/assets/icon.png" width="64" height="64" alt="" /><br /><b>Studio</b><br /><sub>Graphite with one lime signal light, dark and light</sub></td>
-    <td align="center" width="33%"><img src="extensions/nocturne/assets/icon.png" width="64" height="64" alt="" /><br /><b>Nocturne</b><br /><sub>Deep indigo lit in saffron, dark only</sub></td>
+    <td width="50%" valign="top"><img src="assets/readme/themes/glacier.webp" alt="Songstress's Home in Glacier dark on the left and light on the right" /><br /><img src="extensions/glacier/assets/icon.png" width="20" height="20" alt="" /> <b>Glacier</b><br /><sub>Ice mint on smoky blue-black, and frost for the day</sub></td>
+    <td width="50%" valign="top"><img src="assets/readme/themes/studio.webp" alt="Songstress's Home in Studio dark on the left and light on the right" /><br /><img src="extensions/studio/assets/icon.png" width="20" height="20" alt="" /> <b>Studio</b><br /><sub>Graphite with one lime signal light, dark and light</sub></td>
+  </tr>
+  <tr>
+    <td width="50%" valign="top"><img src="assets/readme/themes/nocturne.webp" alt="Songstress's Home in Nocturne" /><br /><img src="extensions/nocturne/assets/icon.png" width="20" height="20" alt="" /> <b>Nocturne</b><br /><sub>Deep indigo lit in saffron, dark only</sub></td>
   </tr>
 </table>
 
