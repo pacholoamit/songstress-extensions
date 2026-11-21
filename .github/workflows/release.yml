@@ -38,7 +38,7 @@ jobs:
           id="${TAG%@*}"
           version="${TAG##*@}"
           folder=""
-          for manifest in */songstress.json; do
+          for manifest in extensions/*/songstress.json; do
             if [ "$(node -p "require('./$manifest').id")" = "$id" ]; then folder=$(dirname "$manifest"); fi
           done
           if [ -z "$folder" ]; then echo "no folder holds $id"; exit 1; fi

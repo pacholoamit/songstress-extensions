@@ -19,8 +19,10 @@ import { normalizeLook } from 'songstress/theme'
 import { describe, expect, it } from 'vitest'
 
 const here = fileURLToPath(new URL('.', import.meta.url))
-const EXTENSIONS = readdirSync(here, { withFileTypes: true })
-  .filter((entry) => entry.isDirectory() && !['sdk', 'theme'].includes(entry.name) && readdirSync(join(here, entry.name)).includes('songstress.json'))
+/** Where the official extensions are, one folder each. */
+const shelf = join(here, 'extensions')
+const EXTENSIONS = readdirSync(shelf, { withFileTypes: true })
+  .filter((entry) => entry.isDirectory() && readdirSync(join(shelf, entry.name)).includes('songstress.json'))
   .map((entry) => entry.name)
   .sort()
 const command = join(here, 'node_modules/.bin/songstress')
@@ -32,7 +34,7 @@ const LISTING_ONLY = ['LISTING_FIELD_REQUIRED', 'LISTING_SCREENSHOTS', 'LISTING_
 function packed(folder: string): Buffer {
   const out = mkdtempSync(join(tmpdir(), 'songstress-official-'))
   try {
-    execFileSync(command, ['pack', join(here, folder), '--out', join(out, 'package.songstress')], { stdio: 'pipe' })
+    execFileSync(command, ['pack', join(shelf, folder), '--out', join(out, 'package.songstress')], { stdio: 'pipe' })
     return readFileSync(join(out, 'package.songstress'))
   } finally {
     rmSync(out, { recursive: true, force: true })
@@ -52,11 +54,11 @@ describe('the official extensions', () => {
 
   for (const folder of THEMES) {
     it(`${folder}: every theme file reads, and every look is one the apps would show`, () => {
-      const manifest = JSON.parse(readFileSync(join(here, folder, 'songstress.json'), 'utf8')) as {
+      const manifest = JSON.parse(readFileSync(join(shelf, folder, 'songstress.json'), 'utf8')) as {
         contributes: { themes: { appearance: 'dark' | 'light' | 'both'; path: string }[] }
       }
       for (const theme of manifest.contributes.themes) {
-        const read = parseThemeFile(readFileSync(join(here, folder, theme.path)), theme.appearance)
+        const read = parseThemeFile(readFileSync(join(shelf, folder, theme.path)), theme.appearance)
         expect(read.issues, theme.path).toEqual([])
         if (!read.valid) continue
         for (const appearance of ['dark', 'light'] as const) {
@@ -66,14 +68,14 @@ describe('the official extensions', () => {
         }
       }
       // A palette's own licence comes with it; an original is Songstress's alone.
-      if (PALETTES.includes(folder)) expect(readFileSync(join(here, folder, 'NOTICE'), 'utf8')).toMatch(/MIT License/)
-      else expect(existsSync(join(here, folder, 'NOTICE'))).toBe(false)
+      if (PALETTES.includes(folder)) expect(readFileSync(join(shelf, folder, 'NOTICE'), 'utf8')).toMatch(/MIT License/)
+      else expect(existsSync(join(shelf, folder, 'NOTICE'))).toBe(false)
     })
   }
 
   for (const folder of EXTENSIONS) {
     describe(folder, () => {
-      const raw = readFileSync(join(here, folder, 'songstress.json'))
+      const raw = readFileSync(join(shelf, folder, 'songstress.json'))
       const manifest = JSON.parse(raw.toString()) as { id: string }
 
       it("is Songstress's own, and passes the install profile", () => {

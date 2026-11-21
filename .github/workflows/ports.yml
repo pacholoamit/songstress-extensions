@@ -28,12 +28,12 @@ jobs:
       - run: pnpm typecheck
       - run: pnpm lint
       - run: pnpm test
-      - run: pnpm exec songstress check .
+      - run: pnpm exec songstress check extensions
       - name: Pack each extension
         run: |
           mkdir -p packages
-          for manifest in */songstress.json; do
+          for manifest in extensions/*/songstress.json; do
             folder=$(dirname "$manifest")
-            pnpm exec songstress pack "$folder" --out "packages/$folder.songstress"
+            pnpm exec songstress pack "$folder" --out "packages/$(basename "$folder").songstress"
           done
           ls -l packages
