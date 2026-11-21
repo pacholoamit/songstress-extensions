@@ -14,8 +14,9 @@ import { keyId, newKey, pae, PAYLOAD_TYPE, rawPublicKey, signIndex, verifyIndex,
 
 const root = fileURLToPath(new URL('..', import.meta.url))
 const command = join(root, 'node_modules/.bin/songstress')
-const PORTS = readdirSync(root, { withFileTypes: true })
-  .filter((entry) => entry.isDirectory() && entry.name !== 'sdk' && readdirSync(join(root, entry.name)).includes('songstress.json'))
+const shelf = join(root, 'extensions')
+const PORTS = readdirSync(shelf, { withFileTypes: true })
+  .filter((entry) => entry.isDirectory() && readdirSync(join(shelf, entry.name)).includes('songstress.json'))
   .map((entry) => entry.name)
   .sort()
 
@@ -29,8 +30,8 @@ const out = mkdtempSync(join(tmpdir(), 'songstress-index-'))
 afterAll(() => rmSync(out, { recursive: true, force: true }))
 const PACKAGES = PORTS.map((folder) => {
   const file = join(out, `${folder}.songstress`)
-  execFileSync(command, ['pack', join(root, folder), '--out', file], { stdio: 'pipe' })
-  const { id, version } = JSON.parse(readFileSync(join(root, folder, 'songstress.json'), 'utf8')) as { id: string; version: string }
+  execFileSync(command, ['pack', join(shelf, folder), '--out', file], { stdio: 'pipe' })
+  const { id, version } = JSON.parse(readFileSync(join(shelf, folder, 'songstress.json'), 'utf8')) as { id: string; version: string }
   return { file: `${id}-${version}.songstress`, archive: readFileSync(file) }
 })
 

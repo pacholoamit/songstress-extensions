@@ -12,7 +12,7 @@
     "typecheck": "tsc --noEmit && pnpm --dir sdk typecheck && pnpm --dir theme typecheck",
     "lint": "oxlint && pnpm --dir sdk lint",
     "test": "vitest run && pnpm --dir sdk test && pnpm --dir theme test",
-    "check": "songstress check .",
+    "check": "songstress check extensions",
     "verify": "pnpm typecheck && pnpm lint && pnpm test && pnpm check",
     "dev": "node --env-file-if-exists=.env sdk/src/cli/main.ts dev"
   },

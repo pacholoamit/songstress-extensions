@@ -71,7 +71,7 @@ jobs:
           mkdir -p "$packages"
           gh release list --limit 1000 --json tagName,publishedAt,isDraft,isPrerelease > "$RUNNER_TEMP/releases.json"
           ids=()
-          for manifest in */songstress.json; do ids+=("$(node -p "require('./$manifest').id")"); done
+          for manifest in extensions/*/songstress.json; do ids+=("$(node -p "require('./$manifest').id")"); done
           node index/releases.ts pick "$RUNNER_TEMP/releases.json" "${ids[@]}" > "$RUNNER_TEMP/picked.txt"
           while read -r tag asset; do
             gh release download "$tag" --pattern "$asset" --dir "$packages"

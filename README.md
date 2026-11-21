@@ -51,11 +51,11 @@ Each one adds a catalogue to Search and opens its links. Songstress's own source
 
 | | Extension | What it adds | Licence |
 |:-:|---|---|---|
-| <img src="apple-music/assets/icon.png" width="44" height="44" alt="" /> | **Apple Music**<br /><sub>`songstress.apple-music`</sub> | Search Apple Music beside iTunes, and open its songs, albums, playlists and artists from a link. Adds each song's ISRC, and synced lyrics with your own Media User Token. | LGPL-3.0 |
-| <img src="spotify-web/assets/icon.png" width="44" height="44" alt="" /> | **Spotify Web**<br /><sub>`songstress.spotify-web`</sub> | Search Spotify's web catalogue beside Songstress's Spotify, and open its links, `spotify:` ones too. Fills in each track's ISRC and Deezer id. | LGPL-3.0 |
-| <img src="soundcloud/assets/icon.png" width="44" height="44" alt="" /> | **SoundCloud**<br /><sub>`songstress.soundcloud`</sub> | Search tracks, sets and artists, and open them from a link. It can stream a track to try it and acquire its AAC stream, both off until an admin turns them on. | LGPL-3.0 |
-| <img src="jiosaavn/assets/icon.png" width="44" height="44" alt="" /> | **JioSaavn**<br /><sub>`songstress.jiosaavn`</sub> | Search songs, albums, playlists and artists in the languages you choose, and open them from a link. It can stream a song to try it and acquire it in five AAC qualities, both off until an admin turns them on. | LGPL-3.0 |
-| <img src="genie-music/assets/icon.png" width="44" height="44" alt="" /> | **Genie Music**<br /><sub>`songstress.genie-music`</sub> | Search Genie Music's songs, albums and artists, and open them from a link. | MIT |
+| <img src="extensions/apple-music/assets/icon.png" width="44" height="44" alt="" /> | **Apple Music**<br /><sub>`songstress.apple-music`</sub> | Search Apple Music beside iTunes, and open its songs, albums, playlists and artists from a link. Adds each song's ISRC, and synced lyrics with your own Media User Token. | LGPL-3.0 |
+| <img src="extensions/spotify-web/assets/icon.png" width="44" height="44" alt="" /> | **Spotify Web**<br /><sub>`songstress.spotify-web`</sub> | Search Spotify's web catalogue beside Songstress's Spotify, and open its links, `spotify:` ones too. Fills in each track's ISRC and Deezer id. | LGPL-3.0 |
+| <img src="extensions/soundcloud/assets/icon.png" width="44" height="44" alt="" /> | **SoundCloud**<br /><sub>`songstress.soundcloud`</sub> | Search tracks, sets and artists, and open them from a link. It can stream a track to try it and acquire its AAC stream, both off until an admin turns them on. | LGPL-3.0 |
+| <img src="extensions/jiosaavn/assets/icon.png" width="44" height="44" alt="" /> | **JioSaavn**<br /><sub>`songstress.jiosaavn`</sub> | Search songs, albums, playlists and artists in the languages you choose, and open them from a link. It can stream a song to try it and acquire it in five AAC qualities, both off until an admin turns them on. | LGPL-3.0 |
+| <img src="extensions/genie-music/assets/icon.png" width="44" height="44" alt="" /> | **Genie Music**<br /><sub>`songstress.genie-music`</sub> | Search Genie Music's songs, albums and artists, and open them from a link. | MIT |
 
 The four LGPL-3.0 sources are ports from Songstress's earlier extension system; each folder's `NOTICE` names their original authors. Genie Music was written anew from Genie's own pages.
 
@@ -69,18 +69,18 @@ A theme recolours all of Songstress, the player included. Every look passes the 
 
 <table>
   <tr>
-    <td align="center" width="20%"><img src="catppuccin/assets/icon.png" width="64" height="64" alt="" /><br /><b>Catppuccin</b><br /><sub>Latte, Frappé, Macchiato and Mocha</sub></td>
-    <td align="center" width="20%"><img src="dracula/assets/icon.png" width="64" height="64" alt="" /><br /><b>Dracula</b><br /><sub>Dracula, and Alucard for light</sub></td>
-    <td align="center" width="20%"><img src="nord/assets/icon.png" width="64" height="64" alt="" /><br /><b>Nord</b><br /><sub>Polar Night, and Snow Storm for light</sub></td>
-    <td align="center" width="20%"><img src="gruvbox/assets/icon.png" width="64" height="64" alt="" /><br /><b>Gruvbox</b><br /><sub>Dark and light</sub></td>
-    <td align="center" width="20%"><img src="tokyo-night/assets/icon.png" width="64" height="64" alt="" /><br /><b>Tokyo Night</b><br /><sub>Night, and Light for the day</sub></td>
+    <td align="center" width="20%"><img src="extensions/catppuccin/assets/icon.png" width="64" height="64" alt="" /><br /><b>Catppuccin</b><br /><sub>Latte, Frappé, Macchiato and Mocha</sub></td>
+    <td align="center" width="20%"><img src="extensions/dracula/assets/icon.png" width="64" height="64" alt="" /><br /><b>Dracula</b><br /><sub>Dracula, and Alucard for light</sub></td>
+    <td align="center" width="20%"><img src="extensions/nord/assets/icon.png" width="64" height="64" alt="" /><br /><b>Nord</b><br /><sub>Polar Night, and Snow Storm for light</sub></td>
+    <td align="center" width="20%"><img src="extensions/gruvbox/assets/icon.png" width="64" height="64" alt="" /><br /><b>Gruvbox</b><br /><sub>Dark and light</sub></td>
+    <td align="center" width="20%"><img src="extensions/tokyo-night/assets/icon.png" width="64" height="64" alt="" /><br /><b>Tokyo Night</b><br /><sub>Night, and Light for the day</sub></td>
   </tr>
   <tr>
-    <td align="center" width="20%"><img src="rose-pine/assets/icon.png" width="64" height="64" alt="" /><br /><b>Rosé Pine</b><br /><sub>Main and Moon, and Dawn for light</sub></td>
-    <td align="center" width="20%"><img src="solarized/assets/icon.png" width="64" height="64" alt="" /><br /><b>Solarized</b><br /><sub>Dark and light</sub></td>
-    <td align="center" width="20%"><img src="one/assets/icon.png" width="64" height="64" alt="" /><br /><b>One</b><br /><sub>One Dark and One Light</sub></td>
-    <td align="center" width="20%"><img src="everforest/assets/icon.png" width="64" height="64" alt="" /><br /><b>Everforest</b><br /><sub>Dark and light</sub></td>
-    <td align="center" width="20%"><img src="kanagawa/assets/icon.png" width="64" height="64" alt="" /><br /><b>Kanagawa</b><br /><sub>Wave, dark only</sub></td>
+    <td align="center" width="20%"><img src="extensions/rose-pine/assets/icon.png" width="64" height="64" alt="" /><br /><b>Rosé Pine</b><br /><sub>Main and Moon, and Dawn for light</sub></td>
+    <td align="center" width="20%"><img src="extensions/solarized/assets/icon.png" width="64" height="64" alt="" /><br /><b>Solarized</b><br /><sub>Dark and light</sub></td>
+    <td align="center" width="20%"><img src="extensions/one/assets/icon.png" width="64" height="64" alt="" /><br /><b>One</b><br /><sub>One Dark and One Light</sub></td>
+    <td align="center" width="20%"><img src="extensions/everforest/assets/icon.png" width="64" height="64" alt="" /><br /><b>Everforest</b><br /><sub>Dark and light</sub></td>
+    <td align="center" width="20%"><img src="extensions/kanagawa/assets/icon.png" width="64" height="64" alt="" /><br /><b>Kanagawa</b><br /><sub>Wave, dark only</sub></td>
   </tr>
 </table>
 
@@ -88,9 +88,9 @@ A theme recolours all of Songstress, the player included. Every look passes the 
 
 <table>
   <tr>
-    <td align="center" width="33%"><img src="glacier/assets/icon.png" width="64" height="64" alt="" /><br /><b>Glacier</b><br /><sub>Ice mint on smoky blue-black, and frost for the day</sub></td>
-    <td align="center" width="33%"><img src="studio/assets/icon.png" width="64" height="64" alt="" /><br /><b>Studio</b><br /><sub>Graphite with one lime signal light, dark and light</sub></td>
-    <td align="center" width="33%"><img src="nocturne/assets/icon.png" width="64" height="64" alt="" /><br /><b>Nocturne</b><br /><sub>Deep indigo lit in saffron, dark only</sub></td>
+    <td align="center" width="33%"><img src="extensions/glacier/assets/icon.png" width="64" height="64" alt="" /><br /><b>Glacier</b><br /><sub>Ice mint on smoky blue-black, and frost for the day</sub></td>
+    <td align="center" width="33%"><img src="extensions/studio/assets/icon.png" width="64" height="64" alt="" /><br /><b>Studio</b><br /><sub>Graphite with one lime signal light, dark and light</sub></td>
+    <td align="center" width="33%"><img src="extensions/nocturne/assets/icon.png" width="64" height="64" alt="" /><br /><b>Nocturne</b><br /><sub>Deep indigo lit in saffron, dark only</sub></td>
   </tr>
 </table>
 
@@ -175,7 +175,7 @@ Submit your repository at [songstress.app/extensions/submit](https://songstress.
 
 - [The SDK's guide](sdk/README.md): the API, the stand-in Songstress for tests, and the command.
 - [The specification](sdk/SPEC.md): the manifest field by field, hooks, permissions, the API, screens, providers, themes and listing.
-- Small extensions to read: [`genie-music/`](genie-music) for a music source, [`glacier/`](glacier) for a theme, and [`sdk/examples/tunelog/`](sdk/examples/tunelog).
+- Small extensions to read: [`extensions/genie-music/`](extensions/genie-music) for a music source, [`extensions/glacier/`](extensions/glacier) for a theme, and [`sdk/examples/tunelog/`](sdk/examples/tunelog).
 - Questions and problems: [issues](https://github.com/pacholoamit/songstress-extensions/issues).
 
 ## Working in this repository
@@ -192,27 +192,27 @@ pnpm verify          # types, lint, tests and every manifest's check: exactly wh
 To work on one against your own server:
 
 ```sh
-cp .env.example .env    # your server, and an admin's email and password (or a session token)
-pnpm dev soundcloud     # builds it, installs it for you alone, again on every save
+cp .env.example .env             # your server, and an admin's email and password (or a session token)
+pnpm dev extensions/soundcloud   # builds it, installs it for you alone, again on every save
 ```
 
-To pack one exactly as its release would: `pnpm exec songstress pack soundcloud`.
+To pack one exactly as its release would: `pnpm exec songstress pack extensions/soundcloud`.
 
-**A new official theme:** copy a theme folder (`glacier/` is a good start), give it a new id and name in `songstress.json`, and change the colours in `themes/`. Colours can be hex, `rgb()` or `hsl()`. `pnpm check` names any pair that doesn't read, and `pnpm dev <folder>` shows it on your server as you go.
+**A new official theme:** copy a theme's folder (`extensions/glacier/` is a good start), give it a new id and name in `songstress.json`, and change the colours in `themes/`. Colours can be hex, `rgb()` or `hsl()`. `pnpm check` names any pair that doesn't read, and `pnpm dev extensions/<name>` shows it on your server as you go.
 
 ### What's where
 
 | Path | What it is |
 |---|---|
-| `<name>/` | One extension: its `songstress.json`, its code in `src/` or its looks in `themes/`, `assets/icon.png`, its README and its licence files |
-| `shared/` | Code the music sources share (requests, matching songs, kept values), built into each one's package |
+| `extensions/<name>/` | One extension: its `songstress.json`, its code in `src/` or its looks in `themes/`, `assets/icon.png`, its README and its licence files |
+| `extensions/shared/` | Code the music sources share (requests, matching songs, kept values), built into each one's package |
 | `sdk/` | The Songstress extension SDK, carried here until it's on npm |
 | `theme/` | The theme engine the apps use. `check` holds every look to it |
 | `index/` | Builds and signs the official index |
 
 ### Tests
 
-- Each music source's `server.test.ts` runs its providers against a stand-in Songstress and a stand-in service (`shared/testing.ts`).
+- Each music source's `server.test.ts` runs its providers against a stand-in Songstress and a stand-in service (`extensions/shared/testing.ts`).
 - `official.test.ts` checks that every manifest is Songstress's own, passes the install checks, would pass the listing checks once it has its images, and packs the same package every time.
 - `index/*.test.ts` covers the signed index, `publishers.json` as a server reads it, the releases it lists, and the ping to songstress.app.
 

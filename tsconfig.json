@@ -7,11 +7,12 @@
     "allowImportingTsExtensions": true
   },
   "include": [
-    "shared",
+    "extensions/shared",
     "index",
-    "*/src",
+    "extensions/*/src",
     "*.test.ts",
-    "*/*.test.ts"
+    "*/*.test.ts",
+    "extensions/*/*.test.ts"
   ],
   "exclude": [
     "sdk",
