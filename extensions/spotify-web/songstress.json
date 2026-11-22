@@ -3,7 +3,7 @@
   "manifestVersion": 1,
   "id": "songstress.spotify-web",
   "name": "Spotify Web",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Search Spotify's catalogue beside Songstress's Spotify, open its links, and fill a track with the ISRC Spotify keeps.",
   "engines": { "songstress": "^0.1.0" },
   "license": "LGPL-3.0-only",
@@ -11,6 +11,11 @@
   "categories": ["sources"],
   "keywords": ["spotify"],
   "icon": { "path": "assets/icon.png", "width": 512, "height": 512 },
+  "screenshots": [
+    { "path": "assets/screenshots/albums.webp", "width": 1440, "height": 900, "caption": "Albums and artists from Spotify in Search", "platform": "web" },
+    { "path": "assets/screenshots/artists.webp", "width": 1440, "height": 900, "caption": "Search for “Daft Punk”, Spotify Web alone", "platform": "web" },
+    { "path": "assets/screenshots/extension.webp", "width": 1440, "height": 900, "caption": "Spotify Web under Manage, Extensions: what it may do", "platform": "web" }
+  ],
   "entry": { "server": "dist/server.js" },
   "permissions": {
     "network": {

@@ -1,8 +1,10 @@
 // The official extensions, one folder each at the repository's root (the
 // "several" layout, sdk/SPEC.md "A release"): the five ports and the three
 // themes. Each manifest passes the install profile a server holds it to, is
-// Songstress's own (songstress.<folder>), and would be listed once it has its
-// images; each theme's looks pass the rules the apps hold a look to before
+// Songstress's own (songstress.<folder>), and passes the listing rules whole
+// (its screenshots among them), so marketplace.json, which says what
+// songstress.app's Marketplace shows, names every one of them and nothing
+// else; each theme's looks pass the rules the apps hold a look to before
 // they show it (theme/, the apps' own engine); and `songstress pack` makes
 // its package the same byte for byte every time, as its release carries it.
 // Bugs Music and Melon Music have no port: K-Music carries no licence, Melon
@@ -27,9 +29,8 @@ const EXTENSIONS = readdirSync(shelf, { withFileTypes: true })
   .sort()
 const command = join(here, 'node_modules/.bin/songstress')
 
-/** What only a listing on the Marketplace asks, which these do not have yet:
- * the icon and screenshots, and no acquisition. */
-const LISTING_ONLY = ['LISTING_FIELD_REQUIRED', 'LISTING_SCREENSHOTS', 'LISTING_ACQUISITION']
+/** The ids songstress.app's Marketplace shows: what the index's maker marks `marketplace: true`. */
+const MARKETPLACE = JSON.parse(readFileSync(join(here, 'marketplace.json'), 'utf8')) as string[]
 
 function packed(folder: string): Buffer {
   const out = mkdtempSync(join(tmpdir(), 'songstress-official-'))
@@ -50,6 +51,10 @@ describe('the official extensions', () => {
   it('are seven ports less the two that cannot be (Bugs, Melon), and the themes', () => {
     expect(EXTENSIONS.filter((folder) => !THEMES.includes(folder))).toEqual(['apple-music', 'genie-music', 'jiosaavn', 'soundcloud', 'spotify-web'])
     expect(EXTENSIONS.filter((folder) => THEMES.includes(folder))).toEqual(THEMES)
+  })
+
+  it('are what the Marketplace shows, and nothing else is', () => {
+    expect([...MARKETPLACE].sort()).toEqual(EXTENSIONS.map((folder) => `songstress.${folder}`))
   })
 
   for (const folder of THEMES) {
@@ -83,9 +88,9 @@ describe('the official extensions', () => {
         expect(parseManifest(raw, { profile: 'install' }).issues).toEqual([])
       })
 
-      it('would be listed once it has its images', () => {
-        const left = parseManifest(raw, { profile: 'listing' }).issues.filter((issue) => !LISTING_ONLY.includes(issue.code))
-        expect(left).toEqual([])
+      it('passes the listing rules, and the Marketplace shows it', () => {
+        expect(parseManifest(raw, { profile: 'listing' }).issues).toEqual([])
+        expect(MARKETPLACE).toContain(manifest.id)
       })
 
       it('packs the same package every time', () => {

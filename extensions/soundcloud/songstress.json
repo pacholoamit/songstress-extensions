@@ -3,7 +3,7 @@
   "manifestVersion": 1,
   "id": "songstress.soundcloud",
   "name": "SoundCloud",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Search SoundCloud, open its tracks, sets and artists from a link, and acquire the tracks it streams in full.",
   "engines": { "songstress": "^0.1.0" },
   "license": "LGPL-3.0-only",
@@ -11,6 +11,11 @@
   "categories": ["sources"],
   "keywords": ["soundcloud"],
   "icon": { "path": "assets/icon.png", "width": 512, "height": 512 },
+  "screenshots": [
+    { "path": "assets/screenshots/albums.webp", "width": 1440, "height": 900, "caption": "Sets and artists from SoundCloud in Search", "platform": "web" },
+    { "path": "assets/screenshots/artists.webp", "width": 1440, "height": 900, "caption": "Search for “Monstercat”, SoundCloud alone", "platform": "web" },
+    { "path": "assets/screenshots/extension.webp", "width": 1440, "height": 900, "caption": "SoundCloud under Manage, Extensions: what it may do", "platform": "web" }
+  ],
   "entry": { "server": "dist/server.js" },
   "permissions": {
     "network": {

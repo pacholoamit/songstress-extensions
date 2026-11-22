@@ -3,7 +3,7 @@
   "manifestVersion": 1,
   "id": "songstress.gruvbox",
   "name": "Gruvbox",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Gruvbox's retro groove: warm browns and creams with orange, for dark and for light.",
   "engines": {
     "songstress": "^0.1.3"
@@ -23,6 +23,50 @@
     "width": 512,
     "height": 512
   },
+  "screenshots": [
+    {
+      "path": "assets/screenshots/home-dark.webp",
+      "width": 1440,
+      "height": 900,
+      "caption": "Home in Gruvbox, dark",
+      "platform": "web"
+    },
+    {
+      "path": "assets/screenshots/playlist-dark.webp",
+      "width": 1440,
+      "height": 900,
+      "caption": "A playlist in Gruvbox, dark",
+      "platform": "web"
+    },
+    {
+      "path": "assets/screenshots/player-dark.webp",
+      "width": 1440,
+      "height": 900,
+      "caption": "The full-screen player in Gruvbox, dark",
+      "platform": "web"
+    },
+    {
+      "path": "assets/screenshots/home-light.webp",
+      "width": 1440,
+      "height": 900,
+      "caption": "Home in Gruvbox, light",
+      "platform": "web"
+    },
+    {
+      "path": "assets/screenshots/playlist-light.webp",
+      "width": 1440,
+      "height": 900,
+      "caption": "A playlist in Gruvbox, light",
+      "platform": "web"
+    },
+    {
+      "path": "assets/screenshots/player-light.webp",
+      "width": 1440,
+      "height": 900,
+      "caption": "The full-screen player in Gruvbox, light",
+      "platform": "web"
+    }
+  ],
   "contributes": {
     "themes": [
       {

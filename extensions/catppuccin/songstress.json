@@ -3,7 +3,7 @@
   "manifestVersion": 1,
   "id": "songstress.catppuccin",
   "name": "Catppuccin",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Catppuccin's soothing pastels: Latte for light, and Frappé, Macchiato and Mocha for dark, from its own palette.",
   "engines": {
     "songstress": "^0.1.3"
@@ -24,6 +24,50 @@
     "width": 512,
     "height": 512
   },
+  "screenshots": [
+    {
+      "path": "assets/screenshots/home-mocha.webp",
+      "width": 1440,
+      "height": 900,
+      "caption": "Home in Catppuccin Mocha",
+      "platform": "web"
+    },
+    {
+      "path": "assets/screenshots/playlist-mocha.webp",
+      "width": 1440,
+      "height": 900,
+      "caption": "A playlist in Catppuccin Mocha",
+      "platform": "web"
+    },
+    {
+      "path": "assets/screenshots/player-mocha.webp",
+      "width": 1440,
+      "height": 900,
+      "caption": "The full-screen player in Catppuccin Mocha",
+      "platform": "web"
+    },
+    {
+      "path": "assets/screenshots/home-macchiato.webp",
+      "width": 1440,
+      "height": 900,
+      "caption": "Home in Catppuccin Macchiato",
+      "platform": "web"
+    },
+    {
+      "path": "assets/screenshots/home-frappe.webp",
+      "width": 1440,
+      "height": 900,
+      "caption": "Home in Catppuccin Frappé",
+      "platform": "web"
+    },
+    {
+      "path": "assets/screenshots/home-latte.webp",
+      "width": 1440,
+      "height": 900,
+      "caption": "Home in Catppuccin Latte",
+      "platform": "web"
+    }
+  ],
   "contributes": {
     "themes": [
       {
