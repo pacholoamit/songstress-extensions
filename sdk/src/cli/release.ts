@@ -14,7 +14,8 @@
 // same way (apps/pocketbase/internal/extensions/github.go, tagParts).
 //
 // Plain functions, importing nothing: the songstress command runs this file
-// as it is.
+// as it is, and songstress.app reads tags with it too (its Convex functions
+// import it by path: apps/landing/convex/lib/releasePick.ts).
 
 /** How a repository holds its extensions. */
 export type Layout = 'one' | 'several'

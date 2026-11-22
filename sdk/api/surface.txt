@@ -1,4 +1,4 @@
-# The public surface of songstress 0.1.3.
+# The public surface of songstress 0.1.8.
 # Written by "pnpm --dir packages/extensions api:record". Never edit it by hand.
 
 == songstress ==
@@ -11,10 +11,10 @@ export declare const API_PERMISSIONS: Readonly<{
 }>;
 
 API_VERSION:
-export declare const API_VERSION = "0.1.3";
+export declare const API_VERSION = "0.1.8";
 
 Action:
-export type Action = InvokeAction | NavigateAction | PlayAction | QueueAction | OpenUrlAction | CopyAction | ShareAction | ToastAction | ConfirmAction | RefreshAction;
+export type Action = InvokeAction | NavigateAction | PlayAction | QueueAction | OpenUrlAction | CopyAction | ShareAction | ToastAction | ConfirmAction | RefreshAction | PickAction | InputAction | NotifyAction;
 
 Album:
 export interface Album {
@@ -43,10 +43,23 @@ export interface Artist {
     musicBrainzId?: string;
 }
 
+ArtistBiography:
+export interface ArtistBiography {
+    text: string;
+    url?: string;
+    language?: string;
+}
+
 ArtistCard:
 export interface ArtistCard {
     type: 'artist';
     artistId: string;
+}
+
+ArtistInfoProvider:
+export interface ArtistInfoProvider {
+    biography?(artist: ArtistQuery, context: ProviderContext): Awaitable<ArtistBiography | null>;
+    similarArtists?(artist: ArtistQuery, limit: number, context: ProviderContext): Awaitable<CatalogArtist[]>;
 }
 
 ArtistPhoto:
@@ -222,6 +235,7 @@ ClientApi:
 export interface ClientApi extends SharedApi {
     hooks: ClientHooks;
     commands: ClientCommands;
+    ui: ClientUi;
     player: Player;
     queue: Queue;
 }
@@ -255,6 +269,12 @@ export interface ClientInfo {
     capabilities: ClientCapabilities;
 }
 
+ClientUi:
+export interface ClientUi extends Ui {
+    notify(notice: Notice): Promise<void>;
+    refresh(target: RefreshTarget): Promise<void>;
+}
+
 CollapsibleBlock:
 export interface CollapsibleBlock {
     type: 'collapsible';
@@ -266,10 +286,11 @@ export interface CollapsibleBlock {
 CommandContext:
 export interface CommandContext {
     userId: string;
-    source: 'menu' | 'action' | 'form' | 'settings' | 'code';
+    source: 'menu' | 'action' | 'form' | 'settings' | 'pick' | 'input' | 'code';
     location?: MenuLocation;
     client?: ClientInfo;
     values?: FormValues;
+    answer?: string | string[];
 }
 
 CommandHandler:
@@ -479,6 +500,21 @@ export type ImageSource = {
     url: string;
 };
 
+InputAction:
+export interface InputAction {
+    type: 'input';
+    title: string;
+    prompt?: string;
+    placeholder?: string;
+    value?: string;
+    multiline?: boolean;
+    maxLength?: number;
+    required?: boolean;
+    submit?: string;
+    command: string;
+    input?: unknown;
+}
+
 InvokeAction:
 export interface InvokeAction {
     type: 'invoke';
@@ -664,6 +700,22 @@ export interface NetResponse {
     body: string;
 }
 
+Notice:
+export interface Notice {
+    title: string;
+    message?: string;
+    tone?: 'info' | 'success' | 'warning' | 'danger';
+    buttons?: {
+        title: string;
+        action: Action;
+    }[];
+}
+
+NotifyAction:
+export interface NotifyAction extends Notice {
+    type: 'notify';
+}
+
 OpenUrlAction:
 export interface OpenUrlAction {
     type: 'openUrl';
@@ -690,6 +742,7 @@ export interface PanelContext {
     song?: Song;
     artist?: Artist;
     album?: Album;
+    playlist?: Pick<Playlist, 'id'>;
 }
 
 PanelRenderer:
@@ -702,6 +755,27 @@ export interface Panels {
 
 PermissionName:
 export type PermissionName = keyof Permissions;
+
+PickAction:
+export interface PickAction {
+    type: 'pick';
+    title: string;
+    placeholder?: string;
+    items: PickItem[];
+    many?: boolean;
+    command: string;
+    input?: unknown;
+}
+
+PickItem:
+export interface PickItem {
+    id: string;
+    title: string;
+    subtitle?: string;
+    icon?: IconName;
+    image?: ImageSource;
+    picked?: boolean;
+}
 
 PickerField:
 export interface PickerField extends FieldBase {
@@ -829,6 +903,7 @@ export interface Providers {
     lyrics: ProviderRegistry<LyricsProvider>;
     metadata: ProviderRegistry<MetadataProvider>;
     artwork: ProviderRegistry<ArtworkProvider>;
+    artistInfo: ProviderRegistry<ArtistInfoProvider>;
     scrobble: ProviderRegistry<ScrobbleProvider>;
     recommend: ProviderRegistry<RecommendProvider>;
     play: ProviderRegistry<PlayProvider>;
@@ -891,6 +966,15 @@ export interface RefreshAction {
     type: 'refresh';
 }
 
+RefreshTarget:
+export type RefreshTarget = {
+    page: string;
+} | {
+    panel: string;
+} | {
+    status: string;
+};
+
 RenderContext:
 export interface RenderContext {
     userId: string;
@@ -898,6 +982,7 @@ export interface RenderContext {
     params: Record<string, string>;
     search?: string;
     cursor?: string;
+    node?: string;
 }
 
 RouteHandler:
@@ -946,7 +1031,7 @@ export interface ScanSummary {
 }
 
 Screen:
-export type Screen = ListScreen | GridScreen | DetailScreen | FormScreen;
+export type Screen = ListScreen | GridScreen | DetailScreen | FormScreen | TreeScreen;
 
 ScrobbleEvent:
 export interface ScrobbleEvent {
@@ -1007,6 +1092,7 @@ export interface SectionBlock {
 ServerApi:
 export interface ServerApi extends SharedApi {
     hooks: ServerHooks;
+    ui: ServerUi;
     settings: ServerSettings;
     storage: ServerStore;
     secrets: Secrets;
@@ -1039,6 +1125,12 @@ export interface ServerStore extends Store {
     set(key: string, value: unknown, user?: ForUser): Promise<void>;
     delete(key: string, user?: ForUser): Promise<void>;
     keys(prefix?: string, user?: ForUser): Promise<string[]>;
+}
+
+ServerUi:
+export interface ServerUi extends Ui {
+    notify(notice: Notice, user: ForUser): Promise<void>;
+    refresh(target: RefreshTarget, user: ForUser): Promise<void>;
 }
 
 SettingChange:
@@ -1095,7 +1187,7 @@ SignInHandler:
 export interface SignInHandler {
     start(request: SignInStart): Awaitable<SignInPage>;
     finish(returned: SignInReturn): Awaitable<SignedIn>;
-    signOut?(): Awaitable<void>;
+    signOut?(request: SignOutRequest): Awaitable<void>;
 }
 
 SignInPage:
@@ -1112,12 +1204,19 @@ SignInReturn:
 export interface SignInReturn {
     url: string;
     redirectUrl: string;
+    userId?: string;
 }
 
 SignInStart:
 export interface SignInStart {
     redirectUrl: string;
     state: string;
+    userId?: string;
+}
+
+SignOutRequest:
+export interface SignOutRequest {
+    userId?: string;
 }
 
 SignedIn:
@@ -1184,6 +1283,32 @@ export interface StackBlock {
     align?: 'start' | 'center' | 'end';
     children: Block[];
 }
+
+StatusContent:
+export interface StatusContent {
+    text?: string;
+    icon?: IconName;
+    tone?: Tone;
+    tooltip?: string;
+    progress?: number;
+    busy?: boolean;
+    action?: Action;
+}
+
+StatusContext:
+export interface StatusContext {
+    userId: string;
+    client: ClientInfo;
+    song?: Song;
+}
+
+StatusItems:
+export interface StatusItems {
+    register(id: string, render: StatusRenderer): Disposable;
+}
+
+StatusRenderer:
+export type StatusRenderer = (context: StatusContext) => Awaitable<StatusContent | null>;
 
 Store:
 export interface Store {
@@ -1254,13 +1379,40 @@ export interface TrackQuery {
     ids?: CatalogIds;
 }
 
+TreeNode:
+export interface TreeNode {
+    type: 'node';
+    id: string;
+    title: string;
+    subtitle?: string;
+    icon?: IconName;
+    image?: ImageSource;
+    badge?: BadgeBlock;
+    action?: Action;
+    menu?: MenuEntry[];
+    children?: (TreeNode | SongRow)[];
+    expandable?: boolean;
+    open?: boolean;
+}
+
+TreeScreen:
+export interface TreeScreen {
+    type: 'tree';
+    nodes: (TreeNode | SongRow)[];
+    search?: {
+        placeholder?: string;
+    };
+    empty?: EmptyState;
+}
+
 UI_VERSION:
-export declare const UI_VERSION = 1;
+export declare const UI_VERSION = 2;
 
 Ui:
 export interface Ui {
     pages: Pages;
     panels: Panels;
+    status: StatusItems;
 }
 
 User:
@@ -1290,7 +1442,11 @@ AlbumCard: as above
 
 Artist: as above
 
+ArtistBiography: as above
+
 ArtistCard: as above
+
+ArtistInfoProvider: as above
 
 ArtistPhoto: as above
 
@@ -1343,6 +1499,8 @@ ClientCommands: as above
 ClientHooks: as above
 
 ClientInfo: as above
+
+ClientUi: as above
 
 CollapsibleBlock: as above
 
@@ -1402,6 +1560,8 @@ ImageBlock: as above
 
 ImageSource: as above
 
+InputAction: as above
+
 InvokeAction: as above
 
 JobHandler: as above
@@ -1450,6 +1610,10 @@ NetRequest: as above
 
 NetResponse: as above
 
+Notice: as above
+
+NotifyAction: as above
+
 OpenUrlAction: as above
 
 PageRenderer: as above
@@ -1465,6 +1629,10 @@ PanelRenderer: as above
 Panels: as above
 
 PermissionName: as above
+
+PickAction: as above
+
+PickItem: as above
 
 PickerField: as above
 
@@ -1516,6 +1684,8 @@ RecommendedTrack: as above
 
 RefreshAction: as above
 
+RefreshTarget: as above
+
 RenderContext: as above
 
 RouteHandler: as above
@@ -1556,6 +1726,8 @@ ServerSettings: as above
 
 ServerStore: as above
 
+ServerUi: as above
+
 SettingChange: as above
 
 SettingValue: as above
@@ -1582,6 +1754,8 @@ SignInReturn: as above
 
 SignInStart: as above
 
+SignOutRequest: as above
+
 SignedIn: as above
 
 Size: as above
@@ -1600,6 +1774,14 @@ SpacerBlock: as above
 
 StackBlock: as above
 
+StatusContent: as above
+
+StatusContext: as above
+
+StatusItems: as above
+
+StatusRenderer: as above
+
 Store: as above
 
 StreamLocation: as above
@@ -1617,6 +1799,10 @@ Tone: as above
 TrackFacts: as above
 
 TrackQuery: as above
+
+TreeNode: as above
+
+TreeScreen: as above
 
 UI_VERSION: as above
 
@@ -1641,7 +1827,11 @@ AlbumCard: as above
 
 Artist: as above
 
+ArtistBiography: as above
+
 ArtistCard: as above
+
+ArtistInfoProvider: as above
 
 ArtistPhoto: as above
 
@@ -1694,6 +1884,8 @@ ClientCommands: as above
 ClientHooks: as above
 
 ClientInfo: as above
+
+ClientUi: as above
 
 CollapsibleBlock: as above
 
@@ -1753,6 +1945,8 @@ ImageBlock: as above
 
 ImageSource: as above
 
+InputAction: as above
+
 InvokeAction: as above
 
 JobHandler: as above
@@ -1801,6 +1995,10 @@ NetRequest: as above
 
 NetResponse: as above
 
+Notice: as above
+
+NotifyAction: as above
+
 OpenUrlAction: as above
 
 PageRenderer: as above
@@ -1816,6 +2014,10 @@ PanelRenderer: as above
 Panels: as above
 
 PermissionName: as above
+
+PickAction: as above
+
+PickItem: as above
 
 PickerField: as above
 
@@ -1867,6 +2069,8 @@ RecommendedTrack: as above
 
 RefreshAction: as above
 
+RefreshTarget: as above
+
 RenderContext: as above
 
 RouteHandler: as above
@@ -1907,6 +2111,8 @@ ServerSettings: as above
 
 ServerStore: as above
 
+ServerUi: as above
+
 SettingChange: as above
 
 SettingValue: as above
@@ -1933,6 +2139,8 @@ SignInReturn: as above
 
 SignInStart: as above
 
+SignOutRequest: as above
+
 SignedIn: as above
 
 Size: as above
@@ -1950,6 +2158,14 @@ SongstressErrorCode: as above
 SpacerBlock: as above
 
 StackBlock: as above
+
+StatusContent: as above
+
+StatusContext: as above
+
+StatusItems: as above
+
+StatusRenderer: as above
 
 Store: as above
 
@@ -1969,6 +2185,10 @@ TrackFacts: as above
 
 TrackQuery: as above
 
+TreeNode: as above
+
+TreeScreen: as above
+
 UI_VERSION: as above
 
 Ui: as above
@@ -1981,6 +2201,13 @@ songstress:
 export declare const clientApi: ClientApi;
 
 == songstress/manifest ==
+
+ArtistInfoSource:
+export interface ArtistInfoSource {
+    id: LocalId;
+    name?: Title;
+    supports: ("biography" | "similar")[];
+}
 
 ArtworkSource:
 export interface ArtworkSource {
@@ -2002,6 +2229,7 @@ export interface BooleanSetting {
     type: "boolean";
     title: Title;
     description?: Sentence;
+    section?: SettingSection;
     scope: SettingScope;
     default?: boolean;
 }
@@ -2036,6 +2264,7 @@ export interface Contributes {
     settings?: Setting[];
     pages?: Page[];
     panels?: Panel[];
+    status?: StatusItem[];
     views?: View[];
     themes?: Theme[];
     providers?: SourcesByKind;
@@ -2209,11 +2438,12 @@ export declare const MANIFEST_ERROR_CODES: {
     THEME_LOOKS: string;
     THEME_COLOR: string;
     THEME_COLOR_ALPHA: string;
+    WHEN_INVALID: string;
+    WHEN_KEY_UNKNOWN: string;
     LISTING_FIELD_REQUIRED: string;
     LISTING_LICENSE: string;
     LISTING_REPOSITORY: string;
     LISTING_SCREENSHOTS: string;
-    LISTING_ACQUISITION: string;
 };
 
 MANIFEST_FILE:
@@ -2291,6 +2521,7 @@ export type ManifestResult = {
 MenuItem:
 export interface MenuItem {
     command: LocalId;
+    when?: When;
 }
 
 MenuItems:
@@ -2330,6 +2561,7 @@ export interface NumberSetting {
     type: "number";
     title: Title;
     description?: Sentence;
+    section?: SettingSection;
     scope: SettingScope;
     required?: boolean;
     default?: number;
@@ -2357,6 +2589,7 @@ export interface Page {
     render: Side;
     icon?: IconName;
     sidebar?: boolean;
+    when?: When;
 }
 
 Panel:
@@ -2365,10 +2598,11 @@ export interface Panel {
     title: Title;
     location: PanelLocation;
     render: Side;
+    when?: When;
 }
 
 PanelLocation:
-export type PanelLocation = "now-playing" | "home" | "artist" | "album";
+export type PanelLocation = "now-playing" | "home" | "artist" | "album" | "playlist";
 
 Permission:
 export interface Permission {
@@ -2455,6 +2689,7 @@ export interface SecretSetting {
     type: "secret";
     title: Title;
     description?: Sentence;
+    section?: SettingSection;
     scope: "server" | "user";
     required?: boolean;
     placeholder?: Title;
@@ -2466,6 +2701,7 @@ export interface SelectSetting {
     type: "select";
     title: Title;
     description?: Sentence;
+    section?: SettingSection;
     scope: SettingScope;
     required?: boolean;
     default?: string;
@@ -2493,11 +2729,14 @@ export interface SettingOption {
 SettingScope:
 export type SettingScope = "server" | "user" | "device";
 
+SettingSection:
+export type SettingSection = string;
+
 Side: as above
 
 SignIn:
 export interface SignIn {
-    scope: "server";
+    scope: "server" | "user";
     title?: Title;
 }
 
@@ -2515,6 +2754,7 @@ export interface SourcesByKind {
     lyrics?: Source[];
     metadata?: MetadataSource[];
     artwork?: ArtworkSource[];
+    artistInfo?: ArtistInfoSource[];
     scrobble?: Source[];
     recommend?: RecommendSource[];
     play?: Source[];
@@ -2526,12 +2766,22 @@ export interface Sponsor {
     url: HttpsUrl;
 }
 
+StatusItem:
+export interface StatusItem {
+    id: LocalId;
+    title: Title;
+    render: Side;
+    icon?: IconName;
+    when?: When;
+}
+
 StringSetting:
 export interface StringSetting {
     key: SettingKey;
     type: "string";
     title: Title;
     description?: Sentence;
+    section?: SettingSection;
     scope: SettingScope;
     required?: boolean;
     default?: string;
@@ -2674,6 +2924,9 @@ export interface View {
     sidebar?: boolean;
 }
 
+When:
+export type When = string;
+
 compareVersions:
 export declare function compareVersions(a: Version, b: Version): number;
 
@@ -2792,6 +3045,7 @@ shared hooks.onPlay needs listening.read
 shared commands.register needs nothing
 shared ui.pages.register needs nothing
 shared ui.panels.register needs nothing
+shared ui.status.register needs nothing
 shared settings.get needs nothing
 shared settings.onChange needs nothing
 shared storage.get needs storage
@@ -2809,6 +3063,9 @@ server hooks.onScanComplete needs library.read
 server commands.register needs nothing
 server ui.pages.register needs nothing
 server ui.panels.register needs nothing
+server ui.status.register needs nothing
+server ui.notify needs nothing
+server ui.refresh needs nothing
 server settings.get needs nothing
 server settings.onChange needs nothing
 server storage.get needs storage
@@ -2826,6 +3083,7 @@ server providers.links.register needs providers
 server providers.lyrics.register needs providers
 server providers.metadata.register needs providers
 server providers.artwork.register needs providers
+server providers.artistInfo.register needs providers
 server providers.scrobble.register needs providers
 server providers.recommend.register needs providers
 server providers.play.register needs providers
@@ -2854,6 +3112,9 @@ client commands.register needs nothing
 client commands.execute needs nothing
 client ui.pages.register needs nothing
 client ui.panels.register needs nothing
+client ui.status.register needs nothing
+client ui.notify needs nothing
+client ui.refresh needs nothing
 client settings.get needs nothing
 client settings.onChange needs nothing
 client storage.get needs storage

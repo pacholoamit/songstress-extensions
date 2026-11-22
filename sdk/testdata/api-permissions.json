@@ -1,6 +1,6 @@
 {
   "note": "Written by \"pnpm --dir packages/extensions fixtures:record\" from src/host.ts. Never edit it by hand.",
-  "apiVersion": "0.1.3",
+  "apiVersion": "0.1.8",
   "shared": {
     "commands.register": null,
     "hooks.onPlay": "listening.read",
@@ -13,7 +13,8 @@
     "storage.keys": "storage",
     "storage.set": "storage",
     "ui.pages.register": null,
-    "ui.panels.register": null
+    "ui.panels.register": null,
+    "ui.status.register": null
   },
   "server": {
     "commands.register": null,
@@ -34,6 +35,7 @@
     "library.getSong": "library.read",
     "library.search": "library.read",
     "net.fetch": "network",
+    "providers.artistInfo.register": "providers",
     "providers.artwork.register": "providers",
     "providers.download.register": "providers",
     "providers.links.register": "providers",
@@ -55,8 +57,11 @@
     "storage.get": "storage",
     "storage.keys": "storage",
     "storage.set": "storage",
+    "ui.notify": null,
     "ui.pages.register": null,
     "ui.panels.register": null,
+    "ui.refresh": null,
+    "ui.status.register": null,
     "users.get": "users.read",
     "users.list": "users.read"
   },
@@ -86,7 +91,10 @@
     "storage.get": "storage",
     "storage.keys": "storage",
     "storage.set": "storage",
+    "ui.notify": null,
     "ui.pages.register": null,
-    "ui.panels.register": null
+    "ui.panels.register": null,
+    "ui.refresh": null,
+    "ui.status.register": null
   }
 }

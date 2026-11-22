@@ -6,14 +6,15 @@
 import type { Platform, Side } from '../manifest/types.generated'
 
 /** The version of the component vocabulary (ui.ts) this package describes.
- * An app says which version it draws in `ClientInfo.ui`. */
-export const UI_VERSION = 1
+ * An app says which version it draws in `ClientInfo.ui`. Version 2 added the
+ * tree screen, status items, and the pick, input and notify actions. */
+export const UI_VERSION = 2
 
 /** What an app can show or run of an extension. */
 export interface ClientCapabilities {
   /** It runs extensions' client entries. */
   clientCode: boolean
-  /** It shows free-form views. */
+  /** It opens free-form views: in the browser, apart from the app. */
   views: boolean
 }
 

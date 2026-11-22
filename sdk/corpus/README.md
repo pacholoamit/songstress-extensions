@@ -160,7 +160,7 @@ That is the controls, the separators, the annotation characters and every code p
 
 **`PROVIDER_PLAY_NEEDS_SEARCH`** at `/contributes/providers/play/N/id`: no source under `search` has that id.
 
-**`PROVIDER_MISMATCH`** at `/contributes/providers/<kind>/N`. Go through the kinds in the schema's order (`search`, `lookup`, `links`, `lyrics`, `metadata`, `artwork`, `scrobble`, `recommend`, `play`, `download`) and each kind's sources in order, remembering for each id a name and a group. A source's name is its `name`, or the manifest's `name` when it has none. Only `search`, `lookup`, `links` and `metadata` sources have a group: their `group`, or "none" when they have none. The first source with an id sets its name; the first of those four kinds sets its group. A later source with that id is reported when its name differs, or, if not, when it has a group and it differs.
+**`PROVIDER_MISMATCH`** at `/contributes/providers/<kind>/N`. Go through the kinds in the schema's order (`search`, `lookup`, `links`, `lyrics`, `metadata`, `artwork`, `artistInfo`, `scrobble`, `recommend`, `play`, `download`) and each kind's sources in order, remembering for each id a name and a group. A source's name is its `name`, or the manifest's `name` when it has none. Only `search`, `lookup`, `links` and `metadata` sources have a group: their `group`, or "none" when they have none. The first source with an id sets its name; the first of those four kinds sets its group. A later source with that id is reported when its name differs, or, if not, when it has a group and it differs.
 
 **`SETTING_DEFAULT_INVALID`** at `/contributes/settings/N/default`: a `string` default longer than its own `maxLength` (in characters); a `number` default below its `minimum` or above its `maximum`; a `select` default that is not the `value` of one of its options.
 
@@ -185,8 +185,6 @@ Only under the `listing` profile, and reported together with the rules.
 **`LISTING_REPOSITORY`** at `/repository`: not `https://github.com/<owner>/<name>` and nothing after it. An owner is 1 to 39 letters, digits and hyphens, neither first nor last a hyphen; a name is 1 to 100 letters, digits, dots, hyphens and underscores.
 
 **`LISTING_SCREENSHOTS`** at `/screenshots`: fewer than three.
-
-**`LISTING_ACQUISITION`** at `/contributes/providers/play` and at `/contributes/providers/download`: each that is present.
 
 ## Theme files
 

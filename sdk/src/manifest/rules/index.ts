@@ -10,6 +10,7 @@ import type { Rule } from './rule'
 import { settings } from './settings'
 import { unsafeText } from './text'
 import { themeColors, themeLooks } from './themes'
+import { whenClauses } from './when'
 
 export { LISTING_RULES } from './listing'
 
@@ -33,4 +34,5 @@ export const RULES: readonly Rule[] = [
   settings,
   themeLooks,
   themeColors,
+  whenClauses,
 ]

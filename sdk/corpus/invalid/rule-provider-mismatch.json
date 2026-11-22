@@ -89,6 +89,15 @@
             "album-cover"
           ]
         }
+      ],
+      "artistInfo": [
+        {
+          "id": "a",
+          "name": "Three",
+          "supports": [
+            "biography"
+          ]
+        }
       ]
     }
   }

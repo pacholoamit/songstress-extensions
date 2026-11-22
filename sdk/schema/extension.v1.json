@@ -147,6 +147,18 @@
       "minLength": 1,
       "maxLength": 160
     },
+    "when": {
+      "description": "A condition on what the app knows (SPEC.md section 10): keys such as platform, admin, signedIn, playing, favorite and setting.<key>, joined with !, &&, || and parentheses, and compared with == and != to 'text', true, false or a number. The item shows only while it holds.",
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200
+    },
+    "settingSection": {
+      "description": "The heading a setting is drawn under, with the others that name it.",
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 40
+    },
     "httpsUrl": {
       "description": "An https address.",
       "type": "string",
@@ -464,8 +476,15 @@
           "minItems": 1,
           "maxItems": 10
         },
+        "status": {
+          "description": "Status items in the player: an icon and a few words each, the extension's state at a glance.",
+          "type": "array",
+          "items": { "$ref": "#/$defs/statusItem" },
+          "minItems": 1,
+          "maxItems": 2
+        },
         "views": {
-          "description": "Free-form pages: the extension's own HTML in a sandboxed frame. An app may not show them at all.",
+          "description": "Free-form pages: the extension's own HTML, opened in the browser apart from the app, with no API. An app may not open them at all.",
           "type": "array",
           "items": { "$ref": "#/$defs/view" },
           "minItems": 1,
@@ -583,7 +602,8 @@
         "command": {
           "description": "The id of one of the extension's commands.",
           "$ref": "#/$defs/localId"
-        }
+        },
+        "when": { "description": "The item shows only while this holds.", "$ref": "#/$defs/when" }
       }
     },
     "settingScope": {
@@ -630,6 +650,7 @@
         "type": { "const": "string" },
         "title": { "description": "The setting's label.", "$ref": "#/$defs/title" },
         "description": { "description": "A line of help under the label.", "$ref": "#/$defs/sentence" },
+        "section": { "$ref": "#/$defs/settingSection" },
         "scope": { "$ref": "#/$defs/settingScope" },
         "required": {
           "description": "Songstress asks for it, and does not start the extension for whoever lacks it: anyone, a member or a device, by its scope.",
@@ -655,6 +676,7 @@
         "type": { "const": "secret" },
         "title": { "description": "The setting's label.", "$ref": "#/$defs/title" },
         "description": { "description": "A line of help under the label.", "$ref": "#/$defs/sentence" },
+        "section": { "$ref": "#/$defs/settingSection" },
         "scope": {
           "description": "Who the secret belongs to: the whole server or each member.",
           "enum": ["server", "user"]
@@ -676,6 +698,7 @@
         "type": { "const": "number" },
         "title": { "description": "The setting's label.", "$ref": "#/$defs/title" },
         "description": { "description": "A line of help under the label.", "$ref": "#/$defs/sentence" },
+        "section": { "$ref": "#/$defs/settingSection" },
         "scope": { "$ref": "#/$defs/settingScope" },
         "required": {
           "description": "Songstress asks for it, and does not start the extension for whoever lacks it: anyone, a member or a device, by its scope.",
@@ -701,6 +724,7 @@
         "type": { "const": "boolean" },
         "title": { "description": "The setting's label.", "$ref": "#/$defs/title" },
         "description": { "description": "A line of help under the label.", "$ref": "#/$defs/sentence" },
+        "section": { "$ref": "#/$defs/settingSection" },
         "scope": { "$ref": "#/$defs/settingScope" },
         "default": { "description": "The value until someone sets one.", "type": "boolean" }
       }
@@ -715,6 +739,7 @@
         "type": { "const": "select" },
         "title": { "description": "The setting's label.", "$ref": "#/$defs/title" },
         "description": { "description": "A line of help under the label.", "$ref": "#/$defs/sentence" },
+        "section": { "$ref": "#/$defs/settingSection" },
         "scope": { "$ref": "#/$defs/settingScope" },
         "required": {
           "description": "Songstress asks for it, and does not start the extension for whoever lacks it: anyone, a member or a device, by its scope.",
@@ -755,14 +780,15 @@
         },
         "icon": { "description": "The icon of the page's sidebar entry.", "$ref": "#/$defs/iconName" },
         "sidebar": {
-          "description": "Give the page an entry in the sidebar of the web and desktop apps.",
+          "description": "Give the page an entry in the apps' own navigation: the sidebar of the web and desktop apps, the Library tab of the phones.",
           "type": "boolean"
-        }
+        },
+        "when": { "description": "The page's entry in the apps' navigation shows only while this holds.", "$ref": "#/$defs/when" }
       }
     },
     "panelLocation": {
-      "description": "The Songstress screen a panel is drawn in: the player's now-playing view, Home, an artist's page or an album's page.",
-      "enum": ["now-playing", "home", "artist", "album"]
+      "description": "The Songstress screen a panel is drawn in: the player's now-playing view, Home, an artist's page, an album's page or a playlist's page.",
+      "enum": ["now-playing", "home", "artist", "album", "playlist"]
     },
     "panel": {
       "type": "object",
@@ -778,7 +804,29 @@
         "render": {
           "description": "The entry that builds the panel's tree.",
           "$ref": "#/$defs/side"
-        }
+        },
+        "when": { "description": "The panel is drawn only while this holds.", "$ref": "#/$defs/when" }
+      }
+    },
+    "statusItem": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "title", "render"],
+      "properties": {
+        "id": {
+          "description": "The status item's name. Code registers its renderer under it.",
+          "$ref": "#/$defs/localId"
+        },
+        "title": {
+          "description": "What the item is, for people who do not see it, and where the player lists it.",
+          "$ref": "#/$defs/title"
+        },
+        "render": {
+          "description": "The entry that says what the item shows, for the song playing.",
+          "$ref": "#/$defs/side"
+        },
+        "icon": { "description": "The icon shown until the renderer answers.", "$ref": "#/$defs/iconName" },
+        "when": { "description": "The item is drawn only while this holds.", "$ref": "#/$defs/when" }
       }
     },
     "view": {
@@ -792,7 +840,7 @@
         },
         "title": { "description": "The view's heading.", "$ref": "#/$defs/title" },
         "path": {
-          "description": "The HTML file the frame opens, from the package root.",
+          "description": "The HTML file the browser opens, from the package root.",
           "type": "string",
           "pattern": "\\.html$",
           "maxLength": 200
@@ -940,6 +988,13 @@
           "description": "Sources of artist photos and album covers.",
           "type": "array",
           "items": { "$ref": "#/$defs/artworkSource" },
+          "minItems": 1,
+          "maxItems": 5
+        },
+        "artistInfo": {
+          "description": "Sources of words about an artist: who they are, and the artists like them.",
+          "type": "array",
+          "items": { "$ref": "#/$defs/artistInfoSource" },
           "minItems": 1,
           "maxItems": 5
         },
@@ -1125,6 +1180,29 @@
         }
       }
     },
+    "artistInfoSource": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "supports"],
+      "properties": {
+        "id": {
+          "description": "The source's name inside the extension. Code registers the provider under it; the same id under several kinds is one source.",
+          "$ref": "#/$defs/localId"
+        },
+        "name": {
+          "description": "The source's name as people read it. Left out, it is the extension's name.",
+          "$ref": "#/$defs/title"
+        },
+        "supports": {
+          "description": "What it can say about an artist: who they are, in words, or the artists like them.",
+          "type": "array",
+          "items": { "enum": ["biography", "similar"] },
+          "minItems": 1,
+          "maxItems": 2,
+          "uniqueItems": true
+        }
+      }
+    },
     "recommendSource": {
       "type": "object",
       "additionalProperties": false,
@@ -1224,8 +1302,8 @@
       "required": ["scope"],
       "properties": {
         "scope": {
-          "description": "Whose account it is. \"server\": one account for the whole server, which its admin signs in.",
-          "enum": ["server"]
+          "description": "Whose account it is. \"server\": one account for the whole server, which its admin signs in. \"user\": each member's own, which they sign in themselves.",
+          "enum": ["server", "user"]
         },
         "title": {
           "description": "The service as the sign-in names it (Tunelog). Left out, the extension's name.",

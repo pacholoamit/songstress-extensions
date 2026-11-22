@@ -1,0 +1,29 @@
+{
+  "manifestVersion": 1,
+  "id": "acme.tunelog-scrobbler",
+  "name": "Tunelog Scrobbler",
+  "version": "1.0.0",
+  "description": "Each member signs in to their own Tunelog, where their plays go.",
+  "engines": {
+    "songstress": "^0.1.7"
+  },
+  "entry": {
+    "server": "dist/server.js"
+  },
+  "permissions": {
+    "network": {
+      "reason": "Reach Tunelog to sign in.",
+      "hosts": [
+        "api.tunelog.example"
+      ]
+    },
+    "secrets": {
+      "reason": "Keep the tokens Tunelog hands out."
+    }
+  },
+  "contributes": {
+    "signIn": {
+      "scope": "user"
+    }
+  }
+}

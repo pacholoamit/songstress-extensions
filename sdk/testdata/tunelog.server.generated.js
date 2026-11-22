@@ -52,7 +52,8 @@
 		commands: { register: null },
 		ui: {
 			pages: REGISTER,
-			panels: REGISTER
+			panels: REGISTER,
+			status: REGISTER
 		},
 		settings: {
 			get: null,
@@ -67,9 +68,16 @@
 		net: { fetch: "network" },
 		host: { info: null }
 	};
+	/** A notice, and rendering again: no permission, under the host's caps. */
+	const UI_TOLD = {
+		...SHARED.ui,
+		notify: null,
+		refresh: null
+	};
 	const SERVER = {
 		...SHARED,
 		hooks: HOOK_PERMISSIONS.server,
+		ui: UI_TOLD,
 		secrets: {
 			get: "secrets",
 			set: "secrets",
@@ -82,6 +90,7 @@
 			lyrics: PROVIDER,
 			metadata: PROVIDER,
 			artwork: PROVIDER,
+			artistInfo: PROVIDER,
 			scrobble: PROVIDER,
 			recommend: PROVIDER,
 			play: PROVIDER,
@@ -114,6 +123,7 @@
 			register: null,
 			execute: null
 		},
+		ui: UI_TOLD,
 		player: {
 			getState: "listening.read",
 			play: "player.control",

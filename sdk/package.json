@@ -1,6 +1,6 @@
 {
   "name": "songstress",
-  "version": "0.1.3",
+  "version": "0.1.8",
   "description": "The Songstress extension SDK: the manifest's schema and validator, the API an extension is written against, and the songstress command that builds, packs and pushes an extension.",
   "license": "MIT",
   "author": "Pacholo Amit",
