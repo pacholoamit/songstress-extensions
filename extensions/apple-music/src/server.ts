@@ -6,7 +6,9 @@
 // A port of the Mornye "apple-music" extension 1.4.14 (Copyright 2026
 // zarzet, LGPL-3.0-only; see NOTICE). Apple's public catalogue API
 // (amp-api.music.apple.com) takes the developer token music.apple.com's own
-// page embeds; lyrics also need a member's Media User Token.
+// page embeds, or its script holds (shared/http's findIn: the script is
+// larger than the extension host answers in one request); lyrics also need
+// a member's Media User Token.
 
 import {
   ProviderFailure,
@@ -25,7 +27,7 @@ import {
   type TrackFacts,
   type TrackQuery,
 } from 'songstress/server'
-import { HttpStatus, json, orNull, query, text } from '../../shared/http'
+import { findIn, HttpStatus, json, orNull, query } from '../../shared/http'
 import { Kept } from '../../shared/kept'
 import { firstOf, registerCatalog, some } from '../../shared/register'
 import { score } from '../../shared/match'
@@ -81,16 +83,18 @@ function webPlayToken(code: string): string | null {
 /** The developer token in music.apple.com's page: an embed's devToken, the
  * token written in the page, or in its first script bundles. */
 async function findToken(): Promise<{ value: string; until: number }> {
-  const page = await text('https://music.apple.com/us/browse').catch((error: unknown) => {
+  // The page's scripts are gathered while it is read for the token itself.
+  const bundles = new Set<string>()
+  const inPage = (page: string): string | null => {
+    for (const [, bundle] of page.matchAll(/src="(\/assets\/[^"]*\.js)"/g)) if (!bundle!.includes('-legacy')) bundles.add(bundle!)
+    return /devToken=([A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+)/.exec(page)?.[1] ?? webPlayToken(page)
+  }
+  let found = await findIn('https://music.apple.com/us/browse', inPage).catch((error: unknown) => {
     throw error instanceof HttpStatus ? new ProviderFailure('unavailable', { message: error.message }) : error
   })
-  let found = /devToken=([A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+)/.exec(page)?.[1] ?? webPlayToken(page)
-  if (!found) {
-    const bundles = [...page.matchAll(/src="(\/assets\/[^"]*\.js)"/g)].map((m) => m[1]!).filter((b) => !b.includes('-legacy'))
-    for (const bundle of bundles.slice(0, 6)) {
-      found = webPlayToken(await text(`https://music.apple.com${bundle}`).catch(() => ''))
-      if (found) break
-    }
+  for (const bundle of [...bundles].slice(0, 6)) {
+    if (found) break
+    found = await findIn(`https://music.apple.com${bundle}`, webPlayToken).catch(() => null)
   }
   if (!found || !JWT.test(found)) throw new ProviderFailure('unavailable', { message: "music.apple.com's page held no developer token" })
   return { value: found, until: expiryOf(found) }

@@ -1,3 +1,4 @@
+import { gzipSync } from 'node:zlib'
 import { describe, expect, it } from 'vitest'
 import { load, ok, onlyTo, page, type StandIn } from '../shared/testing'
 import manifest from './songstress.json' with { type: 'json' }
@@ -66,6 +67,37 @@ describe('the Apple Music port', () => {
       ids: { itunes: '1499378615' },
       coverUrl: 'https://is1-ssl.mzstatic.com/image/thumb/Music/x/1200x1200bb.jpg',
     })
+    expect(onlyTo(stand, manifest.permissions.network.hosts)).toBe(true)
+  })
+
+  it('finds the token in a script larger than one request may answer, by asking for it gzipped', async () => {
+    const stand = await load(() => import('./src/server'), { storefront: 'us' })
+    const now = Math.floor(Date.now() / 1000)
+    const claims = Buffer.from(JSON.stringify({ iss: 'AMPWebPlay', iat: now, exp: now + 86400 })).toString('base64url')
+    const token = `eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6IldlYlBsYXlLaWQifQ.${claims}.c2ln`
+    const asked: (string | undefined)[] = []
+    stand.routes.push(
+      ['GET', /^https:\/\/music\.apple\.com\/us\/browse$/, page('<script type="module" crossorigin src="/assets/index~B8RK.js"></script>')],
+      [
+        'GET',
+        /^https:\/\/music\.apple\.com\/assets\/index~B8RK\.js$/,
+        (_url, request) => {
+          asked.push(request.headers?.['accept-encoding'], request.responseEncoding)
+          // Three megabytes unpacked, the token a megabyte in: as Apple's own script is.
+          return { large: gzipSync(`${'var a=1;'.repeat(125_000)}const t="${token}";${'var b=2;'.repeat(250_000)}`) }
+        },
+      ],
+      [
+        'GET',
+        /amp-api\.music\.apple\.com\/v1\/catalog\/us\/search\?/,
+        (_url, request) => (request.headers?.authorization === `Bearer ${token}` ? ok({ results: { songs: { data: [SONG] } } }) : { status: 401, body: '' }),
+      ],
+      ['GET', /amp-api\.music\.apple\.com\/v1\/catalog\/us\/albums\?/, ok({ data: [] })],
+    )
+    const found = (await stand.ask('search', 'apple-music', 'search', { text: 'stub song', types: ['track'], limit: 5, offset: 0 })) as { tracks: { id: string }[] }
+    expect(found.tracks[0]?.id).toBe('1499378615')
+    // Asked for as it is first, which the host refuses as too large; then gzipped, as bytes.
+    expect(asked).toEqual([undefined, undefined, 'gzip', 'base64'])
     expect(onlyTo(stand, manifest.permissions.network.hosts)).toBe(true)
   })
 

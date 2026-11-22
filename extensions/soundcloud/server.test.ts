@@ -1,3 +1,4 @@
+import { gzipSync } from 'node:zlib'
 import { describe, expect, it } from 'vitest'
 import { load, ok, onlyTo, page, type StandIn } from '../shared/testing'
 import manifest from './songstress.json' with { type: 'json' }
@@ -46,7 +47,8 @@ async function soundcloud(): Promise<StandIn> {
   const stand = await load(() => import('./src/server'))
   stand.routes.push(
     ['GET', /^https:\/\/soundcloud\.com\/$/, page('<html><script crossorigin src="https://a-v2.sndcdn.com/assets/49-4d5e6f.js"></script></html>')],
-    ['GET', /\/assets\/49-4d5e6f\.js$/, page(`n.exports={client_id:"${CLIENT_ID}"}`)],
+    // The script that holds the client id, three megabytes unpacked as SoundCloud's own is: handed over gzipped.
+    ['GET', /\/assets\/49-4d5e6f\.js$/, { large: gzipSync(`${'var a=1;'.repeat(375_000)}n.exports={client_id:"${CLIENT_ID}"}`) }],
     ['GET', /api-v2\.soundcloud\.com\/search\/tracks\?/, ok({ collection: [TRACK] })],
     ['GET', /api-v2\.soundcloud\.com\/tracks\/1234567890\?/, ok(TRACK)],
     ['GET', /api-v2\.soundcloud\.com\/media\/.*\/stream\/hls\?.*track_authorization=auth-token/, ok({ url: 'https://cf-hls-media.sndcdn.com/playlist/abc/def/playlist.m3u8?P=1' })],
@@ -57,6 +59,13 @@ async function soundcloud(): Promise<StandIn> {
 }
 
 describe('the SoundCloud port', () => {
+  it('reads a script small enough for one request as it is', async () => {
+    const stand = await soundcloud()
+    stand.routes.unshift(['GET', /\/assets\/49-4d5e6f\.js$/, page(`n.exports={client_id:"${CLIENT_ID}"}`)])
+    await stand.ask('search', 'soundcloud', 'search', { text: 'midnight drive', types: ['track'], limit: 5, offset: 0 })
+    expect(stand.seen.some((line) => line.includes(`client_id=${CLIENT_ID}`))).toBe(true)
+  })
+
   it('searches through the client id its site hands out', async () => {
     const stand = await soundcloud()
     const found = (await stand.ask('search', 'soundcloud', 'search', { text: 'midnight drive', types: ['track'], limit: 5, offset: 0 })) as {
