@@ -1,0 +1,79 @@
+{
+  "manifestVersion": 1,
+  "id": "acme.example",
+  "name": "Example",
+  "version": "1.0.0",
+  "description": "An example extension.",
+  "engines": {
+    "songstress": "^0.1.0"
+  },
+  "entry": {
+    "server": "dist/server.js"
+  },
+  "contributes": {
+    "commands": [
+      {
+        "id": "share",
+        "title": "Share",
+        "run": "server"
+      }
+    ],
+    "menus": {
+      "song/context": [
+        {
+          "command": "share",
+          "when": "playing &&"
+        }
+      ],
+      "album/context": [
+        {
+          "command": "share",
+          "when": "(admin || views"
+        }
+      ],
+      "artist/context": [
+        {
+          "command": "share",
+          "when": "platform = 'ios'"
+        }
+      ],
+      "playlist/context": [
+        {
+          "command": "share",
+          "when": "platform == 'ios"
+        }
+      ],
+      "queue/item": [
+        {
+          "command": "share",
+          "when": "admin views"
+        }
+      ]
+    },
+    "pages": [
+      {
+        "id": "top",
+        "title": "Top",
+        "render": "server",
+        "when": "!!!!!!!!!admin"
+      }
+    ],
+    "panels": [
+      {
+        "id": "here",
+        "title": "Here",
+        "location": "home",
+        "render": "server",
+        "when": "admin == "
+      }
+    ],
+    "status": [
+      {
+        "id": "now",
+        "title": "Now",
+        "render": "server",
+        "when": "#admin"
+      }
+    ]
+  }
+}

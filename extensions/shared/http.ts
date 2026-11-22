@@ -5,6 +5,7 @@
 // a source that does not answer is `unavailable`.
 
 import { ProviderFailure, SongstressError, songstress, type NetRequest, type NetResponse } from 'songstress/server'
+import { bytesToText, findInGzip, fromBase64, isGzip } from './gunzip'
 import { hostOf as hostIn } from './url'
 
 /** What a desktop browser sends: the sources answer it as they answer one. */
@@ -30,6 +31,14 @@ function retryAfter(response: NetResponse): number | undefined {
   return Number.isNaN(at) ? undefined : Math.max(0, Math.round((at - Date.now()) / 1000))
 }
 
+/** The code of a refusal the host itself made (a size, a permission). Its
+ * errors look like the SDK's SongstressError without being that class: a
+ * sandbox makes them outside the extension's bundle. */
+function refusal(error: unknown): string {
+  const code = (error as { code?: unknown } | null)?.code
+  return typeof code === 'string' ? code : ''
+}
+
 /** One try: the answer, or why there was none that counts (a 5xx counts
  * on the last try). A refusal of Songstress's own (a host not granted) or a
  * 429 is thrown: trying again changes nothing. */
@@ -39,6 +48,8 @@ async function attempt(url: string, init: NetRequest, last: boolean): Promise<Ne
     response = await songstress.net.fetch(url, init)
   } catch (error) {
     if (error instanceof SongstressError && error.code !== 'failed') throw error
+    // An answer larger than a request may be: trying again changes nothing, and findIn asks another way.
+    if (refusal(error) === 'limit-exceeded') throw error
     return error instanceof Error ? error.message : String(error)
   }
   if (response.status === 429) {
@@ -76,6 +87,30 @@ export async function text(url: string, init: NetRequest = {}): Promise<string> 
   const response = await reach(url, init)
   if (response.status < 200 || response.status >= 300) throw new HttpStatus(response.status, url)
   return response.body
+}
+
+/** What `find` reads in a web player's page or script, however large it is.
+ * It is asked for as it is first, which the extension host unpacks itself.
+ * The host answers at most 2.5 MiB a request, and a player's script is past
+ * that unpacked (Apple Music's, SoundCloud's): then it is asked for gzipped,
+ * which the host hands over as it came, and read here a block at a time,
+ * `find` handed each stretch of text, until it finds what it looks for. So
+ * `find` may be called several times, and what it gathers on the way it
+ * gathers once for each stretch. Null when it finds nothing. */
+export async function findIn<T>(url: string, find: (text: string) => T | null): Promise<T | null> {
+  try {
+    return find(await text(url))
+  } catch (error) {
+    if (refusal(error) !== 'limit-exceeded') throw error
+  }
+  const response = await reach(url, { headers: { 'accept-encoding': 'gzip' }, responseEncoding: 'base64' })
+  if (response.status < 200 || response.status >= 300) throw new HttpStatus(response.status, url)
+  const bytes = fromBase64(response.body)
+  try {
+    return isGzip(bytes) ? findInGzip(bytes, find) : find(bytesToText(bytes))
+  } catch {
+    throw new ProviderFailure('unavailable', { message: `${hostOf(url)} answered a script that does not unpack` })
+  }
 }
 
 /** A 2xx answer's body, read as JSON. */

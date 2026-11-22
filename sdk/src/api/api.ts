@@ -16,7 +16,7 @@ import type { Library, Users } from './library'
 import type { Player, Queue } from './player'
 import type { Providers } from './providers'
 import type { SignInRegistry } from './signin'
-import type { Ui } from './ui'
+import type { ClientUi, ServerUi, Ui } from './ui'
 import type { Jobs, Routes } from './work'
 
 /** What both entries have. */
@@ -34,6 +34,7 @@ export interface SharedApi {
  * a sandbox, for every member and every app. */
 export interface ServerApi extends SharedApi {
   hooks: ServerHooks
+  ui: ServerUi
   settings: ServerSettings
   storage: ServerStore
   secrets: Secrets
@@ -50,6 +51,7 @@ export interface ServerApi extends SharedApi {
 export interface ClientApi extends SharedApi {
   hooks: ClientHooks
   commands: ClientCommands
+  ui: ClientUi
   player: Player
   queue: Queue
 }

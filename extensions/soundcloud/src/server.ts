@@ -4,7 +4,9 @@
 //
 // A port of the Mornye "soundcloud" extension 1.0.12 (Copyright 2026
 // zarzet, LGPL-3.0-only; see NOTICE). SoundCloud's api-v2 needs a client id,
-// which its own site hands out in its page or its script bundles.
+// which its own site hands out in its page or its script bundles
+// (shared/http's findIn: the one that holds it is larger than the extension
+// host answers in one request).
 
 import {
   ProviderFailure,
@@ -22,7 +24,7 @@ import {
   type StreamLocation,
   type TrackQuery,
 } from 'songstress/server'
-import { HttpStatus, json, orNull, query, reach, text } from '../../shared/http'
+import { findIn, HttpStatus, json, orNull, query, reach, text } from '../../shared/http'
 import { Kept } from '../../shared/kept'
 import { best } from '../../shared/match'
 import { firstOf, registerCatalog, some } from '../../shared/register'
@@ -45,10 +47,11 @@ async function findClientId(): Promise<{ value: string; until: number }> {
   const direct = CLIENT_ID.exec(page)
   if (direct) return { value: direct[1]!, until: Date.now() + DAY_MS }
   const bundles = [...page.matchAll(/src="(https:\/\/[^"]*sndcdn\.com\/assets\/[^"]+\.js)"/g)].map((m) => m[1]!)
+  const inScript = (code: string): string | null =>
+    (CLIENT_ID.exec(code) ?? /\("client_id=([a-zA-Z0-9]{32})"\)/.exec(code) ?? /client_id=([a-zA-Z0-9]{32})/.exec(code))?.[1] ?? null
   for (const bundle of bundles.slice(-8).reverse()) {
-    const code = await text(bundle).catch(() => '')
-    const found = CLIENT_ID.exec(code) ?? /\("client_id=([a-zA-Z0-9]{32})"\)/.exec(code) ?? /client_id=([a-zA-Z0-9]{32})/.exec(code)
-    if (found) return { value: found[1]!, until: Date.now() + DAY_MS }
+    const found = await findIn(bundle, inScript).catch(() => null)
+    if (found) return { value: found, until: Date.now() + DAY_MS }
   }
   throw new ProviderFailure('unavailable', { message: 'SoundCloud handed out no client id' })
 }

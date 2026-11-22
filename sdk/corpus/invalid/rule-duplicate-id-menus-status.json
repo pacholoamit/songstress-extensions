@@ -1,0 +1,54 @@
+{
+  "manifestVersion": 1,
+  "id": "acme.example",
+  "name": "Example",
+  "version": "1.0.0",
+  "description": "An example extension.",
+  "engines": {
+    "songstress": "^0.1.0"
+  },
+  "entry": {
+    "server": "dist/server.js"
+  },
+  "contributes": {
+    "commands": [
+      {
+        "id": "share",
+        "title": "Share",
+        "run": "server"
+      },
+      {
+        "id": "open",
+        "title": "Open",
+        "run": "server"
+      }
+    ],
+    "menus": {
+      "song/context": [
+        {
+          "command": "share",
+          "when": "admin"
+        },
+        {
+          "command": "open"
+        },
+        {
+          "command": "share",
+          "when": "!admin"
+        }
+      ]
+    },
+    "status": [
+      {
+        "id": "now",
+        "title": "Now",
+        "render": "server"
+      },
+      {
+        "id": "now",
+        "title": "Now again",
+        "render": "server"
+      }
+    ]
+  }
+}

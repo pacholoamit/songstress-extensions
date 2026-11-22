@@ -1,6 +1,6 @@
 # Songstress extensions: the specification
 
-Manifest version 1 · extension API 0.1.3
+Manifest version 1 · extension API 0.1.8
 
 This document says what a Songstress extension is, what its manifest holds, what its code may do and where each part of it works. It is written for people who build extensions. Three things in this package say the same in a form a program reads, and they win where this text and they differ:
 
@@ -369,7 +369,14 @@ Named actions that code carries out. Up to 50.
 
 ### `menus`
 
-Where commands appear. An object keyed by location; each value is a list of up to ten `{ "command": "<id>" }` items, each naming a declared command (`MENU_COMMAND_UNKNOWN`), none twice.
+Where commands appear. An object keyed by location; each value is a list of up to ten `{ "command": "<id>" }` items, each naming a declared command (`MENU_COMMAND_UNKNOWN`), none twice in one menu (`DUPLICATE_ID`). An item may have a `when`: a condition it shows under (section 10, "Conditions").
+
+```json
+"menus": {
+  "song/context": [{ "command": "add-to-chart", "when": "signedIn && !favorite" }],
+  "player/actions": [{ "command": "open-visualiser", "when": "views && platform != 'ios'" }]
+}
+```
 
 | Location | Where | The handler's input |
 |---|---|---|
@@ -404,24 +411,35 @@ The settings Songstress draws and keeps for the extension: a list, in the order 
 
 `required` means Songstress asks for the setting and does not start the extension for whoever lacks it: for anyone while a `server` setting is empty, for a member while their `user` setting is, on a device while its `device` setting is. A default must be a value the setting itself would accept (`SETTING_DEFAULT_INVALID`), a `minimum` may not be above its `maximum` (`SETTING_RANGE_INVALID`), and no two options share a value (`SETTING_OPTION_DUPLICATE`).
 
-### `pages` and `panels`
+**The settings form.** Every app draws the settings on the extension's own page, each scope where its owner sets it: the server's for the admin, a member's own, and this device's under "This device" (on a phone, "This phone"). A setting may name a `section`, up to 40 characters: the settings that name one section are drawn together under it as a heading, in the order the sections first come, and those that name none come first. The buttons of `menus["settings/actions"]` stand under them.
 
-Interface drawn from a tree of Songstress's own components (section 10).
+### `pages`, `panels` and `status`
 
-A page is a screen of its own, opened by an action, or from the sidebar of the web and desktop apps when it sets `sidebar`. Up to 20: `id`, `title`, `render` (`server` or `client`: the entry that builds the tree), and optionally `icon` and `sidebar`. A page rendered by the server entry shows in every app.
+Interface drawn from a tree of Songstress's own components, in places Songstress gives it (section 10). Each names `render` (`server` or `client`): the entry that builds its tree, which registers the renderer under its `id`. What the server entry renders shows in every app. Each may have a `when` (section 10, "Conditions").
 
-A panel is a section inside one of Songstress's own screens. Up to 10: `id`, `title`, `render`, and a `location`:
+A page is a screen of its own, opened by an action, or from the apps' own navigation when it sets `sidebar`: the sidebar of the web and desktop apps, the Library tab of the phones. Up to 20: `id`, `title`, `render`, and optionally `icon`, `sidebar` and `when` (which holds back its navigation entry, never the page).
 
-| `location` | Where the panel is drawn |
-|---|---|
-| `now-playing` | The player's now-playing view |
-| `home` | Home, after Songstress's own shelves |
-| `artist` | An artist's page |
-| `album` | An album's page |
+A panel is a section inside one of Songstress's own screens. Up to 10: `id`, `title`, `render`, `location`, and optionally `when`:
+
+| `location` | Where the panel is drawn | Its renderer is told |
+|---|---|---|
+| `now-playing` | The player's now-playing view | The song playing |
+| `home` | Home, after Songstress's own shelves | |
+| `artist` | An artist's page | The artist |
+| `album` | An album's page | The album |
+| `playlist` | A playlist's page | The playlist's id |
+
+A status item is the extension's state at a glance, in the player: a few words and an icon ("Sent", a check), in a tone, with what a tap does. Up to 2: `id`, `title` (what it is, for people who do not see it), `render`, and optionally `icon` (shown until the renderer answers) and `when`.
+
+```json
+"status": [{ "id": "sent", "title": "Tunelog", "render": "server", "icon": "check", "when": "signedIn" }]
+```
+
+Status items, `when`, a `playlist` panel and a setting's `section` came with API 0.1.4, so a manifest that has one asks for it: `"songstress": "^0.1.4"`.
 
 ### `views`
 
-Free-form pages: the extension's own HTML file, shown in a sandboxed frame kept apart from the app, its storage and its session. Up to 10: `id`, `title`, `path` (an `.html` file), and optionally `icon` and `sidebar`. A view and a page are opened the same way, so they share their ids. An app may be unable to show views (section 6): offer a page for what must work everywhere.
+Free-form pages: the extension's own HTML file. An app opens a view in the browser, apart from the app (section 10, "Views"): it gets no `songstress` API, and nothing of the app's storage or session. Up to 10: `id`, `title`, `path` (an `.html` file), and optionally `icon` and `sidebar`. A view and a page are opened the same way, so they share their ids. An app may be unable to open views (section 6): offer a page for what must work everywhere.
 
 ### `themes`
 
@@ -436,7 +454,7 @@ Themes for the picker. Up to 20, each with an `id`, a `label` (its name in the p
 
 ### `providers`
 
-Sources the extension adds beside Songstress's own. An object keyed by kind, each a list of up to five sources: `search`, `lookup`, `links`, `lyrics`, `metadata`, `artwork`, `scrobble`, `recommend`, `play`, `download`. Section 11 has each kind's fields and what its code answers.
+Sources the extension adds beside Songstress's own. An object keyed by kind, each a list of up to five sources: `search`, `lookup`, `links`, `lyrics`, `metadata`, `artwork`, `artistInfo`, `scrobble`, `recommend`, `play`, `download`. Section 11 has each kind's fields and what its code answers.
 
 ### `jobs`
 
@@ -452,32 +470,32 @@ A sign-in to the service the extension reaches, which a person starts and ends i
 
 | Field | Required | What it holds |
 |---|---|---|
-| `scope` | yes | Whose account it is. `server`: one account for the whole server, which its admin signs in. It is the only scope in this version. |
+| `scope` | yes | Whose account it is. `server`: one account for the whole server, which its admin signs in. `user`: each member's own, which they sign in themselves, from their own page of the extension. |
 | `title` | no | The service as the sign-in names it. Left out, the extension's name. |
 
-It needs the server entry (`ENTRY_REQUIRED`), whose handler does the signing in (section 9), and the `secrets` permission (`PERMISSION_REQUIRED`): the tokens a sign-in is given are the extension's own secrets. It came with API 0.1.1, so a manifest that has one asks for it: `"songstress": "^0.1.1"`.
+It needs the server entry (`ENTRY_REQUIRED`), whose handler does the signing in (section 9), and the `secrets` permission (`PERMISSION_REQUIRED`): the tokens a sign-in is given are the extension's own secrets. It came with API 0.1.1, so a manifest that has one asks for it: `"songstress": "^0.1.1"`. Scope `user` came with API 0.1.7: `"songstress": "^0.1.7"`.
 
 ## 6. Where each part works
 
-"Phone" is the iPhone, iPad and Android apps. A phone build made for an app store leaves two things out: the web views that run client code and show free-form views, and the in-app catalogue of extensions. Everything an extension does on the server, its declared interface, its settings, and installing by link or QR code are in every build.
+"Phone" is the iPhone, iPad and Android apps. A phone build made for an app store leaves three things out: the web views that run client code, free-form views, and the in-app catalogue of extensions. Everything an extension does on the server, its declared interface, its settings, and installing by link or QR code are in every build.
 
 | Part | Server | Web and desktop | Phone | Phone build for a store |
 |---|---|---|---|---|
 | Server entry: hooks, providers, jobs, routes | Runs here | Reaches them | Reaches them | Reaches them |
-| Client entry and its hooks | | Runs while the app is open | Runs while the app is open and in front | Not available |
+| Client entry and its hooks | | Runs while the app is open; not yet on Windows and Linux | Runs while the app is open and in front | Not available |
 | `commands` with `run: server` | Runs here | Yes | Yes | Yes |
-| `commands` with `run: client` | | Yes | Yes | Not available |
+| `commands` with `run: client` | | Yes; not yet on Windows and Linux | Yes | Not available |
 | `menus` | | Every location | Every location but `sidebar`; an extension's items in a menu share one submenu | As a phone |
 | `settings` | Kept here | Drawn | Drawn | Drawn |
-| `pages` and `panels` with `render: server` | Rendered here | Drawn | Drawn | Drawn |
-| `pages` and `panels` with `render: client` | | Drawn | Drawn | Not available |
-| `views` | Serves the files | A sandboxed frame | A web view | Not available |
+| `pages`, `panels` and `status` with `render: server` | Rendered here | Drawn | Drawn | Drawn |
+| `pages`, `panels` and `status` with `render: client` | | Drawn; not yet on Windows and Linux | Drawn | Not available |
+| `views` | Serves the files | Opened in a tab of the browser (web) or the system's browser (desktop) | Opened in the in-app browser | Not available |
 | `themes` | | Applied | Applied | Applied |
 | `providers` | Runs here | Shows the results | Shows the results | Shows the results |
 | `jobs` | Runs here | Shown in Activity | Shown in Activity | Shown in Activity |
-| `signIn` | Runs here, and keeps the account's name | The admin signs in from the extension's page | As the web | As the web |
+| `signIn` | Runs here, and keeps the account's name | The admin signs in from the extension's page; a member signs in to their own account (scope `user`) from their own page of it, in Settings | As the web | As the web |
 
-On a phone, client code and views run in a web view of their own, never in the app's own engine, so they need an app that carries one. An app without it, or a build for a store, still draws everything else an extension declares; the server entry's work goes on for it as for any app.
+On a phone, client code runs in a web view of its own, never in the app's own engine, so it needs an app that carries one. On the web and the desktop it runs in a hidden frame of its own, sandboxed to scripts alone, whose origin is no one's: it reaches none of the app's storage, session or network, nor the desktop's own calls, and speaks with the app only through the calls it was granted. The Windows and Linux desktops run none yet, as their web views give a frame more than the macOS one does. An app without client code, or a build for a store, still draws everything else an extension declares; the server entry's work goes on for it as for any app. A view opens in the browser on every app, never inside one.
 
 Nothing of an extension appears on a watch, in a car or in a widget.
 
@@ -488,7 +506,7 @@ const { client } = await songstress.host.info()
 if (client?.capabilities.views) { /* offer the free-form view */ }
 ```
 
-`ClientInfo` holds the `platform`, the version of the component vocabulary the app draws (`ui`), and its `capabilities`: `clientCode` (it runs client entries) and `views` (it shows free-form views).
+`ClientInfo` holds the `platform`, the version of the component vocabulary the app draws (`ui`), and its `capabilities`: `clientCode` (it runs client entries) and `views` (it opens free-form views). An app may draw an older vocabulary than this package describes: a renderer that answers something newer than `client.ui` for an app is drawn there as "needs a newer app".
 
 ## 7. Hooks
 
@@ -569,7 +587,7 @@ The types in this package are the reference: every member is documented where it
 |---|---|---|---|
 | `hooks` | both, each with its own hooks | by hook (section 7) | Listening to what happens |
 | `commands` | both; `execute` on the client | none | `register` a declared command's handler; from client code, `execute` one of the extension's own |
-| `ui` | both | none | `ui.pages.register` and `ui.panels.register`: the renderers of declared pages and panels |
+| `ui` | both | none | `ui.pages.register`, `ui.panels.register` and `ui.status.register`: the renderers of declared pages, panels and status items; `ui.notify` and `ui.refresh` (section 10, "Live") |
 | `settings` | both | none | `get` a setting; `onChange` while the entry runs |
 | `storage` | both | `storage` | `get`, `set`, `delete`, `keys`: the extension's own small store |
 | `net` | both | `network`, `network.local` | `fetch`: the only way to the network |
@@ -632,20 +650,57 @@ songstress.signIn.register({
 - **`finish`** is handed the `url` the admin came back on, whole, with what the service added to it, and `redirectUrl` again for a service that asks for it twice. It keeps the account's tokens with `songstress.secrets` and answers the `account`: the name the admin reads beside "Signed in as".
 - **`signOut`** is optional. It forgets the tokens, and tells the service when it has a way to. Songstress forgets the account whether it runs, fails or is not there.
 
+**Each member's own account.** A sign-in of scope `user` is the same two halves, started by each member for themselves from their own page of the extension (Settings › Extensions; an admin signs in there too, as a member). `start`, `finish` and `signOut` are each handed that member's `userId`, and the handler keeps what it is given as theirs:
+
+```ts
+  async finish({ url, redirectUrl, userId }) {
+    // … the code traded for a token, as above
+    await songstress.secrets.set('token', token, { userId })
+    return { account: name }
+  },
+  async signOut({ userId }) {
+    await songstress.secrets.delete('token', { userId })
+  },
+```
+
+Each member has a sign-in of their own: one starting, finishing or signing out never touches another's, and no admin signs a member in or out. The extension's other code reads a member's token with the same `{ userId }` (a `scrobble` provider is handed the member it reports for), and throws `sign-in-required` for a member who has none.
+
 Songstress finishes only the sign-in whose `state` came back, once, within ten minutes of its start, and keeps the account's name and nothing else: no token reaches it or an app. A server with no public address set cannot be sent back to, and refuses the start. Where the service's page cannot reach the server all the same, the admin pastes the address they landed on, and `finish` is handed that. A half that cannot be done throws a `ProviderFailure` (section 11); the admin is told the sign-in did not go through, and the reason is in the extension's log. An extension's other code reads the tokens where the handler kept them, and throws `sign-in-required` while there are none.
 
 ## 10. Declared interface
 
-A page or a panel is a tree of the components below, as JSON. Each app draws the tree with its own controls, so one page works on the web, on the desktop and on a phone. A renderer is a function registered with `songstress.ui.pages.register(id, render)` or `songstress.ui.panels.register(id, render)`, in the entry the manifest names in `render`; it is told who is looking, in which app, and (for a panel) what the screen shows.
+An extension's interface fits Songstress because Songstress draws it. As in VS Code, an extension says what it means: a page, a list, a tree, a choice to make, a notice, a status in the player. Each app draws it with its own controls in its own places: the web and desktop apps in their own design, the phones natively. What it says is JSON. What happens on a tap is JSON too: an action, which the app carries out. An extension never sets a colour, never reaches the app's own screens, and never shows anything without its mark.
 
-**Screens**, what a whole page is:
+This section has the places (where), the components (what), the actions (what a tap does, and what it asks), conditions (when), and how an extension has its interface drawn again.
+
+### Places
+
+| Place | Declared in | Web and desktop | Phones | Drawn from |
+|---|---|---|---|---|
+| A page | `pages` | The main area, and an entry in the sidebar with `sidebar` | A page of its own, and an entry in the Library tab's "Extensions" group with `sidebar` | Its renderer's screen |
+| A sheet | A `navigate` action with `present: "sheet"` | A page over the screen it came from | A sheet | The page's renderer |
+| A panel | `panels` | A section of Songstress's own screen, at its `location` | The same | Its renderer's blocks |
+| A status item | `status` | The player bar | The full player (never the small player over the tabs) | Its renderer's status |
+| A menu item | `menus` | The menu at its location | One "Extensions" submenu in that menu | A declared command |
+| The settings form | `settings`, `menus["settings/actions"]` | The extension's own page | The extension's own page in Settings | The manifest |
+| A notice | A `notify` action, `songstress.ui.notify` | Over the app, until it is closed | The same | The notice |
+| A view | `views` | A tab of the browser (web), the system's browser (desktop) | The in-app browser | The extension's own HTML |
+
+A renderer is a function its entry registers under the declared id, in the entry the manifest names in `render`: `songstress.ui.pages.register(id, render)`, `songstress.ui.panels.register(id, render)`, `songstress.ui.status.register(id, render)`. It is told who is looking, in which app (`client`), and what the screen shows: the song, the artist or the album, handed over whole to an extension granted `library.read` and left out for any other (a playlist's id alone, as playlists themselves are not read for extensions yet).
+
+### Screens
+
+What a whole page is:
 
 | `type` | What it is |
 |---|---|
 | `list` | Sections of rows, with an optional search field, an empty state and more rows on demand |
 | `grid` | Sections of cards, with the same |
+| `tree` | Nodes that hold nodes: folders, groups, anything that holds more of itself; with an optional search field and an empty state |
 | `detail` | Blocks, read from top to bottom |
 | `form` | Sections of fields and one button that hands them to a command |
+
+**Trees.** A `tree` holds `nodes`: each a `node` of the extension's own (a row with a title, a subtitle, an icon or an image, a badge, an action on a tap and a menu) or a library `song`. A node holds what is under it in one of two ways: its `children`, given now, or `expandable`, which says it has some and is asked for them when the person opens it: the page is rendered again with the node's id in `RenderContext.node`, and the answer's `nodes` are what is under it. The web and desktop apps open a node in place, under it (`open` opens it at first). The phones open a node that holds others as a page of its own, titled with the node's title, as Files does.
 
 **Rows and cards.** `row` and `card` are the extension's own: a title, a subtitle, an icon or an image, an action on a tap, a menu. `song`, `album`, `artist` and `playlist` are Songstress's own, named by library id and drawn exactly as Songstress draws them elsewhere, with their own menus and their own behaviour.
 
@@ -653,7 +708,9 @@ A page or a panel is a tree of the components below, as JSON. Each app draws the
 
 **Fields**, what a `form` holds: `text-field`, `switch`, `checkbox`, `slider`, `picker`, `date-picker`. The app keeps what is typed until the form is submitted; the command then receives the values by field name.
 
-**Actions**, what a tap does:
+### Actions
+
+What a tap does:
 
 | `type` | What it does |
 |---|---|
@@ -664,20 +721,98 @@ A page or a panel is a tree of the components below, as JSON. Each app draws the
 | `openUrl` | Opens an http or https address in the browser |
 | `copy` | Copies text |
 | `share` | Opens the device's share sheet |
-| `toast` | Shows a short message |
+| `toast` | Shows a short message that goes away by itself |
+| `notify` | Shows a notice that stays until it is closed, with up to two buttons |
 | `confirm` | Asks first, then carries out another action |
-| `refresh` | Renders the page or panel again |
+| `pick` | Asks the person to choose, then hands their choice to a command |
+| `input` | Asks the person for a line of text, then hands it to a command |
+| `refresh` | Renders the page, panel or status item it came from again |
 
-What a tree cannot do, by design:
+A command answers with an action for the app to carry out (`CommandOutcome.action`), so an extension leads a person through steps that each run on its own: a pick hands its answer to a command, which answers with an input, whose answer goes to another command, which answers with a notice.
+
+### Asking
+
+`pick`, `input` and `confirm` ask the person something in Songstress's own way, then carry on with their answer. Nothing runs when the person closes what was asked.
+
+- **`pick`**, Songstress's picker: a `title`, the `items` to choose from (each an `id` and a `title`, and optionally a `subtitle`, an `icon` or an `image`), a search field over them with an optional `placeholder`, and `many` for a choice of several (`picked` marks those chosen at first). Then the `command` runs with the action's `input`, and `CommandContext.answer` holds the `id` chosen, or the ids for a pick of several. Up to 100 items: a pick of more is no action at all. On the web and the desktop it is a dialog with its search field on top, as a command palette is; on a phone, a sheet.
+- **`input`**, one field: a `title`, a `prompt` under it, a `placeholder`, the `value` it holds at first, `multiline`, a `maxLength` (up to 2000), `required` (it is not sent empty), and `submit`, the word on its button. Then the `command` runs with `input`, and `answer` is the text. Never a password: a secret is a setting.
+- **`confirm`** asks yes or no, then carries out its `action`.
+
+The command's `CommandContext.source` says which asked: `pick` or `input`. A question may lead to one more question and no further: a confirm, a pick, an input and a notice each count as one, and a third in a row is no action at all.
+
+### Notices
+
+A `toast` is a short message that goes away by itself: "Copied". A notice is what an extension has to tell, that stays until the person closes it: a `title`, a `message`, a `tone` (`info`, `success`, `warning` or `danger`; left out, `info`), and up to two `buttons`, each a `title` and an `action`. The app shows it with the extension's name.
+
+```ts
+return { action: { type: 'notify', title: 'Import finished', message: '1,204 plays came in.', tone: 'success',
+  buttons: [{ title: 'Open', action: { type: 'navigate', to: { page: 'recent' } } }] } }
+```
+
+A notice is an action, so a tap or a command's answer shows one. Code may also tell one without being asked, while the member has an app open, with `songstress.ui.notify(notice)`: the server entry names the member (`songstress.ui.notify(notice, { userId })`) and every app they have open shows it; client code shows it in its own app. Nothing is kept for an app that is closed, so what must not be missed belongs on a page. At most ten an hour for one member: more reject with `limit-exceeded`. An app may let a person silence an extension's notices.
+
+### Status items
+
+A status item (section 5) is rendered for the song playing: when the player shows it, when the song changes, and when it is refreshed. Its renderer answers what it shows, or `null` to show nothing now:
+
+| Field | What it holds |
+|---|---|
+| `text` | A few words, up to 24 characters. Left out, the icon alone, which the declared `title` names for people who do not see it |
+| `icon` | From Songstress's icon set |
+| `tone` | Its colour, by meaning |
+| `tooltip` | A line more, shown on hover or a long press |
+| `progress` | From 0 to 1: how far some work of the extension's is |
+| `busy` | Work is going on, with no telling how far |
+| `action` | What a tap does |
+
+The apps show as many status items as their player has room for, in the order of the extensions' names. On a phone the rest are a swipe along the line; on the web and the desktop, a tap away under the player bar's "More from extensions", and the full player shows them all.
+
+### Live
+
+What an extension draws is rendered when it is shown. It is rendered again when the person pulls to refresh, when a `refresh` action asks, and when the extension's code asks with `songstress.ui.refresh(target)`, where `target` is `{ page }`, `{ panel }` or `{ status }` with the id. The server entry names the member it is for (`songstress.ui.refresh({ status: 'sent' }, { userId })`), and each of their open apps renders it again where it is showing. Asked more often than once every five seconds for one target, an app renders it once.
+
+### Conditions
+
+A menu item, a page's navigation entry, a panel and a status item may name a `when`: a condition the app holds it to, so it shows only while the condition holds, as VS Code's `when` clauses do. A condition is up to 200 characters:
+
+- a key, alone (true when its value is true, a text that is not empty, or a number that is not 0) or compared to a value with `==` or `!=`;
+- a value is `'text'` in single quotes, a number, `true` or `false`;
+- `!` turns a condition round, `&&` and `||` join two, and parentheses group them, nested at most eight deep.
+
+| Key | Its value | Known in |
+|---|---|---|
+| `platform` | `web`, `desktop`, `ios` or `android` | Every place |
+| `clientCode`, `views` | The app's `capabilities` (section 6) | Every place |
+| `admin` | The member is the server's admin | Every place |
+| `signedIn` | The extension's sign-in has an account (`contributes.signIn`): the server's, or with scope `user` the viewing member's own | Every place |
+| `playing` | This device's player is playing | Every place |
+| `setting.<key>` | The value of one of the extension's settings, as this member and this device have it (never a secret) | Every place |
+| `favorite` | The song, album or artist the menu was opened on is one of the member's favourites | The menus of a song, an album, an artist, the queue and the player |
+
+```json
+{ "command": "send-again", "when": "signedIn && setting.mode == 'manual' && platform != 'web'" }
+```
+
+The validator refuses a condition no app can read (`WHEN_INVALID`), and a key no app knows where it stands, a setting the manifest does not declare or a secret one, `signedIn` with no sign-in, and a `platform` that is none of the four (`WHEN_KEY_UNKNOWN`). An app that cannot read a condition (a key newer than it, say) leaves the item out.
+
+### Views
+
+A view is the extension's own HTML file, for what Songstress's components cannot draw: a visualiser, a game, a chart of its own. An app opens it in the browser, apart from the app: a tab of the browser on the web, the system's browser on the desktop, the in-app browser on a phone. It gets no `songstress` API and nothing of the app's: no storage, no session, no player. It is served by the member's own server at an address of its own that expires, and is handed the `params` it was opened with as the address's query. Any data it needs it fetches itself, as any web page does.
+
+A view never runs inside an app: there no browser can keep a page's script from the network (WebRTC goes round every policy). What must react to the app, or work offline, belongs in the client entry and a declared page.
+
+### What a tree cannot do
+
+By design:
 
 - run script, expressions or timers in the app: a tree is data;
-- choose a colour, a font, a size in pixels or a position: colour is said by meaning (`tone`: `default`, `muted`, `accent`, `success`, `warning`, `danger`, `info`) and the theme decides the rest;
+- choose a colour, a font, a size in pixels or a position: colour is said by meaning (`tone`: `default`, `muted`, `accent`, `success`, `warning`, `danger`, `info`) and the theme decides the rest, so an extension's interface takes the theme a person chose;
 - load an image from the device: a picture is a cover from the library, or an address the app fetches through the server;
 - ask for a password: a secret is a setting;
-- draw outside its page or panel, replace a part of Songstress, add a tab, or appear without the extension's mark;
+- draw outside its places, replace a part of Songstress, add a tab, or appear without the extension's mark;
 - grow without bound: the apps cap a tree's size, depth and number of rows and how often it is redrawn, and do not draw a tree over a cap.
 
-An app says which version of this vocabulary it draws (`ClientInfo.ui`; this document describes version 1). A node it does not know is shown as "needs a newer app".
+An app says which version of this vocabulary it draws (`ClientInfo.ui`; this document describes version 2, which added trees, status items, notices, `pick` and `input`). A node it does not know is shown as "needs a newer app", and an action it does not know does nothing: a renderer reads `client.ui` and answers what that app draws.
 
 ## 11. Providers
 
@@ -693,16 +828,18 @@ Every source has an `id` and may have a `name` (as people read it; left out, the
 | `lyrics` | | `find(song)`: synced or plain lines, "instrumental" or nothing |
 | `metadata` | `supports`: `discography`, `enrich`; optionally `group` | `releases`, `topTracks`, `releaseTracks` for a discography; `enrich(track)` for a track's missing facts |
 | `artwork` | `supports`: `artist-photo`, `album-cover` | `artistPhoto(artist)`, `albumCover(album)` |
+| `artistInfo` | `supports`: `biography`, `similar` | `biography(artist)`: who they are, in words; `similarArtists(artist, limit)`: the artists like them |
 | `scrobble` | | `scrobble(play)`, and optionally `nowPlaying(play)` |
 | `recommend` | `modes`: `track`, `artist`, `context` | `similarTracks`, `artistRadio`, `contextMix` |
 | `play` | | `resolve(track)`: where one whole audio file is |
 | `download` | `qualities`: `id`, `title` and optionally `lossless`, best first | `check(track)`, then `locate({ id, quality })`: where the audio is |
 
 - **`lookup` and `metadata`.** A `lookup` source's artists and albums give their discographies as well: an artist's `albums` and `topTracks`, an album's `tracks`. Declare `metadata` with `discography` for a source that answers discographies without pages of its own to open, and with `enrich` for one that fills a track's missing facts.
+- **`artistInfo`** is what an artist's page says about them. A biography is plain text, its paragraphs apart by a line break, of which the first 4000 characters are kept; it may carry the page it is from (`url`, http or https, at most 2000 characters) and its language (`language`, a BCP 47 tag such as `en` or `pt-BR`). Similar artists come most alike first, 50 at most, each named by the source's own id; Songstress finds them in the library by name and by the catalogue ids they carry. Both are asked by the server for itself, with what the library holds under the artist's name, and kept: `null` is the answer of a source that cannot tell the artist from a namesake. The kind came with API 0.1.6, so a manifest that has one asks for it: `"songstress": "^0.1.6"`.
 - **`group`** names the catalogue of Songstress's own that the source reads too: `musicbrainz`, `spotify`, `deezer`, `tidal`, `itunes` or `ytmusic`. Its results are then merged with that catalogue's and it speaks that catalogue's ids. Left out, the source is a group of its own.
 - **A link pattern** is a host with an optional path that a link must begin with (`soundcloud.com`, `example.com/album/`), or an app link's scheme (`spotify:`). A host also takes links to the hosts under it. The longest pattern that fits a link wins. `http:` and `https:` alone are refused (`LINK_PATTERN_TOO_BROAD`).
 - **Beside, never instead.** A source joins switched off or last, the admin's order decides, and one that fails never fails the rest. Lyrics from a provider never replace the lyrics a song's own file carries. Its results carry the extension's mark, so people can tell them from Songstress's own.
-- **`play` and `download`** are switched off until the admin turns each on, and the Marketplace lists no extension that has either (`LISTING_ACQUISITION`). A `play` provider plays what the `search` provider of the same id found (`PROVIDER_PLAY_NEEDS_SEARCH`). Both answer where the audio is, as addresses; Songstress fetches it, under the extension's own `network` permission on every hop, and joins segments itself. Nothing is decrypted.
+- **`play` and `download`** are switched off until the admin turns each on. An extension that has either may be listed in the Marketplace like any other. A `play` provider plays what the `search` provider of the same id found (`PROVIDER_PLAY_NEEDS_SEARCH`). Both answer where the audio is, as addresses; Songstress fetches it, under the extension's own `network` permission on every hop, and joins segments itself. Nothing is decrypted.
 - **Failure.** "Nothing found" is an empty list or `null`. A failure Songstress knows what to do about is thrown as a `ProviderFailure` with one of four codes: `rate-limited` (with `retryAfterS`), `sign-in-required`, `not-configured`, `unavailable`. Anything else thrown counts as the provider being broken for now.
 
 ## 12. Themes
@@ -711,7 +848,7 @@ A theme sets the colours the apps draw. Songstress's own look is the only one an
 
 ### Looks
 
-A theme has a dark look, a light one or both, as its `appearance` says (section 5). A phone in dark mode shows a dark look and one in light mode a light look; Android shows a theme's dark look when it has one. A person may take the dark look of one theme and the light look of another.
+A theme has a dark look, a light one or both, as its `appearance` says (section 5). A phone in dark mode shows a dark look and one in light mode a light look; Android shows a theme's dark look when it has one, else its light one. The web and desktop apps show the appearance their person picks (dark, light, or the device's own), dark until they pick one. A person may take the dark look of one theme and the light look of another, and each app keeps what they took on that device.
 
 A look is an object of these fields, every one optional, though a look holds at least one:
 
@@ -765,16 +902,17 @@ An app fills every token a look leaves out. It derives it from the look's own co
 - `surface` from the background with 8% of the text in it, and `sidebar` as the surface;
 - `surface.raised` from the surface with 6% of the text, `border` from the surface with 12%, and `surface.hover` as the text at 8%;
 - `text.muted` and `text.faint` from the text, 30% and 50% of the way to the background;
-- `accent.fill` from the accent as written, `accent.fill.pressed` from the fill 16% toward black, and `accent.onFill` as white or near black, whichever reads.
+- `accent.fill` from the accent as written; `accent.onFill` as white or near black, whichever reads; and `accent.fill.pressed` from the fill moved 16% away from its label (toward black under a light label, toward white under a dark one), so the label reads better pressed than at rest, and at 5:1 or more.
 
-Anything else it takes from Songstress's own look of the same appearance. A colour the app fills in is moved to the nearest tone of it that meets the rules below; a colour the look writes is never moved. So a look of three colours is a whole theme.
+Anything else it takes from Songstress's own look of the same appearance. A colour the app fills in is moved to the nearest tone of it that meets the rules below; a colour the look writes is never moved to fill the look in (where the apps write words in a voice, below, they show it at a tone that reads). So a look of three colours is a whole theme.
 
 ### What no theme reaches
 
 These keep Songstress's own look whatever theme is showing, Songstress Red included, and no look has a field for them:
 
-- the logo and the app's icon;
+- the logo and the app's icon, and the brand art beside the sign-in form;
 - Wrapped's stories and the share cards;
+- the pages a public link opens: a shared playlist or song, a public Wrapped;
 - the first run, and its art;
 - supporters' medals and their tiers' art.
 
@@ -787,11 +925,12 @@ No theme reaches what the system draws or the app's binary carries: the splash s
 These are never written: each app makes them from the tokens.
 
 - An accent label on a grouped surface: the accent where it reads there (4.5:1), else the text.
+- Words in a second or third voice or a status colour (`text.muted`, `text.faint`, `success`, `warning`, `danger`, `info`): the look's colour where words in it read at 4.5:1 on `background`, `surface` and `surface.raised`, else the nearest tone of it that does, its hue and chroma kept. The rules below hold these colours to less (a placeholder, a glyph); words never read by less. `text`, the grounds and the accent are never moved, and Songstress's own looks read as they are.
 - Android's touch ripples, the text at 10%, and the tab bar's selected mark, the accent at 16%.
 - Android's snackbars: a light surface made from the text and the background, with the action in the first of `accent.fill.pressed`, `accent.fill` and `accent` that reads on it.
 - Android's own controls (switches, segmented buttons): Material 3's roles, the primary ones from the accent and the rest from the neutrals.
 - The disc behind a reaction's emoji: the dark look's text at 80%.
-- On the web and the desktop, focus rings and the charts' heat: from the accent.
+- On the web and the desktop: the glass of a card, the surface at 78% over the stage; the glass of the chrome (the sidebar, the player bar, sheets), the sidebar at 86%; washes and hairlines the apps draw in a touch of white on Songstress's own dark look, in a touch of the text; the chrome's active item (the sidebar's page), the accent's words on a tint of the accent up to 15%, as strong as those words still read on it, else the text on a 10% tint; focus rings and the charts' heat, from the accent.
 
 ### The rules
 
@@ -891,7 +1030,7 @@ One for each kind of thing the schema asks. For a missing or an unknown field th
 | `PERMISSION_REQUIRED` | Something needs a permission the manifest does not ask for |
 | `PERMISSION_UNUSED` | A permission nothing in the manifest could use |
 | `NETWORK_LOCAL_NOT_PRIVATE` | A `network.local` target outside the private and loopback ranges |
-| `DUPLICATE_ID` | Two contributions of a kind share an id, or two settings a key |
+| `DUPLICATE_ID` | Two contributions of a kind share an id, two settings a key, or a menu names one command twice |
 | `MENU_COMMAND_UNKNOWN` | A menu item names a command that is not declared |
 | `ROUTE_DUPLICATE` | Two routes answer the same method and path |
 | `LINK_PATTERN_TOO_BROAD` | A link pattern would claim every web link |
@@ -900,6 +1039,8 @@ One for each kind of thing the schema asks. For a missing or an unknown field th
 | `SETTING_DEFAULT_INVALID` | A default its own setting would refuse |
 | `SETTING_RANGE_INVALID` | A minimum above its maximum |
 | `SETTING_OPTION_DUPLICATE` | Two options with the same value |
+| `WHEN_INVALID` | A `when` condition is not in the grammar every app reads (section 10) |
+| `WHEN_KEY_UNKNOWN` | A `when` condition names a key no app knows where it stands, a setting it may not read, or a value its key never has |
 | `THEME_LOOKS` | A theme's looks are not the ones its `appearance` names, or are written both in the manifest and in its file |
 | `THEME_COLOR` | A colour of a look is not one of a theme's forms, or a part of it is out of its range (section 12, "Colours") |
 | `THEME_COLOR_ALPHA` | A colour of a look is translucent where its place is opaque: anywhere but `border` and `surface.hover` |
@@ -912,7 +1053,6 @@ One for each kind of thing the schema asks. For a missing or an unknown field th
 | `LISTING_LICENSE` | The licence is not one of: `MIT`, `Apache-2.0`, `BSD-2-Clause`, `BSD-3-Clause`, `ISC`, `0BSD`, `MPL-2.0`, `LGPL-3.0-only`, `LGPL-3.0-or-later`, `GPL-3.0-only`, `GPL-3.0-or-later` |
 | `LISTING_REPOSITORY` | `repository` is not `https://github.com/owner/name` |
 | `LISTING_SCREENSHOTS` | Fewer than three screenshots |
-| `LISTING_ACQUISITION` | The extension has a `play` or a `download` provider |
 
 ## 14. Versions and stability
 
@@ -950,7 +1090,8 @@ Left out on purpose, so that nothing here promises what is not there. Each can b
 
 - **Permissions for writing to the library, reading audio files and converting audio.** No call needs them yet. A download's audio is fetched and joined by Songstress itself.
 - **Signed-out routes.** Every route is for a signed-in member. Where on the server an extension's routes are served is the host's to say.
-- **Conditions on menu items** (show this only when…), **keyboard shortcuts**, and **more than one language** for a manifest's text.
+- **Keyboard shortcuts**, a **command palette** of an extension's own commands, context keys an extension sets itself, and **more than one language** for a manifest's text.
+- **Notices kept for later.** A notice reaches the apps a member has open, and only those.
 - **A schedule by the clock.** A job runs every so often, not at a time of day.
 - **The API a view's own script uses**, with what it may reach. It belongs to the client runtime.
 - **The numbers behind the caps** on a tree, on storage and on requests. The hosts set them.
@@ -970,7 +1111,9 @@ Each detail below that this specification takes from an established system was c
 
 **Contributions, commands and code**
 
-- Contributions declared in the manifest and attached by id; menus pointing at commands; `when` clauses (left out here); settings, which VS Code describes with "a superset of JSON Schema" and which here are a closed set of five types instead, so that a phone can draw every one: [VS Code: contribution points](https://code.visualstudio.com/api/references/contribution-points).
+- Contributions declared in the manifest and attached by id; menus pointing at commands; settings, which VS Code describes with "a superset of JSON Schema" and which here are a closed set of five types instead, so that a phone can draw every one: [VS Code: contribution points](https://code.visualstudio.com/api/references/contribution-points).
+- `when` conditions, with `!`, `&&`, `||`, `==`, `!=` and parentheses, a subset of VS Code's operators, over keys the app knows; VS Code's own keys are its editor's, these are Songstress's ([VS Code: when clause contexts](https://code.visualstudio.com/api/references/when-clause-contexts)).
+- The interface an extension asks the host to draw, with the host's own controls: a tree with nodes asked for when opened (`TreeDataProvider.getChildren`), a quick pick of one or several (`showQuickPick`, `canPickMany`), an input box (`showInputBox`), a message with buttons (`showInformationMessage(message, ...items)`), and a status bar item of text, an icon, a tooltip and a command (`createStatusBarItem`) ([VS Code: tree view](https://code.visualstudio.com/api/extension-guides/tree-view), [VS Code API: window](https://code.visualstudio.com/api/references/vscode-api#window)). Here each is data, which a phone draws natively too, and a pick or an input hands its answer to a command instead of to a promise.
 - No start-up activation: VS Code derives activation from what is contributed since 1.74, and asks for `*` "only when no other activation events combination works" ([VS Code: activation events](https://code.visualstudio.com/api/references/activation-events)).
 - Registration that gives back a disposable: `registerCommand(…): Disposable` ([VS Code API](https://code.visualstudio.com/api/references/vscode-api)).
 - Typed settings a person fills in, `required` among them; a 512 by 512 PNG icon; at most six screenshots (Raycast recommends three, the official list here asks for three); a job's interval, whose "minimum value is 1 minute" ([Raycast: manifest](https://developers.raycast.com/information/manifest), [Raycast: preparing for the store](https://developers.raycast.com/basics/prepare-an-extension-for-store)).

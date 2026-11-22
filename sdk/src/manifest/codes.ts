@@ -49,7 +49,8 @@ export const MANIFEST_ERROR_CODES = {
   PERMISSION_REQUIRED: 'Something needs a permission the manifest does not ask for.',
   PERMISSION_UNUSED: 'A permission is asked for that nothing in the manifest can use.',
   NETWORK_LOCAL_NOT_PRIVATE: 'A network.local target is an address outside the private and loopback ranges.',
-  DUPLICATE_ID: 'Two contributions of one kind share an id or a key. The pointer names the later one.',
+  DUPLICATE_ID:
+    'Two contributions of one kind share an id or a key, or a menu names one command twice. The pointer names the later one.',
   MENU_COMMAND_UNKNOWN: 'A menu item names a command the manifest does not declare.',
   ROUTE_DUPLICATE: 'Two routes answer the same method and path. The pointer names the later one.',
   LINK_PATTERN_TOO_BROAD: 'A link pattern would claim every web link.',
@@ -62,13 +63,14 @@ export const MANIFEST_ERROR_CODES = {
     "A theme's looks are not the ones its appearance names, or are written both in the manifest and in its file.",
   THEME_COLOR: "A theme's colour is not one a theme may write, or a part of it is out of its range.",
   THEME_COLOR_ALPHA: "A theme's colour is translucent where only border and surface.hover may be.",
+  WHEN_INVALID: 'A when condition is not written in the grammar every app reads.',
+  WHEN_KEY_UNKNOWN: 'A when condition names a key no app knows where it stands, or a setting it may not read.',
 
   // ── listing ───────────────────────────────────────────────────────────────
   LISTING_FIELD_REQUIRED: 'A field the official list requires is missing. The pointer names the field.',
   LISTING_LICENSE: 'The licence is not one the official list accepts.',
   LISTING_REPOSITORY: 'repository is not a GitHub repository address.',
   LISTING_SCREENSHOTS: 'The official list asks for three to six screenshots.',
-  LISTING_ACQUISITION: 'The official list takes no extension that plays or downloads from a source.',
 }
 
 /** A stable problem code. */

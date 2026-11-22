@@ -1,0 +1,87 @@
+{
+  "manifestVersion": 1,
+  "id": "acme.example",
+  "name": "Example",
+  "version": "1.0.0",
+  "description": "An example extension.",
+  "engines": {
+    "songstress": "^0.1.0"
+  },
+  "entry": {
+    "server": "dist/server.js"
+  },
+  "contributes": {
+    "commands": [
+      {
+        "id": "share",
+        "title": "Share",
+        "run": "server"
+      }
+    ],
+    "settings": [
+      {
+        "key": "token",
+        "type": "secret",
+        "title": "Token",
+        "scope": "user"
+      },
+      {
+        "key": "compact",
+        "type": "boolean",
+        "title": "Compact rows",
+        "scope": "device"
+      }
+    ],
+    "menus": {
+      "song/context": [
+        {
+          "command": "share",
+          "when": "theme == 'dark'"
+        }
+      ],
+      "playlist/context": [
+        {
+          "command": "share",
+          "when": "favorite"
+        }
+      ],
+      "sidebar": [
+        {
+          "command": "share",
+          "when": "setting.token"
+        }
+      ],
+      "settings/actions": [
+        {
+          "command": "share",
+          "when": "setting.compact && setting.missing"
+        }
+      ]
+    },
+    "pages": [
+      {
+        "id": "top",
+        "title": "Top",
+        "render": "server",
+        "when": "signedIn"
+      }
+    ],
+    "panels": [
+      {
+        "id": "here",
+        "title": "Here",
+        "location": "home",
+        "render": "server",
+        "when": "platform == 'iphone'"
+      }
+    ],
+    "status": [
+      {
+        "id": "now",
+        "title": "Now",
+        "render": "server",
+        "when": "admin && favorite"
+      }
+    ]
+  }
+}

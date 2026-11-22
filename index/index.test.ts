@@ -79,9 +79,12 @@ describe('the official index', () => {
     const made = payload()
     expect(made.extensions.map((e) => e.id)).toEqual(PORTS.map((folder) => `songstress.${folder}`))
     const soundcloud = made.extensions.find((e) => e.id === 'songstress.soundcloud')!.versions[0]!
-    expect(soundcloud.url).toBe('https://github.com/pacholoamit/songstress-extensions/releases/download/songstress.soundcloud%401.0.0/songstress.soundcloud-1.0.0.songstress')
+    // Whatever version the folder is at: the address names the release tagged for it.
+    const { id, version } = soundcloud.manifest as { id: string; version: string }
+    expect(id).toBe('songstress.soundcloud')
+    expect(soundcloud.version).toBe(version)
+    expect(soundcloud.url).toBe(`https://github.com/pacholoamit/songstress-extensions/releases/download/songstress.soundcloud%40${version}/songstress.soundcloud-${version}.songstress`)
     expect(soundcloud.sha256).toMatch(/^[0-9a-f]{64}$/)
-    expect((soundcloud.manifest as { id: string }).id).toBe('songstress.soundcloud')
   })
 
   it('refuses another key, a changed payload and another type', () => {

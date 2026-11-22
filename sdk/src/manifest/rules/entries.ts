@@ -20,7 +20,7 @@ export function startersOf(manifest: Manifest, side: Side): string[] {
   const commands = (contributes.commands ?? []).flatMap((command, i) =>
     command.run === side ? [pointerOf('contributes', 'commands', i, 'run')] : [],
   )
-  const drawn = (['pages', 'panels'] as const).flatMap((kind) =>
+  const drawn = (['pages', 'panels', 'status'] as const).flatMap((kind) =>
     (contributes[kind] ?? []).flatMap((item, i) => (item.render === side ? [pointerOf('contributes', kind, i, 'render')] : [])),
   )
   return [...hooks, ...work, ...commands, ...drawn]

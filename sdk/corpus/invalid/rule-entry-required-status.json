@@ -1,0 +1,24 @@
+{
+  "manifestVersion": 1,
+  "id": "acme.example",
+  "name": "Example",
+  "version": "1.0.0",
+  "description": "An example extension.",
+  "engines": {
+    "songstress": "^0.1.0"
+  },
+  "contributes": {
+    "status": [
+      {
+        "id": "now",
+        "title": "Now",
+        "render": "client"
+      },
+      {
+        "id": "rank",
+        "title": "Rank",
+        "render": "server"
+      }
+    ]
+  }
+}

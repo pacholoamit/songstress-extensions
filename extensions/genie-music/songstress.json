@@ -3,7 +3,7 @@
   "manifestVersion": 1,
   "id": "songstress.genie-music",
   "name": "Genie Music",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Search Genie Music's songs, albums and artists, and open them from a link.",
   "engines": { "songstress": "^0.1.0" },
   "license": "MIT",
@@ -11,6 +11,11 @@
   "categories": ["sources"],
   "keywords": ["genie", "k-pop", "korea"],
   "icon": { "path": "assets/icon.png", "width": 512, "height": 512 },
+  "screenshots": [
+    { "path": "assets/screenshots/albums.webp", "width": 1440, "height": 900, "caption": "Albums and artists from Genie Music in Search", "platform": "web" },
+    { "path": "assets/screenshots/artists.webp", "width": 1440, "height": 900, "caption": "Search for “NewJeans”, Genie Music alone", "platform": "web" },
+    { "path": "assets/screenshots/extension.webp", "width": 1440, "height": 900, "caption": "Genie Music under Manage, Extensions: what it may do", "platform": "web" }
+  ],
   "entry": { "server": "dist/server.js" },
   "permissions": {
     "network": {

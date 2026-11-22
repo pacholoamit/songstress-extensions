@@ -21,9 +21,14 @@ describe('the trees every reader of declared interface is held to', () => {
     expect(kept === now, 'testdata/ui-trees.json is stale: run "pnpm --dir packages/extensions ui-trees:record", then the Go and app tests.').toBe(true)
   })
 
-  it('names one screen of each kind and a panel', () => {
-    const { screens, panel } = JSON.parse(uiTreesFixture()) as { screens: Record<string, { type: string }>; panel: { children: unknown[] } }
-    expect(Object.values(screens).map((screen) => screen.type)).toEqual(['list', 'grid', 'detail', 'form'])
+  it('names one screen of each kind, a panel and a status item', () => {
+    const { screens, panel, status } = JSON.parse(uiTreesFixture()) as {
+      screens: Record<string, { type: string }>
+      panel: { children: unknown[] }
+      status: { text: string }
+    }
+    expect(Object.values(screens).map((screen) => screen.type)).toEqual(['list', 'grid', 'detail', 'form', 'tree'])
     expect(panel.children.length).toBeGreaterThan(0)
+    expect(status.text).toBeTruthy()
   })
 })

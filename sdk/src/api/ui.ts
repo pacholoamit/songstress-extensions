@@ -1,20 +1,23 @@
-// Declared interface: what an extension draws, said as data. A page or a
-// panel is a tree of the components below; each app draws the tree with its
-// own controls, in its own design, so one page works on the web, on the
-// desktop and on a phone.
+// Declared interface: what an extension draws, said as data. A page, a
+// panel or a status item is a tree of the components below; each app draws
+// the tree with its own controls, in its own design, so one page works on
+// the web, on the desktop and on a phone.
 //
 // A tree is JSON and nothing else: no function, no script, no markup, no
 // style. Colour is said by meaning (`tone`), size by a few named steps. An
 // extension draws inside the places given to it, never over Songstress's own.
-// What happens on a tap is an action (the end of this file), also data.
+// What happens on a tap is an action (the end of this file), also data: some
+// actions ask the person something (a pick, a line of text, a yes) and hand
+// the answer to a command.
 //
 // The apps cap a tree's size, depth and number of rows, and how often it may
 // be redrawn; a tree over a cap is not drawn.
 
 import type { IconName } from '../manifest/types.generated'
 import type { Awaitable, Disposable } from './common'
+import type { ForUser } from './data'
 import type { ClientInfo } from './host'
-import type { Album, Artist, LibraryType, Song } from './library'
+import type { Album, Artist, LibraryType, Playlist, Song } from './library'
 
 /** Colour by what it means; the theme decides what it looks like. */
 export type Tone = 'default' | 'muted' | 'accent' | 'success' | 'warning' | 'danger' | 'info'
@@ -333,11 +336,64 @@ export interface FormScreen {
   }
 }
 
-export type Screen = ListScreen | GridScreen | DetailScreen | FormScreen
+/** A node of a tree: a row that may hold rows of its own. */
+export interface TreeNode {
+  type: 'node'
+  /** Unique in the tree. */
+  id: string
+  title: string
+  subtitle?: string
+  icon?: IconName
+  image?: ImageSource
+  badge?: BadgeBlock
+  action?: Action
+  menu?: MenuEntry[]
+  /** The nodes under it, given now. */
+  children?: (TreeNode | SongRow)[]
+  /** It has nodes under it that are not given now: when the person opens
+   * it, the page is rendered again with its id in `RenderContext.node`, and
+   * the answer's `nodes` are drawn under it. Left out when `children` is
+   * given. */
+  expandable?: boolean
+  /** Open at first, on the web and the desktop. A phone opens a node with
+   * nodes under it as a page of its own. */
+  open?: boolean
+}
+
+/** A page of nodes in a tree: folders, groups, anything that holds more of
+ * itself. The web and desktop apps open a node in place; the phones open it
+ * as a page of its own, titled with the node's title. */
+export interface TreeScreen {
+  type: 'tree'
+  /** The tree's top nodes, or the nodes under `RenderContext.node`. */
+  nodes: (TreeNode | SongRow)[]
+  search?: { placeholder?: string }
+  empty?: EmptyState
+}
+
+export type Screen = ListScreen | GridScreen | DetailScreen | FormScreen | TreeScreen
 
 /** What a panel shows inside one of Songstress's own screens. */
 export interface PanelContent {
   children: Block[]
+}
+
+/** What a status item shows in the player: an icon and a few words, the
+ * extension's own state at a glance. */
+export interface StatusContent {
+  /** A few words; left out, the icon alone, named by the status item's
+   * declared title for people who do not see it. */
+  text?: string
+  icon?: IconName
+  tone?: Tone
+  /** A line more, shown on hover or a long press. */
+  tooltip?: string
+  /** From 0 to 1: how far some work of the extension's is. */
+  progress?: number
+  /** Work is going on, with no telling how far it is. */
+  busy?: boolean
+  /** What a tap does. */
+  action?: Action
 }
 
 // ── actions: what a tap does ─────────────────────────────────────────────────
@@ -420,9 +476,77 @@ export interface ConfirmAction {
   action: Action
 }
 
-/** Renders the page or panel it came from again. */
+/** Renders the page, panel or status item it came from again. */
 export interface RefreshAction {
   type: 'refresh'
+}
+
+/** One choice of a pick. */
+export interface PickItem {
+  /** What the command is handed when this is chosen. Unique in the pick. */
+  id: string
+  title: string
+  subtitle?: string
+  icon?: IconName
+  image?: ImageSource
+  /** Chosen at first, in a pick of several. */
+  picked?: boolean
+}
+
+/** Asks the person to choose, with Songstress's own picker (a search field
+ * over a long list), then runs a command with what they chose. Nothing runs
+ * when they choose nothing and close it. */
+export interface PickAction {
+  type: 'pick'
+  title: string
+  /** The hint in the search field. */
+  placeholder?: string
+  items: PickItem[]
+  /** Several may be chosen. Left out, one. */
+  many?: boolean
+  /** The command that is handed the choice: `CommandContext.answer` is the
+   * id chosen, or the ids for a pick of several. */
+  command: string
+  /** JSON, handed to the command as its input. */
+  input?: unknown
+}
+
+/** Asks the person for a line of text, then runs a command with it. Never a
+ * password: a secret is a setting. Nothing runs when they close it. */
+export interface InputAction {
+  type: 'input'
+  title: string
+  /** A line under the title: what to write. */
+  prompt?: string
+  placeholder?: string
+  /** What the field holds at first. */
+  value?: string
+  multiline?: boolean
+  maxLength?: number
+  /** It cannot be sent empty. */
+  required?: boolean
+  /** The word on the button that sends it. Left out, "Done". */
+  submit?: string
+  /** The command that is handed the text, as `CommandContext.answer`. */
+  command: string
+  /** JSON, handed to the command as its input. */
+  input?: unknown
+}
+
+/** A notice: what an extension has to tell, with up to two things to do
+ * about it. It stays until the person closes it or picks one. */
+export interface Notice {
+  title: string
+  message?: string
+  /** Left out, "info". */
+  tone?: 'info' | 'success' | 'warning' | 'danger'
+  /** Each a title and what it does; at most two. */
+  buttons?: { title: string; action: Action }[]
+}
+
+/** Shows a notice (`toast` is the message that goes away by itself). */
+export interface NotifyAction extends Notice {
+  type: 'notify'
 }
 
 export type Action =
@@ -436,6 +560,9 @@ export type Action =
   | ToastAction
   | ConfirmAction
   | RefreshAction
+  | PickAction
+  | InputAction
+  | NotifyAction
 
 // ── rendering ────────────────────────────────────────────────────────────────
 
@@ -451,9 +578,14 @@ export interface RenderContext {
   search?: string
   /** The `nextCursor` of the rows already shown, when more are asked for. */
   cursor?: string
+  /** On a tree, the id of the node the person opened: answer the nodes
+   * under it. */
+  node?: string
 }
 
-/** What a panel's renderer is told: who looks, and what the screen shows. */
+/** What a panel's renderer is told: who looks, and what the screen shows.
+ * The song, artist or album is handed over whole to an extension granted
+ * `library.read`, and left out for any other. */
 export interface PanelContext {
   userId: string
   client: ClientInfo
@@ -463,12 +595,27 @@ export interface PanelContext {
   artist?: Artist
   /** The album of the page, on an "album" panel. */
   album?: Album
+  /** The playlist of the page, on a "playlist" panel: its id, to an
+   * extension granted `library.read`. Playlists themselves are not read for
+   * extensions yet. */
+  playlist?: Pick<Playlist, 'id'>
+}
+
+/** What a status item's renderer is told: who looks, and the song playing,
+ * whole to an extension granted `library.read`. */
+export interface StatusContext {
+  userId: string
+  client: ClientInfo
+  song?: Song
 }
 
 export type PageRenderer = (context: RenderContext) => Awaitable<Screen>
 
 /** Null when the panel has nothing to show here: it is then left out. */
 export type PanelRenderer = (context: PanelContext) => Awaitable<PanelContent | null>
+
+/** Null when the status item has nothing to say now: it is then left out. */
+export type StatusRenderer = (context: StatusContext) => Awaitable<StatusContent | null>
 
 /** Renderers for the manifest's `contributes.pages`, each registered in the
  * entry its page names in `render`. */
@@ -481,8 +628,41 @@ export interface Panels {
   register(id: string, render: PanelRenderer): Disposable
 }
 
+/** Renderers for the manifest's `contributes.status`. A status item is
+ * rendered when the player shows it, when the song changes, and when it is
+ * refreshed. */
+export interface StatusItems {
+  register(id: string, render: StatusRenderer): Disposable
+}
+
+/** What to render again: one of the extension's pages, panels or status
+ * items, by its id. */
+export type RefreshTarget = { page: string } | { panel: string } | { status: string }
+
 /** Declared interface. Both sides; no permission. */
 export interface Ui {
   pages: Pages
   panels: Panels
+  status: StatusItems
+}
+
+/** Declared interface as the server entry has it: it may also tell a member
+ * something, or have their apps render something again, while they are
+ * open. Nothing is kept for an app that is closed. */
+export interface ServerUi extends Ui {
+  /** Shows a notice in the member's open apps. At most ten an hour for one
+   * member: more reject with "limit-exceeded". */
+  notify(notice: Notice, user: ForUser): Promise<void>
+  /** Has the member's open apps render a page, a panel or a status item
+   * again, where it is showing. At most once every five seconds for one
+   * target: more are let go. */
+  refresh(target: RefreshTarget, user: ForUser): Promise<void>
+}
+
+/** Declared interface as client code has it: the same, in its own app. */
+export interface ClientUi extends Ui {
+  /** Shows a notice in this app. At most ten an hour. */
+  notify(notice: Notice): Promise<void>
+  /** Renders a page, a panel or a status item again, where it is showing. */
+  refresh(target: RefreshTarget): Promise<void>
 }

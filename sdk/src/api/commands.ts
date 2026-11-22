@@ -11,14 +11,18 @@ export interface CommandContext {
   /** The member who ran it. */
   userId: string
   /** How it was run: from a menu, by an action of a page, by a form, by a
-   * button of the settings page, or by client code (`commands.execute`). */
-  source: 'menu' | 'action' | 'form' | 'settings' | 'code'
+   * button of the settings page, by a pick or an input action with the
+   * person's answer, or by client code (`commands.execute`). */
+  source: 'menu' | 'action' | 'form' | 'settings' | 'pick' | 'input' | 'code'
   /** The menu it was picked from, when it was. */
   location?: MenuLocation
   /** The app it was run from, when a person ran it. */
   client?: ClientInfo
   /** The form's fields, when a form ran it. */
   values?: FormValues
+  /** The person's answer, when a pick or an input action ran it: the id
+   * chosen (the ids, for a pick of several), or the text written. */
+  answer?: string | string[]
 }
 
 /** What a command leaves behind. Both parts are optional. */

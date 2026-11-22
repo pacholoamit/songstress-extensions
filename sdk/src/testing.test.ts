@@ -75,6 +75,19 @@ describe('an entry under the mock host', () => {
     await expect(host.emit('onPlay', SONG, PLAY)).rejects.toThrow(/Nothing listens to onPlay/)
   })
 
+  it('keeps a status item’s renderer, and takes a notice and a render again for a test to look at', async () => {
+    host = createMockHost()
+    const render = () => ({ text: 'Sent', icon: 'check' })
+    server.ui.status.register('sent', render)
+    await server.ui.notify({ title: 'Tunelog refused the token', tone: 'warning' }, { userId: 'u1' })
+    await server.ui.refresh({ status: 'sent' }, { userId: 'u1' })
+    expect(host.registered('ui.status.register', 'sent')).toBe(render)
+    expect(host.calls.slice(1)).toEqual([
+      { member: 'ui.notify', args: [{ title: 'Tunelog refused the token', tone: 'warning' }, { userId: 'u1' }] },
+      { member: 'ui.refresh', args: [{ status: 'sent' }, { userId: 'u1' }] },
+    ])
+  })
+
   it('answers what it is told to, in place of its own answers too', async () => {
     host = createMockHost({
       answers: { 'library.getSong': (id: string) => ({ ...SONG, id }), 'storage.get': () => 'always this' },

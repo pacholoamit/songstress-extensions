@@ -10,6 +10,10 @@ const HOST_KEY = Symbol.for('songstress.host')
 export interface Answer {
   status?: number
   body?: string
+  /** A script larger than the host answers in one request, as bytes: a
+   * request for it as it is fails as the host's does ("limit-exceeded"), and
+   * one that asks for it gzipped, as base64, gets these bytes. */
+  large?: Uint8Array
   headers?: Record<string, string>
   /** The address that answered, when a redirect led elsewhere. */
   url?: string
@@ -22,6 +26,7 @@ interface Request {
   method?: string
   headers?: Record<string, string>
   body?: string
+  responseEncoding?: 'text' | 'base64'
 }
 
 export const ok = (value: unknown): Answer => ({ status: 200, body: JSON.stringify(value), headers: { 'content-type': 'application/json' } })
@@ -90,7 +95,11 @@ function fetchFrom(stand: StandIn, url: string, request: Request): Promise<unkno
   for (const [m, pattern, reply] of stand.routes) {
     if (m !== method || !pattern.test(url)) continue
     const a = typeof reply === 'function' ? reply(url, request) : reply
-    return Promise.resolve({ status: a.status ?? 200, url: a.url ?? url, headers: a.headers ?? {}, body: a.body ?? '' })
+    if (!a.large) return Promise.resolve({ status: a.status ?? 200, url: a.url ?? url, headers: a.headers ?? {}, body: a.body ?? '' })
+    const gzipped = request.headers?.['accept-encoding'] === 'gzip' && request.responseEncoding === 'base64'
+    // The host's own refusal: an Error that looks like the SDK's, made outside the bundle.
+    if (!gzipped) return Promise.reject(Object.assign(new Error('net.fetch: the answer is larger than 2621440 bytes'), { name: 'SongstressError', code: 'limit-exceeded' }))
+    return Promise.resolve({ status: a.status ?? 200, url: a.url ?? url, headers: { 'content-encoding': 'gzip' }, body: Buffer.from(a.large).toString('base64') })
   }
   return Promise.resolve({ status: 404, url, headers: {}, body: 'not found' })
 }

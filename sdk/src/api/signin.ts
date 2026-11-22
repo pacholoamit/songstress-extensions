@@ -5,7 +5,10 @@
 // `songstress.secrets`. Songstress keeps only the name of the account.
 //
 // Scope "server" is one account for the whole server: its admin signs in,
-// and no member is named in any call.
+// and no member is named in any call. Scope "user" is each member's own
+// account: they sign in themselves, every call names them (`userId`), and
+// the handler keeps their tokens as that member's
+// (`songstress.secrets.set(key, value, { userId })`).
 
 import type { Awaitable, Disposable } from './common'
 
@@ -17,6 +20,9 @@ export interface SignInStart {
   /** A one-time value the service must hand back unchanged (OAuth's
    * `state`): Songstress finishes only the sign-in that carries it. */
   state: string
+  /** The member signing in, for a sign-in of scope "user"; left out for the
+   * server's own. */
+  userId?: string
 }
 
 /** Where the person signs in. */
@@ -34,12 +40,22 @@ export interface SignInReturn {
   /** The `redirectUrl` that `start` was handed, for a service that asks for
    * it again. */
   redirectUrl: string
+  /** The member who signed in, for a sign-in of scope "user": the one
+   * `start` was handed. Keep their tokens as theirs. */
+  userId?: string
+}
+
+/** What `signOut` is handed: whose account ends. */
+export interface SignOutRequest {
+  /** The member signing out, for a sign-in of scope "user"; left out for
+   * the server's own. */
+  userId?: string
 }
 
 /** The account now signed in. */
 export interface SignedIn {
-  /** The account as its owner knows it (a name, an address): what the admin
-   * reads beside "Signed in as". */
+  /** The account as its owner knows it (a name, an address): what the
+   * person who signed in reads beside "Signed in as". */
   account: string
 }
 
@@ -54,7 +70,7 @@ export interface SignInHandler {
   finish(returned: SignInReturn): Awaitable<SignedIn>
   /** Forgets the tokens, and tells the service when it has a way to. Left
    * out, signing out only forgets the account's name. */
-  signOut?(): Awaitable<void>
+  signOut?(request: SignOutRequest): Awaitable<void>
 }
 
 /** The sign-in the manifest declares. Server entry; permission `secrets`. */

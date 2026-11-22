@@ -44,7 +44,7 @@ const PROVIDER = { register: 'providers' } as const
 const SHARED: Members<SharedApi> = {
   hooks: { onPlay: HOOK_PERMISSIONS.server.onPlay },
   commands: { register: null },
-  ui: { pages: REGISTER, panels: REGISTER },
+  ui: { pages: REGISTER, panels: REGISTER, status: REGISTER },
   settings: { get: null, onChange: null },
   storage: { get: 'storage', set: 'storage', delete: 'storage', keys: 'storage' },
   // The user's own network needs `network.local` instead: the address decides.
@@ -52,9 +52,13 @@ const SHARED: Members<SharedApi> = {
   host: { info: null },
 }
 
+/** A notice, and rendering again: no permission, under the host's caps. */
+const UI_TOLD = { ...SHARED.ui, notify: null, refresh: null } as const
+
 const SERVER: Members<ServerApi> = {
   ...SHARED,
   hooks: HOOK_PERMISSIONS.server,
+  ui: UI_TOLD,
   secrets: { get: 'secrets', set: 'secrets', delete: 'secrets' },
   providers: {
     search: PROVIDER,
@@ -63,6 +67,7 @@ const SERVER: Members<ServerApi> = {
     lyrics: PROVIDER,
     metadata: PROVIDER,
     artwork: PROVIDER,
+    artistInfo: PROVIDER,
     scrobble: PROVIDER,
     recommend: PROVIDER,
     play: PROVIDER,
@@ -88,6 +93,7 @@ const CLIENT: Members<ClientApi> = {
   ...SHARED,
   hooks: HOOK_PERMISSIONS.client,
   commands: { register: null, execute: null },
+  ui: UI_TOLD,
   player: {
     getState: 'listening.read',
     play: 'player.control',

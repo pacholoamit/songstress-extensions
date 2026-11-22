@@ -200,7 +200,7 @@ export interface LinkProvider {
   resolve(url: string, context: ProviderContext): Awaitable<LinkResult | null>
 }
 
-// ── lyrics, metadata, artwork ────────────────────────────────────────────────
+// ── lyrics, metadata, artwork, artist info ───────────────────────────────────
 
 export interface LyricsLine {
   text: string
@@ -249,8 +249,9 @@ export interface MetadataProvider {
   enrich?(track: TrackQuery, context: ProviderContext): Awaitable<TrackFacts | null>
 }
 
-/** An artist Songstress wants a photo of, with what the library holds under
- * the name: the evidence that tells them from a namesake. */
+/** An artist Songstress wants a photo of, or words about, with what the
+ * library holds under the name: the evidence that tells them from a
+ * namesake. */
 export interface ArtistQuery {
   name: string
   /** Titles of their songs in the library. */
@@ -276,6 +277,31 @@ export interface ArtworkProvider {
   artistPhoto?(artist: ArtistQuery, context: ProviderContext): Awaitable<ArtistPhoto | null>
   /** The address of the album's cover; null when the source lists none. */
   albumCover?(album: { artist: string; title: string }, context: ProviderContext): Awaitable<string | null>
+}
+
+/** Who an artist is, in a source's words. */
+export interface ArtistBiography {
+  /** Plain text, its paragraphs apart by a line break. The first 4000
+   * characters are kept. */
+  text: string
+  /** The page the words are from, for "Read more". At most 2000 characters. */
+  url?: string
+  /** The language the words are in, as a BCP 47 tag: "en", "pt-BR". */
+  language?: string
+}
+
+/** Words about an artist. Implement the method for each thing the manifest
+ * lists under `supports`. Both are asked by the server for itself, never
+ * for one member. */
+export interface ArtistInfoProvider {
+  /** Supports "biography": who the artist is; null unless the source can
+   * stand behind who it is. A namesake's story is worse than none. */
+  biography?(artist: ArtistQuery, context: ProviderContext): Awaitable<ArtistBiography | null>
+  /** Supports "similar": the artists like this one, most alike first, at
+   * most `limit` (never over 50). Each is named by the source's own id;
+   * Songstress finds them in the library by name and by `ids`. Empty when
+   * the source knows none. */
+  similarArtists?(artist: ArtistQuery, limit: number, context: ProviderContext): Awaitable<CatalogArtist[]>
 }
 
 // ── scrobble, recommend ──────────────────────────────────────────────────────
@@ -408,6 +434,7 @@ export interface Providers {
   lyrics: ProviderRegistry<LyricsProvider>
   metadata: ProviderRegistry<MetadataProvider>
   artwork: ProviderRegistry<ArtworkProvider>
+  artistInfo: ProviderRegistry<ArtistInfoProvider>
   scrobble: ProviderRegistry<ScrobbleProvider>
   recommend: ProviderRegistry<RecommendProvider>
   play: ProviderRegistry<PlayProvider>

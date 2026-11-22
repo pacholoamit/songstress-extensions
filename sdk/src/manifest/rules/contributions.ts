@@ -19,7 +19,7 @@ function repeats(list: Named[], report: Report, code: ManifestErrorCode, what: s
   }
 }
 
-type Listed = 'commands' | 'pages' | 'panels' | 'views' | 'themes' | 'jobs' | 'routes'
+type Listed = 'commands' | 'pages' | 'panels' | 'status' | 'views' | 'themes' | 'jobs' | 'routes'
 
 function ids(contributes: Contributes, kind: Listed): Named[] {
   return (contributes[kind] ?? []).map((item, index) => [item.id, pointerOf('contributes', kind, index, 'id')])
@@ -50,6 +50,7 @@ export const duplicateIds: Rule = (manifest, report) => {
     // A page and a view are opened by the same kind of address.
     [...ids(contributes, 'pages'), ...ids(contributes, 'views')],
     ids(contributes, 'panels'),
+    ids(contributes, 'status'),
     ids(contributes, 'themes'),
     ids(contributes, 'jobs'),
     ids(contributes, 'routes'),
@@ -63,11 +64,15 @@ export const menuCommands: Rule = (manifest, report) => {
   const declared = new Set((manifest.contributes?.commands ?? []).map((command) => command.id))
   const menus = manifest.contributes?.menus ?? {}
   for (const location of MENU_LOCATIONS) {
-    menus[location]?.forEach((item, index) => {
+    const items = menus[location] ?? []
+    items.forEach((item, index) => {
       if (declared.has(item.command)) return
       const pointer = pointerOf('contributes', 'menus', location, index, 'command')
       report('MENU_COMMAND_UNKNOWN', pointer, `"${item.command}" is not one of contributes.commands.`)
     })
+    // One command once a menu, whatever its condition: an || says "or".
+    const named = items.map<Named>((item, index) => [item.command, pointerOf('contributes', 'menus', location, index, 'command')])
+    repeats(named, report, 'DUPLICATE_ID', 'in this menu')
   }
 }
 

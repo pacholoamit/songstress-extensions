@@ -53,12 +53,4 @@ const screenshots: Rule = (manifest, report) => {
   report('LISTING_SCREENSHOTS', '/screenshots', `The official list asks for three to six screenshots, and there are ${count}.`)
 }
 
-const acquisition: Rule = (manifest, report) => {
-  for (const kind of ['play', 'download'] as const) {
-    if (!manifest.contributes?.providers?.[kind]) continue
-    const pointer = pointerOf('contributes', 'providers', kind)
-    report('LISTING_ACQUISITION', pointer, `The official list takes no extension with a ${kind} provider.`)
-  }
-}
-
-export const LISTING_RULES: readonly Rule[] = [requiredFields, license, repository, screenshots, acquisition]
+export const LISTING_RULES: readonly Rule[] = [requiredFields, license, repository, screenshots]

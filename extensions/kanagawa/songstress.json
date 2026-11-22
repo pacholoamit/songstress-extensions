@@ -3,7 +3,7 @@
   "manifestVersion": 1,
   "id": "songstress.kanagawa",
   "name": "Kanagawa",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Kanagawa's ink and wave, after Hokusai: Kanagawa Wave, for dark.",
   "engines": {
     "songstress": "^0.1.3"
@@ -23,6 +23,29 @@
     "width": 512,
     "height": 512
   },
+  "screenshots": [
+    {
+      "path": "assets/screenshots/home.webp",
+      "width": 1440,
+      "height": 900,
+      "caption": "Home in Kanagawa",
+      "platform": "web"
+    },
+    {
+      "path": "assets/screenshots/playlist.webp",
+      "width": 1440,
+      "height": 900,
+      "caption": "A playlist in Kanagawa",
+      "platform": "web"
+    },
+    {
+      "path": "assets/screenshots/player.webp",
+      "width": 1440,
+      "height": 900,
+      "caption": "The full-screen player in Kanagawa",
+      "platform": "web"
+    }
+  ],
   "contributes": {
     "themes": [
       {

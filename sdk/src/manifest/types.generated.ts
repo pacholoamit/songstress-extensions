@@ -63,6 +63,12 @@ export type Title = string
 /** A sentence or two, on one line. */
 export type Sentence = string
 
+/** A condition on what the app knows (SPEC.md section 10): keys such as platform, admin, signedIn, playing, favorite and setting.<key>, joined with !, &&, || and parentheses, and compared with == and != to 'text', true, false or a number. The item shows only while it holds. */
+export type When = string
+
+/** The heading a setting is drawn under, with the others that name it. */
+export type SettingSection = string
+
 /** An https address. */
 export type HttpsUrl = string
 
@@ -206,7 +212,9 @@ export interface Contributes {
   pages?: Page[]
   /** Sections drawn inside Songstress's own screens. */
   panels?: Panel[]
-  /** Free-form pages: the extension's own HTML in a sandboxed frame. An app may not show them at all. */
+  /** Status items in the player: an icon and a few words each, the extension's state at a glance. */
+  status?: StatusItem[]
+  /** Free-form pages: the extension's own HTML, opened in the browser apart from the app, with no API. An app may not open them at all. */
   views?: View[]
   /** The themes the extension adds to the picker: each a dark look, a light one, or both. */
   themes?: Theme[]
@@ -257,6 +265,8 @@ export type MenuItems = MenuItem[]
 export interface MenuItem {
   /** The id of one of the extension's commands. */
   command: LocalId
+  /** The item shows only while this holds. */
+  when?: When
 }
 
 /** Who a setting belongs to: the whole server (the admin sets it), each member, or each device. */
@@ -274,6 +284,7 @@ export interface StringSetting {
   title: Title
   /** A line of help under the label. */
   description?: Sentence
+  section?: SettingSection
   scope: SettingScope
   /** Songstress asks for it, and does not start the extension for whoever lacks it: anyone, a member or a device, by its scope. */
   required?: boolean
@@ -294,6 +305,7 @@ export interface SecretSetting {
   title: Title
   /** A line of help under the label. */
   description?: Sentence
+  section?: SettingSection
   /** Who the secret belongs to: the whole server or each member. */
   scope: "server" | "user"
   /** Songstress asks for it, and does not start the extension for whoever lacks it: anyone, a member or a device, by its scope. */
@@ -311,6 +323,7 @@ export interface NumberSetting {
   title: Title
   /** A line of help under the label. */
   description?: Sentence
+  section?: SettingSection
   scope: SettingScope
   /** Songstress asks for it, and does not start the extension for whoever lacks it: anyone, a member or a device, by its scope. */
   required?: boolean
@@ -333,6 +346,7 @@ export interface BooleanSetting {
   title: Title
   /** A line of help under the label. */
   description?: Sentence
+  section?: SettingSection
   scope: SettingScope
   /** The value until someone sets one. */
   default?: boolean
@@ -347,6 +361,7 @@ export interface SelectSetting {
   title: Title
   /** A line of help under the label. */
   description?: Sentence
+  section?: SettingSection
   scope: SettingScope
   /** Songstress asks for it, and does not start the extension for whoever lacks it: anyone, a member or a device, by its scope. */
   required?: boolean
@@ -372,12 +387,14 @@ export interface Page {
   render: Side
   /** The icon of the page's sidebar entry. */
   icon?: IconName
-  /** Give the page an entry in the sidebar of the web and desktop apps. */
+  /** Give the page an entry in the apps' own navigation: the sidebar of the web and desktop apps, the Library tab of the phones. */
   sidebar?: boolean
+  /** The page's entry in the apps' navigation shows only while this holds. */
+  when?: When
 }
 
-/** The Songstress screen a panel is drawn in: the player's now-playing view, Home, an artist's page or an album's page. */
-export type PanelLocation = "now-playing" | "home" | "artist" | "album"
+/** The Songstress screen a panel is drawn in: the player's now-playing view, Home, an artist's page, an album's page or a playlist's page. */
+export type PanelLocation = "now-playing" | "home" | "artist" | "album" | "playlist"
 
 export interface Panel {
   /** The panel's name. Code registers its renderer under it. */
@@ -387,6 +404,21 @@ export interface Panel {
   location: PanelLocation
   /** The entry that builds the panel's tree. */
   render: Side
+  /** The panel is drawn only while this holds. */
+  when?: When
+}
+
+export interface StatusItem {
+  /** The status item's name. Code registers its renderer under it. */
+  id: LocalId
+  /** What the item is, for people who do not see it, and where the player lists it. */
+  title: Title
+  /** The entry that says what the item shows, for the song playing. */
+  render: Side
+  /** The icon shown until the renderer answers. */
+  icon?: IconName
+  /** The item is drawn only while this holds. */
+  when?: When
 }
 
 export interface View {
@@ -394,7 +426,7 @@ export interface View {
   id: LocalId
   /** The view's heading. */
   title: Title
-  /** The HTML file the frame opens, from the package root. */
+  /** The HTML file the browser opens, from the package root. */
   path: string
   /** The icon of the view's sidebar entry. */
   icon?: IconName
@@ -498,6 +530,8 @@ export interface SourcesByKind {
   metadata?: MetadataSource[]
   /** Sources of artist photos and album covers. */
   artwork?: ArtworkSource[]
+  /** Sources of words about an artist: who they are, and the artists like them. */
+  artistInfo?: ArtistInfoSource[]
   /** Services that plays are reported to. */
   scrobble?: Source[]
   /** Sources of recommendations. */
@@ -571,6 +605,15 @@ export interface ArtworkSource {
   supports: ("artist-photo" | "album-cover")[]
 }
 
+export interface ArtistInfoSource {
+  /** The source's name inside the extension. Code registers the provider under it; the same id under several kinds is one source. */
+  id: LocalId
+  /** The source's name as people read it. Left out, it is the extension's name. */
+  name?: Title
+  /** What it can say about an artist: who they are, in words, or the artists like them. */
+  supports: ("biography" | "similar")[]
+}
+
 export interface RecommendSource {
   /** The source's name inside the extension. Code registers the provider under it; the same id under several kinds is one source. */
   id: LocalId
@@ -617,8 +660,8 @@ export interface Route {
 }
 
 export interface SignIn {
-  /** Whose account it is. "server": one account for the whole server, which its admin signs in. */
-  scope: "server"
+  /** Whose account it is. "server": one account for the whole server, which its admin signs in. "user": each member's own, which they sign in themselves. */
+  scope: "server" | "user"
   /** The service as the sign-in names it (Tunelog). Left out, the extension's name. */
   title?: Title
 }

@@ -7,7 +7,7 @@
 // place: what either reads of a tree here must be the tree itself.
 
 import { fileURLToPath } from 'node:url'
-import type { DetailScreen, FormScreen, GridScreen, ListScreen, PanelContent } from '../api/ui'
+import type { DetailScreen, FormScreen, GridScreen, ListScreen, PanelContent, StatusContent, TreeScreen } from '../api/ui'
 
 export const UI_TREES_FILE = fileURLToPath(new URL('../../testdata/ui-trees.json', import.meta.url))
 
@@ -136,6 +136,54 @@ const detail: DetailScreen = {
     { type: 'artist', artistId: 'ar-1' },
     { type: 'playlist', playlistId: 'pl-1' },
     { type: 'button', title: 'Say hello', action: { type: 'toast', message: 'Hello', tone: 'success' } },
+    {
+      type: 'button',
+      title: 'Choose a period',
+      action: {
+        type: 'pick',
+        title: 'Which plays?',
+        placeholder: 'Search periods',
+        many: true,
+        items: [
+          { id: 'week', title: 'This week', subtitle: '42 plays', icon: 'calendar', picked: true },
+          { id: 'year', title: 'This year', image: { cover: 'album', id: 'al-1' } },
+        ],
+        command: 'import',
+        input: { from: 'pick' },
+      },
+    },
+    {
+      type: 'button',
+      title: 'Rename',
+      icon: 'edit',
+      action: {
+        type: 'input',
+        title: 'Rename the chart',
+        prompt: 'As your profile shows it.',
+        placeholder: 'My chart',
+        value: 'Charts',
+        multiline: false,
+        maxLength: 60,
+        required: true,
+        submit: 'Rename',
+        command: 'rename',
+        input: { chart: 'c1' },
+      },
+    },
+    {
+      type: 'button',
+      title: 'Check the import',
+      action: {
+        type: 'notify',
+        title: 'Import finished',
+        message: '1,204 plays came in.',
+        tone: 'success',
+        buttons: [
+          { title: 'Undo', action: { type: 'invoke', command: 'undo-import' } },
+          { title: 'Open', action: { type: 'navigate', to: { page: 'recent' } } },
+        ],
+      },
+    },
     { type: 'button', title: 'Play the artist', style: 'secondary', action: { type: 'play', what: { artistId: 'ar-1' } } },
   ],
 }
@@ -170,6 +218,31 @@ const form: FormScreen = {
   submit: { title: 'Import', command: 'import', input: { source: 'form' } },
 }
 
+const tree: TreeScreen = {
+  type: 'tree',
+  search: { placeholder: 'Search folders' },
+  empty: { title: 'No folders', text: 'Add one on Tunelog.' },
+  nodes: [
+    {
+      type: 'node',
+      id: 'n1',
+      title: '2026',
+      subtitle: '12 months',
+      icon: 'folder',
+      badge: { type: 'badge', text: 'New', tone: 'accent' },
+      open: true,
+      menu: [{ title: 'Play all', action: { type: 'play', what: { playlistId: 'pl-1' } } }],
+      children: [
+        { type: 'node', id: 'n1-1', title: 'January', image: { cover: 'album', id: 'al-1' }, action: { type: 'refresh' } },
+        { type: 'node', id: 'n1-2', title: 'February', expandable: true },
+        { type: 'song', songId: 'so-2' },
+      ],
+    },
+    { type: 'node', id: 'n2', title: '2025', expandable: true },
+    { type: 'song', songId: 'so-1' },
+  ],
+}
+
 const panel: PanelContent = {
   children: [
     { type: 'text', text: 'Scrobbled 12 times', style: 'caption' },
@@ -177,8 +250,18 @@ const panel: PanelContent = {
   ],
 }
 
-/** One of each screen, and a panel. */
-const UI_TREES = { screens: { list, grid, detail, form }, panel }
+const status: StatusContent = {
+  text: 'Sent',
+  icon: 'check',
+  tone: 'success',
+  tooltip: '12 plays sent today',
+  progress: 0.5,
+  busy: false,
+  action: { type: 'navigate', to: { page: 'recent' }, present: 'sheet' },
+}
+
+/** One of each screen, a panel and a status item. */
+const UI_TREES = { screens: { list, grid, detail, form, tree }, panel, status }
 
 /** The trees as the file keeps them. */
 export function uiTreesFixture(): string {

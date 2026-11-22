@@ -133,7 +133,7 @@ if (result.valid) {
 ## Release it, install it, list it
 
 - **Release.** A release is a GitHub release that carries the package, `<id>-<version>.songstress`, as its one asset. A repository of one extension tags it with the manifest's version (`v1.2.0`); a repository of several keeps each in a folder of its own and tags `<id>@<version>`. The workflows `create-songstress-extension` writes do this from a pushed tag.
-- **Install.** In Songstress, an admin opens Manage, then Extensions, chooses "Add an extension", and gives it the repository's address or the `.songstress` file. Songstress shows what the extension asks for, and nothing runs until the admin has agreed.
+- **Install.** In Songstress, an admin opens Manage, then Extensions, chooses "Add extension", and gives it the repository's address or the `.songstress` file. Songstress shows what the extension asks for, and nothing runs until the admin has agreed.
 - **List.** Submit the repository's link at <https://songstress.app/extensions/submit>. `songstress check --profile listing` says what a listing still needs, and a person reviews it before it is listed.
 
 ## Versions

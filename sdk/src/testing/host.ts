@@ -258,6 +258,10 @@ function ownAnswers({ options, side, requests, registry, rules }: Parts): Record
     'net.fetch': fetch,
     'host.info': info,
     'commands.execute': execute,
+    // A notice and a render again reach no app here: each is in `calls`, for
+    // a test to look at.
+    'ui.notify': () => undefined,
+    'ui.refresh': () => undefined,
   }
 }
 

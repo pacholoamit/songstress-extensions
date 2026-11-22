@@ -88,18 +88,9 @@
     {
       "file": "valid/source.json",
       "profile": "listing",
-      "valid": false,
-      "errors": [
-        {
-          "code": "LISTING_ACQUISITION",
-          "pointer": "/contributes/providers/play"
-        },
-        {
-          "code": "LISTING_ACQUISITION",
-          "pointer": "/contributes/providers/download"
-        }
-      ],
-      "note": "The same file for the official list, which takes no play or download provider."
+      "valid": true,
+      "errors": [],
+      "note": "The same file is ready for the official list: a source that plays and downloads may be listed."
     },
     {
       "file": "valid/group-source.json",
@@ -116,6 +107,13 @@
       "note": "A sign-in and nothing else: it alone starts the server entry, and its tokens are what the secrets permission is for."
     },
     {
+      "file": "valid/sign-in-member.json",
+      "profile": "install",
+      "valid": true,
+      "errors": [],
+      "note": "A sign-in of scope \"user\": each member signs in to their own account, and the handler keeps their tokens as theirs."
+    },
+    {
       "file": "valid/visualiser.json",
       "profile": "install",
       "valid": true,
@@ -127,23 +125,14 @@
       "profile": "install",
       "valid": true,
       "errors": [],
-      "note": "Every contribution point (a sign-in among them), hook of both sides, permission, menu location, provider kind, setting type and scope, and panel location."
+      "note": "Every contribution point (a sign-in and status items among them), hook of both sides, permission, menu location, provider kind, setting type and scope, panel location, and a condition of each kind."
     },
     {
       "file": "valid/everything.json",
       "profile": "listing",
-      "valid": false,
-      "errors": [
-        {
-          "code": "LISTING_ACQUISITION",
-          "pointer": "/contributes/providers/play"
-        },
-        {
-          "code": "LISTING_ACQUISITION",
-          "pointer": "/contributes/providers/download"
-        }
-      ],
-      "note": "The same file for the official list: complete, but it plays and downloads."
+      "valid": true,
+      "errors": [],
+      "note": "The same file for the official list: complete, its play and download providers among what may be listed."
     },
     {
       "file": "valid/limits.json",
@@ -477,7 +466,7 @@
           "pointer": "/contributes/signIn/scope"
         }
       ],
-      "note": "A sign-in for each member: only \"server\" is a scope yet, one account for the whole server."
+      "note": "A sign-in for each device: an account is the whole server's (\"server\") or one member's (\"user\"), never a device's."
     },
     {
       "file": "invalid/schema-const.json",
@@ -1428,6 +1417,114 @@
       "note": "Two menu items that name commands the manifest does not declare."
     },
     {
+      "file": "invalid/rule-when-invalid.json",
+      "profile": "install",
+      "valid": false,
+      "errors": [
+        {
+          "code": "WHEN_INVALID",
+          "pointer": "/contributes/menus/song~1context/0/when"
+        },
+        {
+          "code": "WHEN_INVALID",
+          "pointer": "/contributes/menus/album~1context/0/when"
+        },
+        {
+          "code": "WHEN_INVALID",
+          "pointer": "/contributes/menus/artist~1context/0/when"
+        },
+        {
+          "code": "WHEN_INVALID",
+          "pointer": "/contributes/menus/playlist~1context/0/when"
+        },
+        {
+          "code": "WHEN_INVALID",
+          "pointer": "/contributes/menus/queue~1item/0/when"
+        },
+        {
+          "code": "WHEN_INVALID",
+          "pointer": "/contributes/pages/0/when"
+        },
+        {
+          "code": "WHEN_INVALID",
+          "pointer": "/contributes/panels/0/when"
+        },
+        {
+          "code": "WHEN_INVALID",
+          "pointer": "/contributes/status/0/when"
+        }
+      ],
+      "note": "Conditions no app can read: one that ends after &&, a parenthesis never closed, = for ==, a quote never closed, two keys with nothing between them, ! nested nine deep, a comparison with no value, and a character outside the grammar."
+    },
+    {
+      "file": "invalid/rule-when-key-unknown.json",
+      "profile": "install",
+      "valid": false,
+      "errors": [
+        {
+          "code": "WHEN_KEY_UNKNOWN",
+          "pointer": "/contributes/menus/song~1context/0/when"
+        },
+        {
+          "code": "WHEN_KEY_UNKNOWN",
+          "pointer": "/contributes/menus/playlist~1context/0/when"
+        },
+        {
+          "code": "WHEN_KEY_UNKNOWN",
+          "pointer": "/contributes/menus/sidebar/0/when"
+        },
+        {
+          "code": "WHEN_KEY_UNKNOWN",
+          "pointer": "/contributes/menus/settings~1actions/0/when"
+        },
+        {
+          "code": "WHEN_KEY_UNKNOWN",
+          "pointer": "/contributes/pages/0/when"
+        },
+        {
+          "code": "WHEN_KEY_UNKNOWN",
+          "pointer": "/contributes/panels/0/when"
+        },
+        {
+          "code": "WHEN_KEY_UNKNOWN",
+          "pointer": "/contributes/status/0/when"
+        }
+      ],
+      "note": "Keys no app knows where they stand: a made-up key; favorite in a playlist's menu and on a status item; a secret setting; a setting the manifest does not declare; signedIn with no sign-in; a platform that is none of the four."
+    },
+    {
+      "file": "invalid/rule-duplicate-id-menus-status.json",
+      "profile": "install",
+      "valid": false,
+      "errors": [
+        {
+          "code": "DUPLICATE_ID",
+          "pointer": "/contributes/menus/song~1context/2/command"
+        },
+        {
+          "code": "DUPLICATE_ID",
+          "pointer": "/contributes/status/1/id"
+        }
+      ],
+      "note": "A menu that names one command twice, under two conditions (an || says it once), and two status items with one id."
+    },
+    {
+      "file": "invalid/rule-entry-required-status.json",
+      "profile": "install",
+      "valid": false,
+      "errors": [
+        {
+          "code": "ENTRY_REQUIRED",
+          "pointer": "/contributes/status/0/render"
+        },
+        {
+          "code": "ENTRY_REQUIRED",
+          "pointer": "/contributes/status/1/render"
+        }
+      ],
+      "note": "Status items need the entry that renders them, client or server."
+    },
+    {
       "file": "invalid/rule-route-duplicate.json",
       "profile": "install",
       "valid": false,
@@ -1487,9 +1584,13 @@
         {
           "code": "PROVIDER_MISMATCH",
           "pointer": "/contributes/providers/metadata/0"
+        },
+        {
+          "code": "PROVIDER_MISMATCH",
+          "pointer": "/contributes/providers/artistInfo/0"
         }
       ],
-      "note": "The source \"a\" is named One under search. Under lookup it is named Two; under links it joins another group; under lyrics it has no name, which means the extension's; under metadata it joins no group. Artwork agrees, and has no group to give. The source \"b\" is first given a group under metadata, which is fine."
+      "note": "The source \"a\" is named One under search. Under lookup it is named Two; under links it joins another group; under lyrics it has no name, which means the extension's; under metadata it joins no group. Artwork agrees, and has no group to give; artist info, which has none to give either, names it Three. The source \"b\" is first given a group under metadata, which is fine."
     },
     {
       "file": "invalid/rule-setting-default-invalid.json",

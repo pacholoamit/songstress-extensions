@@ -108,6 +108,11 @@ describe('the size limit, which no file is kept for', () => {
   })
 })
 
+/** What the sources of one provider kind say they answer, `said` of each. */
+function answersOf<S>(sources: readonly S[] | undefined, said: (source: S) => readonly string[]): string[] {
+  return (sources ?? []).flatMap(said)
+}
+
 describe('valid/everything.json', () => {
   // Its case says it uses every contribution point, hook, permission, menu
   // location, provider kind, setting type and scope, and panel location:
@@ -137,9 +142,10 @@ describe('valid/everything.json', () => {
     ['panel locations', (contributes.panels ?? []).map((panel) => panel.location), allowed('panelLocation')],
     ['route methods', (contributes.routes ?? []).map((route) => route.method), allowed('route', 'properties', 'method')],
     ['catalogue types', [...(providers.search ?? []), ...(providers.lookup ?? [])].flatMap((source) => source.types), allowed('catalogType')],
-    ['metadata answers', (providers.metadata ?? []).flatMap((source) => source.supports), allowed('metadataSource', 'properties', 'supports', 'items')],
-    ['artwork answers', (providers.artwork ?? []).flatMap((source) => source.supports), allowed('artworkSource', 'properties', 'supports', 'items')],
-    ['recommendation modes', (providers.recommend ?? []).flatMap((source) => source.modes), allowed('recommendSource', 'properties', 'modes', 'items')],
+    ['metadata answers', answersOf(providers.metadata, (source) => source.supports), allowed('metadataSource', 'properties', 'supports', 'items')],
+    ['artwork answers', answersOf(providers.artwork, (source) => source.supports), allowed('artworkSource', 'properties', 'supports', 'items')],
+    ['artist info answers', answersOf(providers.artistInfo, (source) => source.supports), allowed('artistInfoSource', 'properties', 'supports', 'items')],
+    ['recommendation modes', answersOf(providers.recommend, (source) => source.modes), allowed('recommendSource', 'properties', 'modes', 'items')],
   ])('uses every one of the %s', (_what, found, all) => {
     expect(used(found)).toEqual(used(all))
   })

@@ -147,7 +147,8 @@
     "menus": {
       "song/context": [
         {
-          "command": "add-to-chart"
+          "command": "add-to-chart",
+          "when": "!favorite"
         }
       ],
       "album/context": [
@@ -175,7 +176,8 @@
           "command": "add-to-chart"
         },
         {
-          "command": "open-charts"
+          "command": "open-charts",
+          "when": "clientCode && (platform == 'ios' || platform == 'android')"
         }
       ],
       "sidebar": [
@@ -185,7 +187,8 @@
       ],
       "settings/actions": [
         {
-          "command": "refresh"
+          "command": "refresh",
+          "when": "signedIn && setting.period != 'day'"
         }
       ]
     },
@@ -199,7 +202,8 @@
         "required": true,
         "default": "PH",
         "placeholder": "PH",
-        "maxLength": 2
+        "maxLength": 2,
+        "section": "Charts"
       },
       {
         "key": "apiKey",
@@ -216,14 +220,16 @@
         "default": 20,
         "minimum": 5,
         "maximum": 100,
-        "step": 5
+        "step": 5,
+        "section": "Charts"
       },
       {
         "key": "compact",
         "type": "boolean",
         "title": "Compact rows",
         "scope": "device",
-        "default": false
+        "default": false,
+        "section": "This device"
       },
       {
         "key": "period",
@@ -254,7 +260,8 @@
         "title": "Charts",
         "render": "server",
         "icon": "chart-bar",
-        "sidebar": true
+        "sidebar": true,
+        "when": "admin || setting.entries == 20"
       },
       {
         "id": "live",
@@ -267,7 +274,8 @@
         "id": "now",
         "title": "On the charts",
         "location": "now-playing",
-        "render": "client"
+        "render": "client",
+        "when": "playing && !setting.compact"
       },
       {
         "id": "shelf",
@@ -286,6 +294,27 @@
         "title": "Chart history",
         "location": "album",
         "render": "server"
+      },
+      {
+        "id": "playlist-rank",
+        "title": "On the charts",
+        "location": "playlist",
+        "render": "server",
+        "when": "views || true"
+      }
+    ],
+    "status": [
+      {
+        "id": "rank",
+        "title": "Chart rank",
+        "render": "server",
+        "icon": "chart-bar",
+        "when": "signedIn"
+      },
+      {
+        "id": "live",
+        "title": "Listening now",
+        "render": "client"
       }
     ],
     "views": [
@@ -361,6 +390,16 @@
           "supports": [
             "artist-photo",
             "album-cover"
+          ]
+        }
+      ],
+      "artistInfo": [
+        {
+          "id": "charts",
+          "name": "Charts",
+          "supports": [
+            "biography",
+            "similar"
           ]
         }
       ],

@@ -3,7 +3,7 @@
   "manifestVersion": 1,
   "id": "songstress.solarized",
   "name": "Solarized",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Ethan Schoonover's Solarized: sixteen colours, one dark look and one light, built to be read for hours.",
   "engines": {
     "songstress": "^0.1.3"
@@ -23,6 +23,50 @@
     "width": 512,
     "height": 512
   },
+  "screenshots": [
+    {
+      "path": "assets/screenshots/home-dark.webp",
+      "width": 1440,
+      "height": 900,
+      "caption": "Home in Solarized, dark",
+      "platform": "web"
+    },
+    {
+      "path": "assets/screenshots/playlist-dark.webp",
+      "width": 1440,
+      "height": 900,
+      "caption": "A playlist in Solarized, dark",
+      "platform": "web"
+    },
+    {
+      "path": "assets/screenshots/player-dark.webp",
+      "width": 1440,
+      "height": 900,
+      "caption": "The full-screen player in Solarized, dark",
+      "platform": "web"
+    },
+    {
+      "path": "assets/screenshots/home-light.webp",
+      "width": 1440,
+      "height": 900,
+      "caption": "Home in Solarized, light",
+      "platform": "web"
+    },
+    {
+      "path": "assets/screenshots/playlist-light.webp",
+      "width": 1440,
+      "height": 900,
+      "caption": "A playlist in Solarized, light",
+      "platform": "web"
+    },
+    {
+      "path": "assets/screenshots/player-light.webp",
+      "width": 1440,
+      "height": 900,
+      "caption": "The full-screen player in Solarized, light",
+      "platform": "web"
+    }
+  ],
   "contributes": {
     "themes": [
       {
