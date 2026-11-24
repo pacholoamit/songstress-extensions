@@ -60,7 +60,9 @@ async function attempt(url: string, init: NetRequest): Promise<NetResponse | str
   } catch (error) {
     const code = codeOf(error)
     if (code !== '' && code !== 'failed') throw error
-    return `did not answer: ${error instanceof Error ? error.message : String(error)}`
+    // Never the error's own words: they can carry the address, its query and the tokens in it, and a failure's
+    // message reaches the server's log and the apps. The host alone, and why in general.
+    return 'did not answer'
   }
   if (response.status === 429) {
     throw new ProviderFailure('rate-limited', { message: `${hostIn(url)} asks to slow down`, retryAfterS: retryAfter(response) })

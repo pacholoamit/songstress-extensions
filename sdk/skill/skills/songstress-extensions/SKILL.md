@@ -19,10 +19,13 @@ instead of from memory, and never from this file:
   extension contributes (§5), hooks (§7), permissions (§8), the API (§9), the declared interface (§10), providers
   (§11), themes (§12), every validation code (§13), versions (§14). Search it for the field or code at hand.
 - **The API's types**, `node_modules/songstress/dist/types/`, and the starter's own `src/server.ts` and its test.
-- **The docs**, written for agents too: the developer section is <https://songstress.app/docs/develop/>, its
-  reference generated from the SDK at <https://songstress.app/docs/develop/reference/songstress/> (one page per
-  module: `…/reference/server/`, `client`, `manifest`, `testing`, `theme`). Any page's Markdown is at
-  `https://songstress.app/docs/<path>.md`, and <https://songstress.app/llms.txt> indexes them all.
+- **The docs**, written for agents too: the developer section is <https://songstress.app/docs/develop/>, with "Your
+  first extension" (`…/develop/quickstart/`) walking a real run end to end. Its reference is generated from the SDK
+  at <https://songstress.app/docs/develop/reference/songstress/>, one page per module (`…/reference/server/`,
+  `client`, `manifest`, `prose`, `testing`, `theme`, `sandbox`), and **every function there has a usage example
+  under its signature**, compiled by the SDK's own tests: start from that example rather than guessing a call. Any
+  page's Markdown is at `https://songstress.app/docs/<path>.md`, and <https://songstress.app/llms.txt> indexes them
+  all.
 
 When the SPEC and anything else disagree, the SPEC of the installed version wins.
 
@@ -88,6 +91,15 @@ report what each said and the package's file name. Do not claim a listing is rea
   `songstress/server` builds on it (`fetchJson`, `queryString`, `parseUrl`: contributions.md, Providers). Name every
   public host under `network.hosts` (a host, or `*.yourdomain.com`; never a scheme, a path, an address or a bare
   `*`). The user's own network is `network.local`, server code only.
+- **Use the SDK's helpers, never your own copies.** Everything the official extensions use is public in
+  `songstress/server`, so a third party needs nothing else: `registerCatalog` (a catalogue source's search, its
+  track, album, artist and playlist lookups and its link resolving, registered under one id in one call),
+  `fetchJson`, `fetchText`, `fetchResponse`, `nullIfMissing` and `findInAnswer` (requests tried once more after a
+  network failure or a 5xx, with failures Songstress understands), `KeptValue` (a token kept until it
+  runs out), `matchScore` and `bestMatch` (the one result of many that is the song asked for), `foldText`,
+  `htmlToText`, `parseUrl`, `resolveUrl`, `urlParam`, `queryString`, `base64Bytes`, `utf8Text` and `gunzip`. Import
+  them from `songstress/server`; a private helper that does the same is a finding in review. A failure the helpers
+  raise names the host and a reason, never the address, its query or a secret: keep your own the same.
 - **The sandbox** has ECMAScript 2023, timers and `console.log`, and nothing else: no DOM, no Node, no `eval` or
   WebAssembly, and on the server no `URL`, `TextEncoder`, `crypto` or `Intl`. Bundle what you need;
   `songstress build` makes the one script an entry must be. Only JSON crosses to and from Songstress. A server call
@@ -95,8 +107,18 @@ report what each said and the package's file name. Do not claim a listing is rea
 - **Observe and add, never replace.** Hooks tell what happened and cannot refuse or delay it. A provider answers
   beside Songstress's own sources, switched off or last until the admin orders them.
 - **Two profiles.** `check` holds the manifest to what a server installs. `--profile listing` adds what the
-  Marketplace asks on top: `license`, `repository` (a GitHub address), one category, a 512 by 512 PNG `icon` and three
-  to six screenshots with their real sizes.
+  Marketplace asks on top: `about`, `license`, `repository` (a GitHub address), one category, a 512 by 512 PNG `icon`
+  and three to six screenshots with their real sizes.
+- **The extension's page** (songstress.app/extensions/<id>, and the same page in the apps) is drawn from the
+  manifest: `about` (its Description, required to list: one to 16 blocks), `useCases` (one to eight lines of up to
+  240 characters), `howItWorks` (what it asks its service, keeps and changes: one to 32 blocks), the https addresses
+  `homepage`, `demo` and `support`, and an optional `banner` (16:9, 1280 by 720 to 3840 by 2160, PNG, JPEG or WebP;
+  without one the first wide screenshot is the card). Each block is ONE line of prose: a paragraph, a heading
+  (`## `, `### `) or a list item (`- `), with `**bold**`, `*emphasis*`, `` `code` `` and https links inside; nothing
+  else is drawn, and a line break is refused (`TEXT_UNSAFE`). `songstress/prose` (`parseProse`, `proseToMarkdown`)
+  shows exactly how it reads. Write it from what the code really does, the way the official 18 do: what it adds,
+  what it needs from an admin, what it never does. These fields came with API 0.1.9: raise `engines.songstress` to
+  `^0.1.9` when you use them.
 - **No made-up pictures or facts.** Icons and screenshots are real captures the author provides; leave them out and
   let `check --profile listing` list them as missing. Never log a token or a secret setting; credentials belong in
   `songstress.secrets`.

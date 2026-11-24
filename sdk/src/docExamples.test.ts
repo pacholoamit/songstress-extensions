@@ -103,11 +103,12 @@ describe('the usage examples in the doc comments', () => {
     expect(examples.length).toBeGreaterThan(0)
   })
 
-  it('compile in the sandbox, against the SDK as an extension imports it', () => {
+  // Each group is one compiler program over the SDK: seconds alone, longer on a busy machine.
+  it('compile in the sandbox, against the SDK as an extension imports it', { timeout: 120_000 }, () => {
     expect(compile(examples.filter((example) => !example.node), false)).toEqual([])
   })
 
-  it('compile in Node, for the tools and the tests', () => {
+  it('compile in Node, for the tools and the tests', { timeout: 120_000 }, () => {
     expect(compile(examples.filter((example) => example.node), true)).toEqual([])
   })
 })

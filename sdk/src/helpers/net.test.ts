@@ -46,7 +46,7 @@ describe('fetchResponse', () => {
     answering(failing)
     await expect(fetchResponse('https://api.example.com/x')).rejects.toMatchObject({
       code: 'unavailable',
-      message: 'api.example.com did not answer: net.fetch: connection refused',
+      message: 'api.example.com did not answer',
     })
     answering(() => ({ status: 500 }))
     await expect(fetchResponse('https://api.example.com/x')).rejects.toMatchObject({ code: 'unavailable', message: 'api.example.com answered 500' })
@@ -63,6 +63,22 @@ describe('fetchResponse', () => {
     const dated = (await fetchResponse('https://api.example.com/x').catch((error: unknown) => error)) as ProviderFailure
     expect(dated.retryAfterS).toBeGreaterThanOrEqual(58)
     expect(dated.retryAfterS).toBeLessThanOrEqual(60)
+  })
+
+  it('names the host and never the address, its query or the error in a failure', async () => {
+    const secret = 'sk_live_123456'
+    answering(() => {
+      throw new SongstressError('failed', `net.fetch: Get "https://api.example.com/x?api_key=${secret}": connection refused`)
+    })
+    const failure = (await fetchResponse(`https://api.example.com/x?api_key=${secret}`).catch((error: unknown) => error)) as ProviderFailure
+    expect(failure.code).toBe('unavailable')
+    expect(failure.message).toBe('api.example.com did not answer')
+    answering(() => ({ status: 503 }))
+    const down = (await fetchResponse(`https://api.example.com/x?api_key=${secret}`).catch((error: unknown) => error)) as ProviderFailure
+    expect(down.message).toBe('api.example.com answered 503')
+    answering(() => ({ status: 404 }))
+    const missing = (await fetchText(`https://api.example.com/x?api_key=${secret}`).catch((error: unknown) => error)) as Error
+    expect(missing.message).toBe('api.example.com answered 404')
   })
 
   it("throws the host's own refusals as they come, untried again", async () => {

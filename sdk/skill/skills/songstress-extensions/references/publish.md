@@ -38,15 +38,21 @@ The Marketplace is the catalogue the apps browse. `songstress.*` extensions are 
 are listed after a person reviews their submission. `check`'s listing messages call what a listing asks "the
 official list's" needs: they are the same rules.
 
-1. Run `npm run check -- --profile listing`. On top of what a server installs, a listing needs `license` (one the
-   Marketplace accepts, by its SPDX identifier), `repository` (`https://github.com/owner/name`, public), exactly one
-   of the categories, a 512 by 512 PNG `icon` and three to six `screenshots`, each with its real `width` and
-   `height`. Images are files in the package beside the manifest.
-2. The pictures are the author's real captures: ask for them, never draw or generate stand-ins.
+1. Run `npm run check -- --profile listing`. On top of what a server installs, a listing needs `about` (its page's
+   Description, in blocks of prose: SKILL.md, "The extension's page"), `license` (one the Marketplace accepts, by
+   its SPDX identifier), `repository` (`https://github.com/owner/name`, public), exactly one of the categories, a 512
+   by 512 PNG `icon` and three to six `screenshots`, each with its real `width` and `height`. Images are files in the
+   package beside the manifest. `useCases`, `howItWorks`, `homepage`, `demo`, `support` and a `banner` are optional
+   and fill the rest of the page.
+2. The pictures are the author's real captures: ask for them, never draw or generate stand-ins. The page's words
+   are yours to write from the code, and true to it.
 3. Release a version that passes, then submit the repository's link at <https://songstress.app/extensions/submit>
    (once for each extension of a repository of several). A person reviews it before it is listed.
 
-An extension with a `play` or `download` provider installs by link or file but is never listed.
+Once listed, it has a page of its own at `https://songstress.app/extensions/<id>` (its Markdown at `….md`), the
+same in the apps' Marketplace, with its downloads, and ratings from people signed in with GitHub once three have
+rated it. An extension with a `play` or `download` provider may be listed like any other; its page should say that
+an admin turns those on.
 
 ## A newer SDK
 
