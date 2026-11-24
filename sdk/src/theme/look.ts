@@ -33,7 +33,19 @@ function colorsOf(value: unknown): ThemeColors | undefined {
  * that is not one of a theme's colours, a translucent one where its place is opaque, a token this version does
  * not name, glow past the third. What is left out an app fills in, as it fills any token a look leaves out.
  * Nothing, for a value with no colour left in it. A look that passed `songstress/manifest`'s checks loses
- * nothing here: it only changes form. */
+ * nothing here: it only changes form.
+ * @param look - A look as a theme file holds it.
+ * @returns The look in its one form, or undefined.
+ * @example
+ * ```ts
+ * import { normalizeLook } from 'songstress/theme'
+ *
+ * declare const look: unknown // a look as a theme file holds it
+ *
+ * const normal = normalizeLook(look)
+ * console.log(normal?.colors?.background) // '#rrggbb', whatever form the file wrote
+ * ```
+ */
 export function normalizeLook(look: unknown): ThemeLook | undefined {
   if (!isRecord(look)) return undefined
   const out: ThemeLook = {}

@@ -1,4 +1,4 @@
-# The public surface of songstress 0.1.8.
+# The public surface of songstress 0.1.10.
 # Written by "pnpm --dir packages/extensions api:record". Never edit it by hand.
 
 == songstress ==
@@ -11,7 +11,7 @@ export declare const API_PERMISSIONS: Readonly<{
 }>;
 
 API_VERSION:
-export declare const API_VERSION = "0.1.8";
+export declare const API_VERSION = "0.1.10";
 
 Action:
 export type Action = InvokeAction | NavigateAction | PlayAction | QueueAction | OpenUrlAction | CopyAction | ShareAction | ToastAction | ConfirmAction | RefreshAction | PickAction | InputAction | NotifyAction;
@@ -1484,6 +1484,10 @@ CatalogPlaylist: as above
 
 CatalogPlaylistDetail: as above
 
+CatalogProvider:
+export interface CatalogProvider extends SearchProvider, LookupProvider, Partial<LinkProvider> {
+}
+
 CatalogTrack: as above
 
 CatalogType: as above
@@ -1552,6 +1556,14 @@ Host: as above
 
 HostInfo: as above
 
+HttpStatusError:
+export declare class HttpStatusError extends Error {
+    readonly status: number;
+    readonly url: string;
+    readonly name = "HttpStatusError";
+    constructor(status: number, url: string);
+}
+
 IconBlock: as above
 
 IconName: as above
@@ -1571,6 +1583,21 @@ JobRun: as above
 Jobs: as above
 
 JsonValue: as above
+
+KeptValue:
+export declare class KeptValue<T> {
+    private readonly key;
+    private held;
+    private pending;
+    constructor(key: string);
+    get(): Promise<T | null>;
+    set(value: T, until: number): Promise<void>;
+    delete(): Promise<void>;
+    getOr(fetch: () => Promise<{
+        value: T;
+        until: number;
+    }>): Promise<T>;
+}
 
 Library: as above
 
@@ -1593,6 +1620,15 @@ LyricsLine: as above
 LyricsProvider: as above
 
 LyricsResult: as above
+
+MatchTags:
+export interface MatchTags {
+    title: string;
+    artist: string;
+    album?: string;
+    durationS?: number;
+    isrc?: string;
+}
 
 MenuBlock: as above
 
@@ -1627,6 +1663,14 @@ PanelContext: as above
 PanelRenderer: as above
 
 Panels: as above
+
+ParsedUrl:
+export interface ParsedUrl {
+    scheme: 'http' | 'https';
+    host: string;
+    path: string;
+    query: string;
+}
 
 PermissionName: as above
 
@@ -1812,8 +1856,65 @@ User: as above
 
 Users: as above
 
+base64Bytes:
+export declare function base64Bytes(text: string): Uint8Array;
+
+base64Text:
+export declare function base64Text(text: string): string;
+
+bestMatch:
+export declare function bestMatch<T>(wanted: MatchTags, candidates: readonly T[], read: (candidate: T) => MatchTags, min?: number): T | null;
+
+fetchJson:
+export declare function fetchJson<T>(url: string, init?: NetRequest): Promise<T>;
+
+fetchResponse:
+export declare function fetchResponse(url: string, init?: NetRequest): Promise<NetResponse>;
+
+fetchText:
+export declare function fetchText(url: string, init?: NetRequest): Promise<string>;
+
+findInAnswer:
+export declare function findInAnswer<T>(url: string, find: (text: string) => T | null, init?: NetRequest): Promise<T | null>;
+
+foldText:
+export declare function foldText(text: string): string;
+
+gunzip:
+export declare function gunzip(bytes: Uint8Array): Uint8Array;
+
+htmlToText:
+export declare function htmlToText(fragment: string): string;
+
+matchScore:
+export declare function matchScore(wanted: MatchTags, offered: MatchTags): number;
+
+nullIfMissing:
+export declare function nullIfMissing<T>(load: () => Promise<T>, statuses?: readonly number[]): Promise<T | null>;
+
+parseUrl:
+export declare function parseUrl(text: string): ParsedUrl | null;
+
+queryString:
+export declare function queryString(params: Readonly<Record<string, string | number | boolean | undefined>>): string;
+
+registerCatalog:
+export declare function registerCatalog(id: string, catalog: CatalogProvider): Disposable;
+
+resolveUrl:
+export declare function resolveUrl(reference: string, base: string): string;
+
 songstress:
 export declare const serverApi: ServerApi;
+
+unescapeHtml:
+export declare function unescapeHtml(text: string): string;
+
+urlParam:
+export declare function urlParam(url: string | ParsedUrl | null, name: string): string;
+
+utf8Text:
+export declare function utf8Text(bytes: ArrayLike<number>): string;
 
 == songstress/client ==
 
@@ -2356,7 +2457,8 @@ export declare const LISTING_FIELDS: readonly [
     "repository",
     "categories",
     "icon",
-    "screenshots"
+    "screenshots",
+    "about"
 ];
 
 LISTING_LICENSES:
@@ -2482,6 +2584,12 @@ export interface Manifest {
     license?: string;
     repository?: HttpsUrl;
     sponsor?: Sponsor;
+    homepage?: HttpsUrl;
+    demo?: HttpsUrl;
+    support?: HttpsUrl;
+    about?: Prose[];
+    useCases?: UseCase[];
+    howItWorks?: Prose[];
     categories?: Category[];
     keywords?: Keyword[];
     platforms?: Platform[];
@@ -2627,6 +2735,32 @@ export interface Permissions {
 }
 
 Platform: as above
+
+Prose:
+export type Prose = string;
+
+ProseBlock:
+export type ProseBlock = {
+    kind: 'paragraph';
+    spans: ProseSpan[];
+} | {
+    kind: 'heading';
+    level: 2 | 3;
+    spans: ProseSpan[];
+} | {
+    kind: 'list';
+    items: ProseSpan[][];
+};
+
+ProseSpan:
+export type ProseSpan = {
+    kind: 'text' | 'strong' | 'emphasis' | 'code';
+    text: string;
+} | {
+    kind: 'link';
+    text: string;
+    href: string;
+};
 
 ProviderGroup: as above
 
@@ -2893,6 +3027,9 @@ export declare const UNSAFE_CODE_POINTS: readonly (readonly [
     to: number
 ])[];
 
+UseCase:
+export type UseCase = string;
+
 ValidateOptions:
 export interface ValidateOptions {
     profile?: ManifestProfile;
@@ -2933,6 +3070,9 @@ export declare function compareVersions(a: Version, b: Version): number;
 parseManifest:
 export declare function parseManifest(input: string | Uint8Array, options?: ValidateOptions): ManifestResult;
 
+parseProse:
+export declare function parseProse(blocks: readonly string[]): ProseBlock[];
+
 parseRange:
 export declare function parseRange(text: string): VersionRange | null;
 
@@ -2941,6 +3081,12 @@ export declare function parseThemeFile(input: string | Uint8Array, appearance: T
 
 parseVersion:
 export declare function parseVersion(text: string): Version | null;
+
+proseSpans:
+export declare function proseSpans(line: string): ProseSpan[];
+
+proseToMarkdown:
+export declare function proseToMarkdown(blocks: readonly string[]): string;
 
 satisfiesRange:
 export declare function satisfiesRange(version: Version, range: VersionRange): boolean;

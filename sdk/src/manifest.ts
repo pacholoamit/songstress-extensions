@@ -7,6 +7,8 @@ export type { ManifestErrorCode, ManifestIssue } from './manifest/codes'
 export { LISTING_FIELDS, LISTING_LICENSES, LISTING_MIN_SCREENSHOTS } from './manifest/rules/listing'
 export { RESERVED_PUBLISHERS } from './manifest/rules/identity'
 export { HOOK_PERMISSIONS } from './manifest/rules/permissions'
+export { parseProse, proseSpans, proseToMarkdown } from './manifest/prose'
+export type { ProseBlock, ProseSpan } from './manifest/prose'
 export { UNSAFE_CODE_POINTS } from './manifest/unsafe'
 export { MAX_MANIFEST_BYTES, MAX_MANIFEST_DEPTH } from './manifest/scan'
 export {

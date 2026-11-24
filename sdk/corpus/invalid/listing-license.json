@@ -10,6 +10,9 @@
   },
   "license": "WTFPL",
   "repository": "https://github.com/acme/songstress-tunelog",
+  "about": [
+    "Sends what you play to your Tunelog profile."
+  ],
   "sponsor": {
     "url": "https://github.com/sponsors/acme"
   },

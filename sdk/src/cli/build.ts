@@ -36,7 +36,9 @@ async function sourceOf(folder: string, entry: string): Promise<string | undefin
   return undefined
 }
 
-/** One entry, bundled: rolldown, Vite 8's bundler, with the SDK's imports resolved as installed. */
+/** One entry, bundled: rolldown, Vite 8's bundler, with the SDK's imports resolved as installed. Doc comments are
+ * left out (the SDK's own, with their usage examples, are documentation, not code); licences and the bundler's
+ * annotations stay. */
 export async function bundle(
   input: string,
   options: { cwd?: string; alias?: Record<string, string>; format?: 'iife' | 'esm' } = {},
@@ -50,7 +52,7 @@ export async function bundle(
     resolve: options.alias ? { alias: options.alias } : undefined,
   })
   try {
-    const { output } = await result.generate({ format: options.format ?? 'iife' })
+    const { output } = await result.generate({ format: options.format ?? 'iife', comments: { legal: true, annotation: true, jsdoc: false } })
     return output[0].code
   } finally {
     await result.close()

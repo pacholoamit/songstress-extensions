@@ -17,8 +17,11 @@
 
 /** A parsed semantic version. */
 export interface Version {
+  /** The major version. */
   readonly major: number
+  /** The minor version. */
   readonly minor: number
+  /** The patch version. */
   readonly patch: number
   /** The prerelease identifiers ("beta", "2"); none for a release. */
   readonly prerelease: readonly string[]
@@ -29,8 +32,11 @@ export interface Version {
 /** A parsed range: every version from `from` on, before `before` when there
  * is one; or `from` alone when `exact`. */
 export interface VersionRange {
+  /** The lowest version the range takes. */
   readonly from: Version
+  /** The version the range stops before, or null for none. */
   readonly before: Version | null
+  /** The range takes one version alone. */
   readonly exact: boolean
 }
 
@@ -42,7 +48,17 @@ const VERSION =
 const DIGITS = /^\d+$/
 const MAX_LENGTH = 256
 
-/** `text` as a version, or null when it is not one. */
+/** `text` as a version, or null when it is not one.
+ * @param text - A version as `major.minor.patch`.
+ * @returns The version, or null.
+ * @example
+ * ```ts
+ * import { parseVersion } from 'songstress/manifest'
+ *
+ * const version = parseVersion('2.0.0-beta.1')
+ * if (version) console.log(version.major, version.prerelease) // 2 [ 'beta', '1' ]
+ * ```
+ */
 export function parseVersion(text: string): Version | null {
   if (text.length > MAX_LENGTH) return null
   const found = VERSION.exec(text)
@@ -80,7 +96,18 @@ function comparePrerelease(a: readonly string[], b: readonly string[]): number {
   return sign(a.length - b.length)
 }
 
-/** -1 when `a` comes before `b`, 1 when after, 0 when they rank the same. */
+/** -1 when `a` comes before `b`, 1 when after, 0 when they rank the same.
+ * @param a - A version.
+ * @param b - The version to hold it against.
+ * @returns -1, 0 or 1, for sorting.
+ * @example
+ * ```ts
+ * import { compareVersions, parseVersion } from 'songstress/manifest'
+ *
+ * const versions = ['1.10.0', '1.2.0', '1.2.0-beta.1'].map(parseVersion).filter((version) => version !== null)
+ * versions.sort(compareVersions) // 1.2.0-beta.1, 1.2.0, 1.10.0
+ * ```
+ */
 export function compareVersions(a: Version, b: Version): number {
   return (
     sign(a.major - b.major) ||
@@ -122,7 +149,17 @@ function single(text: string): VersionRange | null {
   return { from, before: null, exact: operator === '' }
 }
 
-/** `text` as a range, or null when the grammar above does not take it. */
+/** `text` as a range, or null when the grammar above does not take it.
+ * @param text - A range as a manifest writes it: `^1.2.0`, `~1.2.0`, `>=1.2.0`, `>=1.2.0 <2.0.0` or one exact version.
+ * @returns The range, or null.
+ * @example
+ * ```ts
+ * import { parseRange } from 'songstress/manifest'
+ *
+ * const range = parseRange('^0.1.10')
+ * if (!range) console.log('not a range engines.songstress takes')
+ * ```
+ */
 export function parseRange(text: string): VersionRange | null {
   if (text.length > MAX_LENGTH) return null
   const parts = text.split(' ')
@@ -131,7 +168,19 @@ export function parseRange(text: string): VersionRange | null {
   return null
 }
 
-/** Whether `version` lies inside `range`. */
+/** Whether `version` lies inside `range`.
+ * @param version - The version to test.
+ * @param range - The range, from `parseRange`.
+ * @returns True when the range takes the version.
+ * @example
+ * ```ts
+ * import { parseRange, parseVersion, satisfiesRange } from 'songstress/manifest'
+ *
+ * const range = parseRange('^0.1.0')
+ * const version = parseVersion('0.1.8')
+ * if (range && version) console.log(satisfiesRange(version, range)) // true
+ * ```
+ */
 export function satisfiesRange(version: Version, range: VersionRange): boolean {
   const fromHere = compareVersions(version, range.from)
   if (range.exact) return fromHere === 0

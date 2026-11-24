@@ -20,10 +20,12 @@ export interface ClientCapabilities {
 
 /** An app that draws an extension's interface or runs its client code. */
 export interface ClientInfo {
+  /** The app: web, desktop, ios or android. */
   platform: Platform
   /** The version of the component vocabulary the app draws. A node it does
    * not know is shown as "needs a newer app". */
   ui: number
+  /** What the app can do: run extensions' client code, open views. */
   capabilities: ClientCapabilities
 }
 
@@ -42,5 +44,14 @@ export interface HostInfo {
 
 /** Asking the host about itself. Both sides; no permission. */
 export interface Host {
+  /** What the code runs in: the API version, the side, the extension, and on the client the app.
+   * @example
+   * ```ts
+   * import { songstress } from 'songstress'
+   *
+   * const info = await songstress.host.info()
+   * console.log(`${info.extension.id} ${info.extension.version}, API ${info.apiVersion}, the ${info.side} side`)
+   * ```
+   */
   info(): Promise<HostInfo>
 }

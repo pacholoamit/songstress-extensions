@@ -56,6 +56,39 @@
       "description": "Where people can support the author.",
       "$ref": "#/$defs/sponsor"
     },
+    "homepage": {
+      "description": "The extension's own page: its site, or its documentation.",
+      "$ref": "#/$defs/httpsUrl"
+    },
+    "demo": {
+      "description": "Where the extension can be seen at work: a video, or a live demo.",
+      "$ref": "#/$defs/httpsUrl"
+    },
+    "support": {
+      "description": "Where people ask for help: an issue tracker, a forum, a chat.",
+      "$ref": "#/$defs/httpsUrl"
+    },
+    "about": {
+      "description": "What the extension is and does, at length: the Description of its page in the Marketplace and in the apps, a block of text an item. A listing needs it.",
+      "type": "array",
+      "items": { "$ref": "#/$defs/prose" },
+      "minItems": 1,
+      "maxItems": 16
+    },
+    "useCases": {
+      "description": "What people use the extension for, a line each: the Use cases of its page.",
+      "type": "array",
+      "items": { "$ref": "#/$defs/useCase" },
+      "minItems": 1,
+      "maxItems": 8
+    },
+    "howItWorks": {
+      "description": "How the extension works: what it asks its service, what it keeps, what it changes. The How it works of its page, a block of text an item.",
+      "type": "array",
+      "items": { "$ref": "#/$defs/prose" },
+      "minItems": 1,
+      "maxItems": 32
+    },
     "categories": {
       "description": "The one category the extension is listed under.",
       "type": "array",
@@ -159,6 +192,18 @@
       "minLength": 1,
       "maxLength": 40
     },
+    "prose": {
+      "description": "One block of a page's text, on one line: a paragraph, a heading (it starts with `## ` or `### `) or a list item (it starts with `- `). Inside it, `**bold**`, `*emphasis*`, a span in backticks and `[a link](https://example.com)` are read as Markdown; anything else, HTML and images among it, is shown as the text it is.",
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 600
+    },
+    "useCase": {
+      "description": "One use, in a line, read as a block of prose is: a span in backticks is shown as code.",
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 240
+    },
     "httpsUrl": {
       "description": "An https address.",
       "type": "string",
@@ -166,6 +211,7 @@
       "maxLength": 300
     },
     "sponsor": {
+      "description": "Where people can support the extension's author.",
       "type": "object",
       "additionalProperties": false,
       "required": ["url"],
@@ -177,6 +223,7 @@
       }
     },
     "engines": {
+      "description": "The extension API versions the extension runs on.",
       "type": "object",
       "additionalProperties": false,
       "required": ["songstress"],
@@ -279,6 +326,7 @@
       }
     },
     "entry": {
+      "description": "The extension's code: the bundle that runs on the server, the one that runs in the apps, or both.",
       "type": "object",
       "additionalProperties": false,
       "minProperties": 1,
@@ -300,6 +348,7 @@
       "maxLength": 200
     },
     "hooks": {
+      "description": "The events the extension's code listens to, by side.",
       "type": "object",
       "additionalProperties": false,
       "minProperties": 1,
@@ -337,19 +386,21 @@
       "maxLength": 200
     },
     "permission": {
+      "description": "A permission with nothing more to name than why it is asked for.",
       "type": "object",
       "additionalProperties": false,
       "required": ["reason"],
       "properties": {
-        "reason": { "$ref": "#/$defs/reason" }
+        "reason": { "description": "Why the extension needs this, in words the person granting it will read.", "$ref": "#/$defs/reason" }
       }
     },
     "networkPermission": {
+      "description": "Reaching public hosts: why, and which hosts.",
       "type": "object",
       "additionalProperties": false,
       "required": ["reason", "hosts"],
       "properties": {
-        "reason": { "$ref": "#/$defs/reason" },
+        "reason": { "description": "Why the extension needs this, in words the person granting it will read.", "$ref": "#/$defs/reason" },
         "hosts": {
           "description": "The public hosts the extension may reach, over http or https.",
           "type": "array",
@@ -367,11 +418,12 @@
       "maxLength": 260
     },
     "localNetworkPermission": {
+      "description": "Reaching the user's own network: why, and which targets.",
       "type": "object",
       "additionalProperties": false,
       "required": ["reason"],
       "properties": {
-        "reason": { "$ref": "#/$defs/reason" },
+        "reason": { "description": "Why the extension needs this, in words the person granting it will read.", "$ref": "#/$defs/reason" },
         "targets": {
           "description": "The targets on the user's own network the extension asks for. Left out, the admin names them when granting.",
           "type": "array",
@@ -389,6 +441,7 @@
       "maxLength": 260
     },
     "permissions": {
+      "description": "What the extension may do, each with the reason it gives.",
       "type": "object",
       "additionalProperties": false,
       "minProperties": 1,
@@ -440,6 +493,7 @@
       }
     },
     "contributes": {
+      "description": "What the extension adds to Songstress: commands, menus, settings, pages, panels, status items, views, themes, providers, jobs, routes and a sign-in.",
       "type": "object",
       "additionalProperties": false,
       "minProperties": 1,
@@ -522,6 +576,7 @@
       }
     },
     "command": {
+      "description": "A named action the extension's code carries out, run from a menu, a button or another command.",
       "type": "object",
       "additionalProperties": false,
       "required": ["id", "title", "run"],
@@ -549,6 +604,7 @@
       }
     },
     "menus": {
+      "description": "Where the extension's commands appear, by menu.",
       "type": "object",
       "additionalProperties": false,
       "minProperties": 1,
@@ -588,6 +644,7 @@
       }
     },
     "menuItems": {
+      "description": "The items an extension adds to one menu.",
       "type": "array",
       "items": { "$ref": "#/$defs/menuItem" },
       "minItems": 1,
@@ -595,6 +652,7 @@
       "uniqueItems": true
     },
     "menuItem": {
+      "description": "One menu item: a command, and when it shows.",
       "type": "object",
       "additionalProperties": false,
       "required": ["command"],
@@ -647,11 +705,11 @@
       "required": ["key", "type", "title", "scope"],
       "properties": {
         "key": { "description": "The name code reads the setting by.", "$ref": "#/$defs/settingKey" },
-        "type": { "const": "string" },
+        "type": { "description": "A line of text.", "const": "string" },
         "title": { "description": "The setting's label.", "$ref": "#/$defs/title" },
         "description": { "description": "A line of help under the label.", "$ref": "#/$defs/sentence" },
-        "section": { "$ref": "#/$defs/settingSection" },
-        "scope": { "$ref": "#/$defs/settingScope" },
+        "section": { "description": "The heading the setting is drawn under, with the other settings that name it.", "$ref": "#/$defs/settingSection" },
+        "scope": { "description": "Whose setting it is: the server's, each member's or each device's.", "$ref": "#/$defs/settingScope" },
         "required": {
           "description": "Songstress asks for it, and does not start the extension for whoever lacks it: anyone, a member or a device, by its scope.",
           "type": "boolean"
@@ -673,10 +731,10 @@
       "required": ["key", "type", "title", "scope"],
       "properties": {
         "key": { "description": "The name code reads the setting by.", "$ref": "#/$defs/settingKey" },
-        "type": { "const": "secret" },
+        "type": { "description": "A password field: Songstress seals what is typed and never shows it again.", "const": "secret" },
         "title": { "description": "The setting's label.", "$ref": "#/$defs/title" },
         "description": { "description": "A line of help under the label.", "$ref": "#/$defs/sentence" },
-        "section": { "$ref": "#/$defs/settingSection" },
+        "section": { "description": "The heading the setting is drawn under, with the other settings that name it.", "$ref": "#/$defs/settingSection" },
         "scope": {
           "description": "Who the secret belongs to: the whole server or each member.",
           "enum": ["server", "user"]
@@ -695,11 +753,11 @@
       "required": ["key", "type", "title", "scope"],
       "properties": {
         "key": { "description": "The name code reads the setting by.", "$ref": "#/$defs/settingKey" },
-        "type": { "const": "number" },
+        "type": { "description": "A number.", "const": "number" },
         "title": { "description": "The setting's label.", "$ref": "#/$defs/title" },
         "description": { "description": "A line of help under the label.", "$ref": "#/$defs/sentence" },
-        "section": { "$ref": "#/$defs/settingSection" },
-        "scope": { "$ref": "#/$defs/settingScope" },
+        "section": { "description": "The heading the setting is drawn under, with the other settings that name it.", "$ref": "#/$defs/settingSection" },
+        "scope": { "description": "Whose setting it is: the server's, each member's or each device's.", "$ref": "#/$defs/settingScope" },
         "required": {
           "description": "Songstress asks for it, and does not start the extension for whoever lacks it: anyone, a member or a device, by its scope.",
           "type": "boolean"
@@ -721,11 +779,11 @@
       "required": ["key", "type", "title", "scope"],
       "properties": {
         "key": { "description": "The name code reads the setting by.", "$ref": "#/$defs/settingKey" },
-        "type": { "const": "boolean" },
+        "type": { "description": "A switch.", "const": "boolean" },
         "title": { "description": "The setting's label.", "$ref": "#/$defs/title" },
         "description": { "description": "A line of help under the label.", "$ref": "#/$defs/sentence" },
-        "section": { "$ref": "#/$defs/settingSection" },
-        "scope": { "$ref": "#/$defs/settingScope" },
+        "section": { "description": "The heading the setting is drawn under, with the other settings that name it.", "$ref": "#/$defs/settingSection" },
+        "scope": { "description": "Whose setting it is: the server's, each member's or each device's.", "$ref": "#/$defs/settingScope" },
         "default": { "description": "The value until someone sets one.", "type": "boolean" }
       }
     },
@@ -736,11 +794,11 @@
       "required": ["key", "type", "title", "scope", "options"],
       "properties": {
         "key": { "description": "The name code reads the setting by.", "$ref": "#/$defs/settingKey" },
-        "type": { "const": "select" },
+        "type": { "description": "One choice from a list of options.", "const": "select" },
         "title": { "description": "The setting's label.", "$ref": "#/$defs/title" },
         "description": { "description": "A line of help under the label.", "$ref": "#/$defs/sentence" },
-        "section": { "$ref": "#/$defs/settingSection" },
-        "scope": { "$ref": "#/$defs/settingScope" },
+        "section": { "description": "The heading the setting is drawn under, with the other settings that name it.", "$ref": "#/$defs/settingSection" },
+        "scope": { "description": "Whose setting it is: the server's, each member's or each device's.", "$ref": "#/$defs/settingScope" },
         "required": {
           "description": "Songstress asks for it, and does not start the extension for whoever lacks it: anyone, a member or a device, by its scope.",
           "type": "boolean"
@@ -756,6 +814,7 @@
       }
     },
     "settingOption": {
+      "description": "One choice of a select setting.",
       "type": "object",
       "additionalProperties": false,
       "required": ["value", "title"],
@@ -765,6 +824,7 @@
       }
     },
     "page": {
+      "description": "A page the apps draw from a tree of Songstress's own blocks, built by the extension's code.",
       "type": "object",
       "additionalProperties": false,
       "required": ["id", "title", "render"],
@@ -791,6 +851,7 @@
       "enum": ["now-playing", "home", "artist", "album", "playlist"]
     },
     "panel": {
+      "description": "A section the extension's code builds inside one of Songstress's own screens.",
       "type": "object",
       "additionalProperties": false,
       "required": ["id", "title", "location", "render"],
@@ -800,7 +861,7 @@
           "$ref": "#/$defs/localId"
         },
         "title": { "description": "The panel's heading.", "$ref": "#/$defs/title" },
-        "location": { "$ref": "#/$defs/panelLocation" },
+        "location": { "description": "Which of Songstress's screens the panel is drawn in.", "$ref": "#/$defs/panelLocation" },
         "render": {
           "description": "The entry that builds the panel's tree.",
           "$ref": "#/$defs/side"
@@ -809,6 +870,7 @@
       }
     },
     "statusItem": {
+      "description": "An item in the player: an icon and a few words the extension's code keeps current.",
       "type": "object",
       "additionalProperties": false,
       "required": ["id", "title", "render"],
@@ -830,6 +892,7 @@
       }
     },
     "view": {
+      "description": "A free-form page: the extension's own HTML, opened in a sandboxed frame.",
       "type": "object",
       "additionalProperties": false,
       "required": ["id", "title", "path"],
@@ -945,6 +1008,7 @@
       "enum": ["musicbrainz", "spotify", "deezer", "tidal", "itunes", "ytmusic"]
     },
     "sourcesByKind": {
+      "description": "The extension's sources, by what they answer. Each kind is a provider contract the code registers.",
       "type": "object",
       "additionalProperties": false,
       "minProperties": 1,
@@ -1029,6 +1093,7 @@
       }
     },
     "source": {
+      "description": "A source that answers beside Songstress's own.",
       "type": "object",
       "additionalProperties": false,
       "required": ["id"],
@@ -1044,6 +1109,7 @@
       }
     },
     "searchSource": {
+      "description": "A source that answers a search.",
       "type": "object",
       "additionalProperties": false,
       "required": ["id", "types"],
@@ -1071,6 +1137,7 @@
       }
     },
     "lookupSource": {
+      "description": "A source that opens one track, album, artist or playlist by its id.",
       "type": "object",
       "additionalProperties": false,
       "required": ["id", "types"],
@@ -1098,6 +1165,7 @@
       }
     },
     "linkSource": {
+      "description": "A source that reads a pasted link.",
       "type": "object",
       "additionalProperties": false,
       "required": ["id", "patterns"],
@@ -1131,6 +1199,7 @@
       "maxLength": 200
     },
     "metadataSource": {
+      "description": "A source of facts about artists, releases and tracks.",
       "type": "object",
       "additionalProperties": false,
       "required": ["id", "supports"],
@@ -1158,6 +1227,7 @@
       }
     },
     "artworkSource": {
+      "description": "A source of artist photos and album covers.",
       "type": "object",
       "additionalProperties": false,
       "required": ["id", "supports"],
@@ -1181,6 +1251,7 @@
       }
     },
     "artistInfoSource": {
+      "description": "A source of words about an artist.",
       "type": "object",
       "additionalProperties": false,
       "required": ["id", "supports"],
@@ -1204,6 +1275,7 @@
       }
     },
     "recommendSource": {
+      "description": "A source of recommendations.",
       "type": "object",
       "additionalProperties": false,
       "required": ["id", "modes"],
@@ -1227,6 +1299,7 @@
       }
     },
     "downloadSource": {
+      "description": "A source the library can fetch audio from, at the qualities it offers.",
       "type": "object",
       "additionalProperties": false,
       "required": ["id", "qualities"],
@@ -1249,6 +1322,7 @@
       }
     },
     "quality": {
+      "description": "One quality a download source offers.",
       "type": "object",
       "additionalProperties": false,
       "required": ["id", "title"],
@@ -1259,6 +1333,7 @@
       }
     },
     "job": {
+      "description": "Work the server runs in the background, on a schedule or when code asks, shown in Activity.",
       "type": "object",
       "additionalProperties": false,
       "required": ["id", "title"],
@@ -1276,6 +1351,7 @@
       }
     },
     "route": {
+      "description": "An HTTP route under the extension's own prefix on the server.",
       "type": "object",
       "additionalProperties": false,
       "required": ["id", "method", "path"],
@@ -1297,6 +1373,7 @@
       }
     },
     "signIn": {
+      "description": "An account at a service the extension signs in to, for the server or for each member.",
       "type": "object",
       "additionalProperties": false,
       "required": ["scope"],

@@ -4,6 +4,17 @@
  * `dispose()` removes it; calling it again does nothing. Everything an
  * extension registers is removed for it when the extension is stopped. */
 export interface Disposable {
+  /** Takes the listener or handler away.
+   * @example
+   * ```ts
+   * import { songstress } from 'songstress/server'
+   *
+   * const listening = songstress.hooks.onPlay((song) => console.log(song.title))
+   *
+   * // Later, when the extension no longer cares:
+   * listening.dispose()
+   * ```
+   */
   dispose(): void
 }
 
@@ -35,11 +46,28 @@ export type SongstressErrorCode =
   | 'invalid'
   | 'failed'
 
-/** The error every call to the API rejects or throws with. */
+/** The error every call to the API rejects or throws with.
+ * @example
+ * ```ts
+ * import { songstress, type SongstressError } from 'songstress/server'
+ *
+ * try {
+ *   await songstress.storage.set('synced-at', Date.now())
+ * } catch (error) {
+ *   // The host makes the error, outside your bundle: read its code, not its class.
+ *   if ((error as SongstressError).code !== 'permission-denied') throw error
+ *   console.warn('the manifest does not ask for storage')
+ * }
+ * ```
+ */
 export class SongstressError extends Error {
   override readonly name = 'SongstressError'
   readonly code: SongstressErrorCode
 
+  /** An error with its code.
+   * @param code - What went wrong, as a code.
+   * @param message - What went wrong, in a sentence.
+   */
   constructor(code: SongstressErrorCode, message: string) {
     super(message)
     this.code = code

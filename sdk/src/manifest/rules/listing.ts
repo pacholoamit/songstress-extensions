@@ -5,7 +5,7 @@ import { pointerOf } from '../pointer'
 import type { Rule } from './rule'
 
 /** The fields a listing cannot do without. */
-export const LISTING_FIELDS = ['license', 'repository', 'categories', 'icon', 'screenshots'] as const
+export const LISTING_FIELDS = ['license', 'repository', 'categories', 'icon', 'screenshots', 'about'] as const
 
 /** The licences the official list accepts, as SPDX identifiers. */
 export const LISTING_LICENSES: readonly string[] = [

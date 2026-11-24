@@ -29,7 +29,21 @@ const aboutTheFile = (issues: ManifestIssue[]) =>
 
 /** Reads and checks a theme file from its bytes (or its text), for a theme
  * whose `appearance` is the one given: the file holds exactly the looks that
- * names. Prefer the bytes: only they can show a file that is not UTF-8. */
+ * names. Prefer the bytes: only they can show a file that is not UTF-8.
+ * @param input - The theme file's bytes, or its text.
+ * @param appearance - The `appearance` the manifest gives the theme.
+ * @returns The theme's looks when the file is valid; else every issue found.
+ * @example
+ * ```ts
+ * import { parseThemeFile } from 'songstress/manifest'
+ *
+ * declare const bytes: Uint8Array // the theme file's bytes, as read from disk
+ *
+ * const result = parseThemeFile(bytes, 'both')
+ * if (result.valid) console.log(result.file.dark?.seed, result.file.light?.seed)
+ * else for (const issue of result.issues) console.log(issue.code, issue.pointer)
+ * ```
+ */
 export function parseThemeFile(input: string | Uint8Array, appearance: ThemeAppearance): ThemeFileResult {
   if (sizeOf(input) > MAX_THEME_FILE_BYTES) {
     return { valid: false, issues: [issue('THEME_FILE_TOO_LARGE', '', `A theme file is ${MAX_THEME_FILE_BYTES / 1024} KiB at most.`)] }

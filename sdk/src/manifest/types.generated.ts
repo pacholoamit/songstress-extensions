@@ -23,6 +23,18 @@ export interface Manifest {
   repository?: HttpsUrl
   /** Where people can support the author. */
   sponsor?: Sponsor
+  /** The extension's own page: its site, or its documentation. */
+  homepage?: HttpsUrl
+  /** Where the extension can be seen at work: a video, or a live demo. */
+  demo?: HttpsUrl
+  /** Where people ask for help: an issue tracker, a forum, a chat. */
+  support?: HttpsUrl
+  /** What the extension is and does, at length: the Description of its page in the Marketplace and in the apps, a block of text an item. A listing needs it. */
+  about?: Prose[]
+  /** What people use the extension for, a line each: the Use cases of its page. */
+  useCases?: UseCase[]
+  /** How the extension works: what it asks its service, what it keeps, what it changes. The How it works of its page, a block of text an item. */
+  howItWorks?: Prose[]
   /** The one category the extension is listed under. */
   categories?: Category[]
   /** Free tags that help people find the extension. */
@@ -69,14 +81,22 @@ export type When = string
 /** The heading a setting is drawn under, with the others that name it. */
 export type SettingSection = string
 
+/** One block of a page's text, on one line: a paragraph, a heading (it starts with `## ` or `### `) or a list item (it starts with `- `). Inside it, `**bold**`, `*emphasis*`, a span in backticks and `[a link](https://example.com)` are read as Markdown; anything else, HTML and images among it, is shown as the text it is. */
+export type Prose = string
+
+/** One use, in a line, read as a block of prose is: a span in backticks is shown as code. */
+export type UseCase = string
+
 /** An https address. */
 export type HttpsUrl = string
 
+/** Where people can support the extension's author. */
 export interface Sponsor {
   /** The page where people can support the author. */
   url: HttpsUrl
 }
 
+/** The extension API versions the extension runs on. */
 export interface Engines {
   /** The versions of the extension API the extension runs on, as a range: ^1.2.0, ~1.2.0, >=1.2.0, >=1.2.0 <2.0.0 or one exact version. Never *. */
   songstress: string
@@ -128,6 +148,7 @@ export interface Screenshot {
   platform?: Platform
 }
 
+/** The extension's code: the bundle that runs on the server, the one that runs in the apps, or both. */
 export interface Entry {
   /** The bundle that runs on the user's server, in a sandbox. It hears every app's plays and does the work that must go on while no app is open. */
   server?: ScriptPath
@@ -138,6 +159,7 @@ export interface Entry {
 /** One JavaScript file, from the package root. */
 export type ScriptPath = string
 
+/** The events the extension's code listens to, by side. */
 export interface Hooks {
   /** Hooks the server entry listens to. */
   server?: ServerHook[]
@@ -154,11 +176,15 @@ export type ClientHook = "onPlay" | "onPause" | "onTrackChange" | "onSeek" | "on
 /** Why the extension needs this, in words the person granting it will read. */
 export type Reason = string
 
+/** A permission with nothing more to name than why it is asked for. */
 export interface Permission {
+  /** Why the extension needs this, in words the person granting it will read. */
   reason: Reason
 }
 
+/** Reaching public hosts: why, and which hosts. */
 export interface NetworkPermission {
+  /** Why the extension needs this, in words the person granting it will read. */
   reason: Reason
   /** The public hosts the extension may reach, over http or https. */
   hosts: HostPattern[]
@@ -167,7 +193,9 @@ export interface NetworkPermission {
 /** A public host by name (api.example.com), or every host under a domain (*.example.com), with an optional port. Never an address, a scheme or a path. */
 export type HostPattern = string
 
+/** Reaching the user's own network: why, and which targets. */
 export interface LocalNetworkPermission {
+  /** Why the extension needs this, in words the person granting it will read. */
   reason: Reason
   /** The targets on the user's own network the extension asks for. Left out, the admin names them when granting. */
   targets?: LocalTarget[]
@@ -176,6 +204,7 @@ export interface LocalNetworkPermission {
 /** A target on the user's own network: an IPv4 address (192.168.1.20), a block of them (192.168.1.0/24) or a host name (nas.local), the address and the name with an optional port. */
 export type LocalTarget = string
 
+/** What the extension may do, each with the reason it gives. */
 export interface Permissions {
   /** Reach the named public hosts. */
   network?: NetworkPermission
@@ -201,6 +230,7 @@ export interface Permissions {
   secrets?: Permission
 }
 
+/** What the extension adds to Songstress: commands, menus, settings, pages, panels, status items, views, themes, providers, jobs, routes and a sign-in. */
 export interface Contributes {
   /** Named actions the extension's code carries out. */
   commands?: Command[]
@@ -228,6 +258,7 @@ export interface Contributes {
   signIn?: SignIn
 }
 
+/** A named action the extension's code carries out, run from a menu, a button or another command. */
 export interface Command {
   /** The command's name. Code registers its handler under it. */
   id: LocalId
@@ -241,6 +272,7 @@ export interface Command {
   icon?: IconName
 }
 
+/** Where the extension's commands appear, by menu. */
 export interface Menus {
   /** A song's menu. The command receives the song. */
   "song/context"?: MenuItems
@@ -260,8 +292,10 @@ export interface Menus {
   "settings/actions"?: MenuItems
 }
 
+/** The items an extension adds to one menu. */
 export type MenuItems = MenuItem[]
 
+/** One menu item: a command, and when it shows. */
 export interface MenuItem {
   /** The id of one of the extension's commands. */
   command: LocalId
@@ -279,12 +313,15 @@ export type Setting = StringSetting | SecretSetting | NumberSetting | BooleanSet
 export interface StringSetting {
   /** The name code reads the setting by. */
   key: SettingKey
+  /** A line of text. */
   type: "string"
   /** The setting's label. */
   title: Title
   /** A line of help under the label. */
   description?: Sentence
+  /** The heading the setting is drawn under, with the other settings that name it. */
   section?: SettingSection
+  /** Whose setting it is: the server's, each member's or each device's. */
   scope: SettingScope
   /** Songstress asks for it, and does not start the extension for whoever lacks it: anyone, a member or a device, by its scope. */
   required?: boolean
@@ -300,11 +337,13 @@ export interface StringSetting {
 export interface SecretSetting {
   /** The name code reads the setting by. */
   key: SettingKey
+  /** A password field: Songstress seals what is typed and never shows it again. */
   type: "secret"
   /** The setting's label. */
   title: Title
   /** A line of help under the label. */
   description?: Sentence
+  /** The heading the setting is drawn under, with the other settings that name it. */
   section?: SettingSection
   /** Who the secret belongs to: the whole server or each member. */
   scope: "server" | "user"
@@ -318,12 +357,15 @@ export interface SecretSetting {
 export interface NumberSetting {
   /** The name code reads the setting by. */
   key: SettingKey
+  /** A number. */
   type: "number"
   /** The setting's label. */
   title: Title
   /** A line of help under the label. */
   description?: Sentence
+  /** The heading the setting is drawn under, with the other settings that name it. */
   section?: SettingSection
+  /** Whose setting it is: the server's, each member's or each device's. */
   scope: SettingScope
   /** Songstress asks for it, and does not start the extension for whoever lacks it: anyone, a member or a device, by its scope. */
   required?: boolean
@@ -341,12 +383,15 @@ export interface NumberSetting {
 export interface BooleanSetting {
   /** The name code reads the setting by. */
   key: SettingKey
+  /** A switch. */
   type: "boolean"
   /** The setting's label. */
   title: Title
   /** A line of help under the label. */
   description?: Sentence
+  /** The heading the setting is drawn under, with the other settings that name it. */
   section?: SettingSection
+  /** Whose setting it is: the server's, each member's or each device's. */
   scope: SettingScope
   /** The value until someone sets one. */
   default?: boolean
@@ -356,12 +401,15 @@ export interface BooleanSetting {
 export interface SelectSetting {
   /** The name code reads the setting by. */
   key: SettingKey
+  /** One choice from a list of options. */
   type: "select"
   /** The setting's label. */
   title: Title
   /** A line of help under the label. */
   description?: Sentence
+  /** The heading the setting is drawn under, with the other settings that name it. */
   section?: SettingSection
+  /** Whose setting it is: the server's, each member's or each device's. */
   scope: SettingScope
   /** Songstress asks for it, and does not start the extension for whoever lacks it: anyone, a member or a device, by its scope. */
   required?: boolean
@@ -371,6 +419,7 @@ export interface SelectSetting {
   options: SettingOption[]
 }
 
+/** One choice of a select setting. */
 export interface SettingOption {
   /** What code reads when this option is chosen. */
   value: string
@@ -378,6 +427,7 @@ export interface SettingOption {
   title: Title
 }
 
+/** A page the apps draw from a tree of Songstress's own blocks, built by the extension's code. */
 export interface Page {
   /** The page's name. Code registers its renderer under it, and it is the page's address. */
   id: LocalId
@@ -396,11 +446,13 @@ export interface Page {
 /** The Songstress screen a panel is drawn in: the player's now-playing view, Home, an artist's page, an album's page or a playlist's page. */
 export type PanelLocation = "now-playing" | "home" | "artist" | "album" | "playlist"
 
+/** A section the extension's code builds inside one of Songstress's own screens. */
 export interface Panel {
   /** The panel's name. Code registers its renderer under it. */
   id: LocalId
   /** The panel's heading. */
   title: Title
+  /** Which of Songstress's screens the panel is drawn in. */
   location: PanelLocation
   /** The entry that builds the panel's tree. */
   render: Side
@@ -408,6 +460,7 @@ export interface Panel {
   when?: When
 }
 
+/** An item in the player: an icon and a few words the extension's code keeps current. */
 export interface StatusItem {
   /** The status item's name. Code registers its renderer under it. */
   id: LocalId
@@ -421,6 +474,7 @@ export interface StatusItem {
   when?: When
 }
 
+/** A free-form page: the extension's own HTML, opened in a sandboxed frame. */
 export interface View {
   /** The view's name, and its address. */
   id: LocalId
@@ -517,6 +571,7 @@ export type CatalogType = "track" | "album" | "artist" | "playlist"
 /** One of Songstress's own catalogues. A source that reads the same catalogue joins its group and speaks its ids. */
 export type ProviderGroup = "musicbrainz" | "spotify" | "deezer" | "tidal" | "itunes" | "ytmusic"
 
+/** The extension's sources, by what they answer. Each kind is a provider contract the code registers. */
 export interface SourcesByKind {
   /** Sources that answer a search. */
   search?: SearchSource[]
@@ -542,6 +597,7 @@ export interface SourcesByKind {
   download?: DownloadSource[]
 }
 
+/** A source that answers beside Songstress's own. */
 export interface Source {
   /** The source's name inside the extension. Code registers the provider under it; the same id under several kinds is one source. */
   id: LocalId
@@ -549,6 +605,7 @@ export interface Source {
   name?: Title
 }
 
+/** A source that answers a search. */
 export interface SearchSource {
   /** The source's name inside the extension. Code registers the provider under it; the same id under several kinds is one source. */
   id: LocalId
@@ -560,6 +617,7 @@ export interface SearchSource {
   types: CatalogType[]
 }
 
+/** A source that opens one track, album, artist or playlist by its id. */
 export interface LookupSource {
   /** The source's name inside the extension. Code registers the provider under it; the same id under several kinds is one source. */
   id: LocalId
@@ -571,6 +629,7 @@ export interface LookupSource {
   types: CatalogType[]
 }
 
+/** A source that reads a pasted link. */
 export interface LinkSource {
   /** The source's name inside the extension. Code registers the provider under it; the same id under several kinds is one source. */
   id: LocalId
@@ -585,6 +644,7 @@ export interface LinkSource {
 /** A host with an optional path that a link must begin with (soundcloud.com, example.com/album/), or an app link's scheme (spotify:). A host also takes links to the hosts under it. */
 export type LinkPattern = string
 
+/** A source of facts about artists, releases and tracks. */
 export interface MetadataSource {
   /** The source's name inside the extension. Code registers the provider under it; the same id under several kinds is one source. */
   id: LocalId
@@ -596,6 +656,7 @@ export interface MetadataSource {
   supports: ("discography" | "enrich")[]
 }
 
+/** A source of artist photos and album covers. */
 export interface ArtworkSource {
   /** The source's name inside the extension. Code registers the provider under it; the same id under several kinds is one source. */
   id: LocalId
@@ -605,6 +666,7 @@ export interface ArtworkSource {
   supports: ("artist-photo" | "album-cover")[]
 }
 
+/** A source of words about an artist. */
 export interface ArtistInfoSource {
   /** The source's name inside the extension. Code registers the provider under it; the same id under several kinds is one source. */
   id: LocalId
@@ -614,6 +676,7 @@ export interface ArtistInfoSource {
   supports: ("biography" | "similar")[]
 }
 
+/** A source of recommendations. */
 export interface RecommendSource {
   /** The source's name inside the extension. Code registers the provider under it; the same id under several kinds is one source. */
   id: LocalId
@@ -623,6 +686,7 @@ export interface RecommendSource {
   modes: ("track" | "artist" | "context")[]
 }
 
+/** A source the library can fetch audio from, at the qualities it offers. */
 export interface DownloadSource {
   /** The source's name inside the extension. Code registers the provider under it; the same id under several kinds is one source. */
   id: LocalId
@@ -632,6 +696,7 @@ export interface DownloadSource {
   qualities: Quality[]
 }
 
+/** One quality a download source offers. */
 export interface Quality {
   /** The quality's name, as code receives it. */
   id: LocalId
@@ -641,6 +706,7 @@ export interface Quality {
   lossless?: boolean
 }
 
+/** Work the server runs in the background, on a schedule or when code asks, shown in Activity. */
 export interface Job {
   /** The job's name. Code registers its handler under it. */
   id: LocalId
@@ -650,6 +716,7 @@ export interface Job {
   every?: string
 }
 
+/** An HTTP route under the extension's own prefix on the server. */
 export interface Route {
   /** The route's name. Code registers its handler under it. */
   id: LocalId
@@ -659,6 +726,7 @@ export interface Route {
   path: string
 }
 
+/** An account at a service the extension signs in to, for the server or for each member. */
 export interface SignIn {
   /** Whose account it is. "server": one account for the whole server, which its admin signs in. "user": each member's own, which they sign in themselves. */
   scope: "server" | "user"

@@ -19,8 +19,10 @@ import type { Manifest } from './types.generated'
  * ("install"), or what the official list asks on top ("listing"). */
 export type ManifestProfile = 'install' | 'listing'
 
+/** The validator's profiles: `install`, what a server takes from a link or a file, and `listing`, what a listing asks on top. */
 export const MANIFEST_PROFILES: readonly ManifestProfile[] = ['install', 'listing']
 
+/** How a manifest is checked: the profile, and the extension API version of the host that is checking. */
 export interface ValidateOptions {
   /** Left out, "install". */
   profile?: ManifestProfile
@@ -41,7 +43,20 @@ function checkOptions({ profile = 'install', apiVersion }: ValidateOptions): Man
   return profile
 }
 
-/** Checks a manifest that is already a JSON value. */
+/** Checks a manifest that is already a JSON value.
+ * @param value - The parsed manifest.
+ * @param options - Which checks to run (`profile`), and the API version of the host that is checking (`apiVersion`).
+ * @returns The manifest when it is valid; else every issue found.
+ * @example
+ * ```ts
+ * import { validateManifest } from 'songstress/manifest'
+ *
+ * declare const manifest: unknown // songstress.json, already parsed
+ *
+ * const result = validateManifest(manifest, { profile: 'listing' })
+ * if (!result.valid) for (const issue of result.issues) console.log(`${issue.pointer}: ${issue.message}`)
+ * ```
+ */
 export function validateManifest(value: unknown, options: ValidateOptions = {}): ManifestResult {
   const profile = checkOptions(options)
   const misshapen = checkStructure(MANIFEST_SCHEMA, value)
@@ -55,7 +70,21 @@ export function validateManifest(value: unknown, options: ValidateOptions = {}):
 }
 
 /** Reads and checks a manifest from its text, or from its bytes as they are
- * on disk. Prefer the bytes: only they can show a file that is not UTF-8. */
+ * on disk. Prefer the bytes: only they can show a file that is not UTF-8.
+ * @param input - The manifest's bytes, or its text.
+ * @param options - Which checks to run (`profile`), and the API version of the host that is checking (`apiVersion`).
+ * @returns The manifest when it is valid; else every issue found.
+ * @example
+ * ```ts
+ * import { parseManifest } from 'songstress/manifest'
+ *
+ * declare const bytes: Uint8Array // the file's bytes, as read from disk
+ *
+ * const result = parseManifest(bytes, { profile: 'install' })
+ * if (result.valid) console.log(result.manifest.id)
+ * else for (const issue of result.issues) console.log(issue.code, issue.pointer, issue.message)
+ * ```
+ */
 export function parseManifest(input: string | Uint8Array, options: ValidateOptions = {}): ManifestResult {
   checkOptions(options)
   // A Blob, an ArrayBuffer or a parsed object is a caller's mistake too, and

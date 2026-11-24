@@ -129,8 +129,11 @@ function flatten(table: Table, path: readonly string[] = []): [string, Needs][] 
 
 const permissions = (table: Table): Readonly<Record<string, Needs>> => Object.freeze(Object.fromEntries(flatten(table)))
 
+/** The API code that runs in either entry imports: `import { songstress } from 'songstress'`. */
 export const sharedApi = build(SHARED) as SharedApi
+/** The server entry's API: `import { songstress } from 'songstress/server'`. */
 export const serverApi = build(SERVER) as ServerApi
+/** The client entry's API: `import { songstress } from 'songstress/client'`. */
 export const clientApi = build(CLIENT) as ClientApi
 
 /** Every member of the API by its full name, with the permission its call

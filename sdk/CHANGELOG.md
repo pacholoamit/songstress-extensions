@@ -2,6 +2,19 @@
 
 What moved in each version of `songstress`. The package's version is the version of the extension API, which a manifest's `engines.songstress` is held against (SPEC.md, section 14).
 
+## 0.1.10
+
+- **The helpers every provider writes are the SDK's.** `songstress/server` exports what the official ports each carried a copy of, so a third party's extension does all they do with imports from `songstress` alone (SPEC.md, section 9, "Helpers"): `registerCatalog` registers a catalogue's `search`, `lookup` and `links` providers in one call; `fetchResponse`, `fetchText` and `fetchJson` reach a source through `net.fetch`, tried again when it did not answer or answered a 5xx, a 429 thrown as `ProviderFailure` `rate-limited` with its wait, and any other status but a 2xx as an `HttpStatusError`; `nullIfMissing` turns a 404 into `null`; `findInAnswer` reads an answer past the host's 2.5 MiB by asking for it gzipped and unpacking it a block at a time; `KeptValue` keeps a token until it runs out, in memory and in the store; `matchScore` and `bestMatch` pick the one result that is the song asked for. For what the server's sandbox has no global for: `parseUrl`, `urlParam`, `resolveUrl` and `queryString`; `foldText`, `htmlToText` and `unescapeHtml`; `base64Bytes`, `base64Text`, `utf8Text` and `gunzip`.
+- **A usage example on every function.** Every exported function and class, each method of a class, every call of the `songstress` object, the mock host's methods and the sandbox's globals carry an `@example` in their doc comments, which the API reference on songstress.app draws under each one; the package's tests compile every example against the SDK, and the site's build fails on a function without one.
+- **`songstress build` leaves doc comments out of the bundle** (licences and the bundler's annotations stay): an extension's package no longer carries the SDK's documentation and its examples.
+- **The host's two `limit-exceeded` refusals of `net.fetch`** are told apart by their words: `no answer in time`, or an answer larger than its limit (SPEC.md, section 9).
+- **The host's answer to a request that names its own `accept-encoding`** is written down: the body comes as the source sent it, still packed, and the 2.5 MiB counts the packed bytes (SPEC.md, section 9).
+
+## 0.1.9
+
+- **A page of its own for every extension.** The manifest takes what the Marketplace and the apps draw an extension's page from: `about` (its Description), `useCases` (a line each) and `howItWorks`, and the addresses `homepage`, `demo` and `support`. A listing needs `about` (`LISTING_FIELD_REQUIRED` at `/about`). A manifest's text stays one line, so the longer texts are lists of blocks, each a paragraph, a heading (`## `, `### `) or a list item (`- `), with bold, emphasis, code in backticks and https links inside (SPEC.md, section 3, "Prose").
+- **`parseProse`, `proseSpans` and `proseToMarkdown`** (`songstress/manifest`) read those blocks the way every page does, and write them as Markdown.
+
 ## 0.1.8
 
 - **An extension that plays or downloads may be listed.** The listing profile no longer refuses a manifest with a `play` or a `download` provider, and its code `LISTING_ACQUISITION` is gone: `songstress check --profile listing` passes such an extension when the rest of a listing is there. Both kinds are still switched off on a server until its admin turns each on.
@@ -10,6 +23,7 @@ What moved in each version of `songstress`. The package's version is the version
 
 The first version on npm.
 
+- **An Agent Skill.** `skill/` is a Claude Code plugin holding the skill `songstress-extensions`, which teaches a coding agent to build, check, pack and release an extension. It sends the agent to this package's SPEC.md and to songstress.app's `llms.txt` for the format, and follows this package's version.
 - **A sign-in can be each member's own.** `contributes.signIn.scope` takes `user` beside `server`: each member signs in to their own account of the service, from their own page of the extension, and no admin signs them in or out. `start`, `finish` and `signOut` are handed that member's `userId` (`SignInStart.userId`, `SignInReturn.userId`, and a new `SignOutRequest`), and the handler keeps their tokens as theirs with `songstress.secrets.set(key, value, { userId })`. A sign-in of scope `server` is unchanged: no call names a member, and `signOut` is handed an empty request.
 
 ## 0.1.6

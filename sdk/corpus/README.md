@@ -178,7 +178,7 @@ That is the controls, the separators, the annotation characters and every code p
 
 Only under the `listing` profile, and reported together with the rules.
 
-**`LISTING_FIELD_REQUIRED`** at `/license`, `/repository`, `/categories`, `/icon`, `/screenshots`: each that is missing.
+**`LISTING_FIELD_REQUIRED`** at `/license`, `/repository`, `/categories`, `/icon`, `/screenshots`, `/about`: each that is missing.
 
 **`LISTING_LICENSE`** at `/license`: not one of `MIT`, `Apache-2.0`, `BSD-2-Clause`, `BSD-3-Clause`, `ISC`, `0BSD`, `MPL-2.0`, `LGPL-3.0-only`, `LGPL-3.0-or-later`, `GPL-3.0-only`, `GPL-3.0-or-later`, exactly as written.
 

@@ -14,6 +14,7 @@
 // U+E01EF). Half a surrogate pair and U+FFFD are here for a value that never
 // went through the reader, which refuses both.
 
+/** The code points `TEXT_UNSAFE` refuses in a manifest's text, as ranges: Unicode's default ignorable code points, less the joiners, marks and selectors that scripts and emoji need. */
 export const UNSAFE_CODE_POINTS: readonly (readonly [from: number, to: number])[] = [
   [0x0000, 0x001f], // C0 controls, line breaks and tabs among them
   [0x007f, 0x009f], // delete and the C1 controls

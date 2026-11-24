@@ -14,6 +14,7 @@ import { shown } from './unsafe'
 
 // The codes are the contract, the sentences are not: they are typed as plain
 // text, so that rewording one never moves the package's public surface.
+/** Every code the validator reports, each with a sentence for people. The codes are the contract; the sentences may be reworded. */
 export const MANIFEST_ERROR_CODES = {
   // ── reader ────────────────────────────────────────────────────────────────
   MANIFEST_TOO_LARGE: 'The manifest is larger than 256 KiB.',
@@ -80,9 +81,11 @@ export type ManifestErrorCode = keyof typeof MANIFEST_ERROR_CODES
  * code and the pointer are part of the specification; the sentence may be
  * reworded. */
 export interface ManifestIssue {
+  /** What is wrong, as a stable code: `MANIFEST_ERROR_CODES` says each. */
   code: ManifestErrorCode
   /** A JSON Pointer (RFC 6901) into the manifest; "" is the whole document. */
   pointer: string
+  /** The problem in a sentence, for people. It may be reworded; the code may not. */
   message: string
 }
 

@@ -13,6 +13,25 @@
   "sponsor": {
     "url": "https://opencollective.com/kitchen"
   },
+  "homepage": "https://kitchen.example/sink",
+  "demo": "https://kitchen.example/sink/demo",
+  "support": "https://github.com/kitchen/songstress-sink/issues",
+  "about": [
+    "Kitchen Sink uses **every** contribution point there is, so a host that reads it reads them all.",
+    "## What is in it",
+    "- one source of each kind",
+    "- a page, a panel and a *status* item",
+    "See the [manifest's reference](https://songstress.app/docs/develop/manifest/)."
+  ],
+  "useCases": [
+    "Checking that a host reads every contribution point",
+    "Reading a manifest that sets `engines.songstress` and everything after it"
+  ],
+  "howItWorks": [
+    "### Registering",
+    "Each handler is registered when the entry loads, with `songstress.commands.register`.",
+    "Nothing is kept between calls."
+  ],
   "categories": [
     "integrations"
   ],
