@@ -8,6 +8,21 @@
   "engines": { "songstress": "^0.1.10" },
   "license": "LGPL-3.0-only",
   "repository": "https://github.com/pacholoamit/songstress-extensions",
+  "support": "https://github.com/pacholoamit/songstress-extensions/issues",
+  "about": [
+    "JioSaavn adds JioSaavn's catalogue to Songstress: search it for songs, albums, playlists and artists, and open any JioSaavn link as its page.",
+    "It can also **acquire** JioSaavn's songs for your library, in AAC, once an admin turns that on.",
+    "The **Languages** setting says which languages it searches: english, hindi, tamil, or any other JioSaavn holds."
+  ],
+  "useCases": [
+    "Find Hindi, Tamil and other Indian-language releases by name.",
+    "Open a JioSaavn song, album or playlist link someone sent you.",
+    "Add an album that is missing from your library, in AAC."
+  ],
+  "howItWorks": [
+    "Your server asks JioSaavn's web API for searches and lookups, and reaches the server JioSaavn keeps its audio on only to play or download a song.",
+    "Playing and downloading are off until an admin turns them on. A song it acquires comes into your library like any other download. Its results sit beside Songstress's own sources, never in their place."
+  ],
   "categories": ["sources"],
   "keywords": ["jiosaavn", "india"],
   "icon": { "path": "assets/icon.png", "width": 512, "height": 512 },

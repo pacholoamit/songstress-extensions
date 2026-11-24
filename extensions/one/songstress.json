@@ -10,6 +10,19 @@
   },
   "license": "MIT",
   "repository": "https://github.com/pacholoamit/songstress-extensions",
+  "support": "https://github.com/pacholoamit/songstress-extensions/issues",
+  "about": [
+    "Atom's **One Dark** and **One Light**, as GitHub drew them, in their own colours.",
+    "Each is a theme of its own: pick One Dark for dark and One Light for light, or keep one of them beside another theme."
+  ],
+  "useCases": [
+    "Match Songstress to One Dark or One Light in your editor."
+  ],
+  "howItWorks": [
+    "A theme is colours and nothing more: it runs no code, asks for nothing and reaches nothing. Once an admin installs it, each person picks it in Settings › Appearance, and every screen takes it at once.",
+    "It sets the colour roles the apps share: the stage, surfaces, words, the accent in Songstress Red's place, and the colours of state. The logo, Wrapped's stories and the pages a public link opens keep Songstress's own look.",
+    "One Dark is a dark look and One Light a light one."
+  ],
   "categories": [
     "themes"
   ],

@@ -10,6 +10,19 @@
   },
   "license": "MIT",
   "repository": "https://github.com/pacholoamit/songstress-extensions",
+  "support": "https://github.com/pacholoamit/songstress-extensions/issues",
+  "about": [
+    "Kanagawa's ink and wave, after Hokusai's *The Great Wave off Kanagawa*: its **Wave** palette, for dark."
+  ],
+  "useCases": [
+    "Give Songstress the deep blues and muted ink of a woodblock print.",
+    "Match Songstress to Kanagawa in your editor."
+  ],
+  "howItWorks": [
+    "A theme is colours and nothing more: it runs no code, asks for nothing and reaches nothing. Once an admin installs it, each person picks it in Settings › Appearance, and every screen takes it at once.",
+    "It sets the colour roles the apps share: the stage, surfaces, words, the accent in Songstress Red's place, and the colours of state. The logo, Wrapped's stories and the pages a public link opens keep Songstress's own look.",
+    "It has a dark look only: pick it for dark, and keep another theme, or Songstress's own, for light."
+  ],
   "categories": [
     "themes"
   ],

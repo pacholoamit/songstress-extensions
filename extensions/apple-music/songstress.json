@@ -8,6 +8,23 @@
   "engines": { "songstress": "^0.1.10" },
   "license": "LGPL-3.0-only",
   "repository": "https://github.com/pacholoamit/songstress-extensions",
+  "support": "https://github.com/pacholoamit/songstress-extensions/issues",
+  "about": [
+    "Apple Music adds Apple's catalogue to Songstress's search. Songs, albums, playlists and artists from Apple Music appear beside what your library and iTunes find, and a music.apple.com link opens as its page in Songstress.",
+    "With an Apple Music subscription it also brings **synced lyrics**, line by line, and can add Apple's translation or a romanised pronunciation under each line.",
+    "Search and links need no account. Only lyrics ask for your Media User Token."
+  ],
+  "useCases": [
+    "Find a release that isn't in your library yet, and add it.",
+    "Open a music.apple.com link someone sent you.",
+    "Sing along with synced lyrics, a translation under each line.",
+    "Fill in a track's details from Apple's catalogue."
+  ],
+  "howItWorks": [
+    "Your server, never your phone or browser, asks music.apple.com for the token its web player uses, and keeps it until it expires. Searches, lookups and lyrics go from your server to Apple's catalogue with that token.",
+    "The **Storefront** setting picks the country whose catalogue is searched, and no VPN is needed. Lyrics use your *Media User Token*, kept as a secret on your server: on music.apple.com, the browser console's `MusicKit.getInstance().musicUserToken`.",
+    "Its results sit beside Songstress's own sources, never in their place."
+  ],
   "categories": ["sources"],
   "keywords": ["apple-music", "itunes", "lyrics"],
   "icon": { "path": "assets/icon.png", "width": 512, "height": 512 },

@@ -8,6 +8,20 @@
   "engines": { "songstress": "^0.1.10" },
   "license": "LGPL-3.0-only",
   "repository": "https://github.com/pacholoamit/songstress-extensions",
+  "support": "https://github.com/pacholoamit/songstress-extensions/issues",
+  "about": [
+    "SoundCloud adds SoundCloud to Songstress's search: tracks, sets and artists, beside your library and your other sources. A soundcloud.com link, a short on.soundcloud.com one included, opens as its page.",
+    "Tracks SoundCloud streams in full can be **acquired** into your library, once an admin turns that on. A preview is never taken for the whole song."
+  ],
+  "useCases": [
+    "Find a DJ mix, a remix or a live set that other catalogues don't carry.",
+    "Open a SoundCloud link someone sent you.",
+    "Keep a set's tracks in your own library."
+  ],
+  "howItWorks": [
+    "Your server reads soundcloud.com once for the client id its site uses, keeps it, and asks SoundCloud's API with it, so a search doesn't fetch the site each time. It needs no SoundCloud account.",
+    "Playing and downloading reach the servers SoundCloud's audio streams from, and are off until an admin turns them on. Its results sit beside Songstress's own sources, never in their place."
+  ],
   "categories": ["sources"],
   "keywords": ["soundcloud"],
   "icon": { "path": "assets/icon.png", "width": 512, "height": 512 },

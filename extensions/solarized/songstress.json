@@ -10,6 +10,19 @@
   },
   "license": "MIT",
   "repository": "https://github.com/pacholoamit/songstress-extensions",
+  "support": "https://github.com/pacholoamit/songstress-extensions/issues",
+  "about": [
+    "Ethan Schoonover's Solarized: sixteen colours, one dark look and one light, chosen to be read for hours."
+  ],
+  "useCases": [
+    "Read your library for hours in calm, balanced colours.",
+    "Match Songstress to Solarized in your editor and terminal."
+  ],
+  "howItWorks": [
+    "A theme is colours and nothing more: it runs no code, asks for nothing and reaches nothing. Once an admin installs it, each person picks it in Settings › Appearance, and every screen takes it at once.",
+    "It sets the colour roles the apps share: the stage, surfaces, words, the accent in Songstress Red's place, and the colours of state. The logo, Wrapped's stories and the pages a public link opens keep Songstress's own look.",
+    "On a phone, dark mode shows its dark look and light mode its light one. On the web and desktop, it follows the appearance you pick: dark, light, or your device's own."
+  ],
   "categories": [
     "themes"
   ],
