@@ -12,8 +12,19 @@
 // Spotify may change any of it.
 
 import {
+  base64Bytes,
+  base64Text,
+  bestMatch,
+  fetchJson,
+  fetchResponse,
+  HttpStatusError,
+  KeptValue,
+  parseUrl,
   ProviderFailure,
+  registerCatalog,
   songstress,
+  urlParam,
+  utf8Text,
   type CatalogAlbum,
   type CatalogAlbumDetail,
   type CatalogArtist,
@@ -22,21 +33,19 @@ import {
   type CatalogPlaylistDetail,
   type CatalogTrack,
   type LinkResult,
+  type SearchQuery,
   type SearchResults,
   type TrackFacts,
   type TrackQuery,
 } from 'songstress/server'
-import { HttpStatus, json, reach } from '../../shared/http'
-import { Kept } from '../../shared/kept'
-import { registerCatalog, some } from '../../shared/register'
-import { best } from '../../shared/match'
-import { base64Bytes, base64Text, param, parseAddress, utf8Text } from '../../shared/url'
 import { proto, protoAll, protoText } from './proto'
 import { TOTP_VERSION, totp } from './totp'
 
 const SOURCE = 'spotify-web'
 const SITE = 'https://open.spotify.com'
 const SKEW_MS = 60 * 1000
+/** What a desktop browser sends: Spotify's web player is one. */
+const BROWSER = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36'
 
 // ── the web player's session ────────────────────────────────────────────────
 
@@ -51,7 +60,7 @@ interface Session {
   clientUntil: number
 }
 
-const kept = new Kept<Session>('session')
+const kept = new KeptValue<Session>('session')
 
 /** The cookies a response sets, from Set-Cookie headers the host joined
  * with commas (an Expires date holds one too). */
@@ -76,7 +85,7 @@ function randomDevice(): string {
 }
 
 async function startSession(): Promise<Session> {
-  const answer = await reach(SITE)
+  const answer = await fetchResponse(SITE, { headers: { 'user-agent': BROWSER } })
   if (answer.status !== 200) throw new ProviderFailure('unavailable', { message: `open.spotify.com answered ${answer.status}` })
   const cookies = cookiesIn(answer.headers['set-cookie'])
   const config = /<script id="appServerConfig" type="text\/plain">([^<]+)<\/script>/.exec(answer.body)?.[1]
@@ -102,7 +111,7 @@ async function startSession(): Promise<Session> {
 async function accessToken(s: Session): Promise<void> {
   const code = totp(Date.now())
   const url = `${SITE}/api/token?reason=init&productType=web-player&totp=${code}&totpVer=${TOTP_VERSION}&totpServer=${code}`
-  const answer = await reach(url, { headers: { cookie: cookieHeader(s.cookies), 'content-type': 'application/json;charset=UTF-8' } })
+  const answer = await fetchResponse(url, { headers: { 'user-agent': BROWSER, cookie: cookieHeader(s.cookies), 'content-type': 'application/json;charset=UTF-8' } })
   if (answer.status !== 200) throw new ProviderFailure('unavailable', { message: `Spotify refused an access token (${answer.status})` })
   Object.assign(s.cookies, cookiesIn(answer.headers['set-cookie']))
   const data = JSON.parse(answer.body) as { accessToken?: string; clientId?: string; accessTokenExpirationTimestampMs?: number }
@@ -120,9 +129,9 @@ async function clientToken(s: Session): Promise<void> {
       js_sdk_data: { device_brand: 'unknown', device_model: 'unknown', os: 'windows', os_version: 'NT 10.0', device_id: s.deviceId, device_type: 'computer' },
     },
   })
-  const data = await json<{ response_type?: string; granted_token?: { token?: string; expires_after_seconds?: number } }>(
+  const data = await fetchJson<{ response_type?: string; granted_token?: { token?: string; expires_after_seconds?: number } }>(
     'https://clienttoken.spotify.com/v1/clienttoken',
-    { method: 'POST', body, headers: { 'content-type': 'application/json', accept: 'application/json' } },
+    { method: 'POST', body, headers: { 'user-agent': BROWSER, 'content-type': 'application/json', accept: 'application/json' } },
   )
   if (data.response_type !== 'RESPONSE_GRANTED_TOKEN_RESPONSE' || !data.granted_token?.token) {
     throw new ProviderFailure('unavailable', { message: 'Spotify granted no client token' })
@@ -143,7 +152,7 @@ async function session(): Promise<Session> {
 }
 
 function playerHeaders(s: Session): Record<string, string> {
-  return { authorization: `Bearer ${s.accessToken}`, 'client-token': s.clientToken, 'spotify-app-version': s.clientVersion }
+  return { 'user-agent': BROWSER, authorization: `Bearer ${s.accessToken}`, 'client-token': s.clientToken, 'spotify-app-version': s.clientVersion }
 }
 
 /** A persisted GraphQL query of the web player. A session Spotify refuses
@@ -153,17 +162,17 @@ async function gql<T>(operationName: string, variables: Record<string, unknown>,
   for (let attempt = 0; ; attempt++) {
     const s = await session()
     try {
-      return await json<T>('https://api-partner.spotify.com/pathfinder/v2/query', {
+      return await fetchJson<T>('https://api-partner.spotify.com/pathfinder/v2/query', {
         method: 'POST',
         body,
         headers: { ...playerHeaders(s), 'content-type': 'application/json' },
       })
     } catch (error) {
-      if (attempt === 0 && error instanceof HttpStatus && error.status === 401) {
-        await kept.drop()
+      if (attempt === 0 && error instanceof HttpStatusError && error.status === 401) {
+        await kept.delete()
         continue
       }
-      if (error instanceof HttpStatus) throw new ProviderFailure('unavailable', { message: error.message })
+      if (error instanceof HttpStatusError) throw new ProviderFailure('unavailable', { message: error.message })
       throw error
     }
   }
@@ -248,7 +257,7 @@ function albumContextOf(t: Raw, album?: AlbumContext): AlbumContext {
   return { id: str(a.id) || idOfUri(a.uri), title: str(a.name), cover: image(a.coverArt), date: date(a.date), artists: artistsIn(at(a, 'artists')).map((x) => x.name) }
 }
 
-const lengthOf = (t: Raw): number | undefined => some(Number(at(t, 'duration.totalMilliseconds') ?? at(t, 'trackDuration.totalMilliseconds') ?? 0) / 1000)
+const lengthOf = (t: Raw): number | undefined => Number(at(t, 'duration.totalMilliseconds') ?? at(t, 'trackDuration.totalMilliseconds') ?? 0) / 1000 || undefined
 
 function trackOf(t: Raw, album?: AlbumContext): CatalogTrack | null {
   const id = str(t.id) || idOfUri(t.uri)
@@ -260,13 +269,13 @@ function trackOf(t: Raw, album?: AlbumContext): CatalogTrack | null {
     id,
     title,
     artists: artists.map((x) => x.name),
-    artistId: some(artists[0]?.id),
-    album: some(on.title),
-    albumId: some(on.id),
+    artistId: artists[0]?.id || undefined,
+    album: on.title || undefined,
+    albumId: on.id || undefined,
     albumArtist: on.artists[0],
     durationS: lengthOf(t),
-    trackNumber: some(Number(t.trackNumber ?? 0)),
-    discNumber: some(Number(t.discNumber ?? 0)),
+    trackNumber: Number(t.trackNumber ?? 0) || undefined,
+    discNumber: Number(t.discNumber ?? 0) || undefined,
     releaseDate: on.date,
     explicit: at(t, 'contentRating.label') === 'EXPLICIT',
     coverUrl: on.cover,
@@ -406,7 +415,7 @@ async function fetchArtist(id: string): Promise<CatalogArtistDetail | null> {
 
 // ── search ──────────────────────────────────────────────────────────────────
 
-async function search(text: string, types: readonly string[], limit: number, offset: number): Promise<SearchResults> {
+async function search({ text, types, limit, offset }: SearchQuery): Promise<SearchResults> {
   const answer = await gql<Raw>(
     'searchDesktop',
     { searchTerm: text, offset, limit, numberOfTopResults: 5, includeAudiobooks: false, includeArtistHasConcertsField: false, includePreReleases: true, includeAuthors: false },
@@ -449,9 +458,9 @@ function parsePath(path: string): { type: string; id: string } | null {
 function parseLink(link: string): { type: string; id: string } | null {
   const text = link.trim()
   if (text.toLowerCase().startsWith('spotify:')) return parseUri(text)
-  const address = parseAddress(text)
+  const address = parseUrl(text)
   if (address?.host === 'embed.spotify.com') {
-    const uri = param(address, 'uri')
+    const uri = urlParam(address, 'uri')
     return uri ? parseLink(uri) : null
   }
   return address?.host === 'open.spotify.com' || address?.host === 'play.spotify.com' ? parsePath(address.path) : null
@@ -511,11 +520,11 @@ async function metadata(kind: 'track' | 'album', id: string): Promise<number[] |
   const gid = hexGid(id)
   if (!gid) return null
   const s = await session()
-  const answer = await reach(`https://spclient.wg.spotify.com/metadata/4/${kind}/${gid}?market=from_token`, {
+  const answer = await fetchResponse(`https://spclient.wg.spotify.com/metadata/4/${kind}/${gid}?market=from_token`, {
     headers: { ...playerHeaders(s), 'app-platform': 'WebPlayer' },
     responseEncoding: 'base64',
   })
-  return answer.status === 200 ? base64Bytes(answer.body) : null
+  return answer.status === 200 ? Array.from(base64Bytes(answer.body)) : null
 }
 
 /** A track's ISRC (its external ids, field 10, of type "isrc"), and its
@@ -534,15 +543,15 @@ function factsOf(bytes: number[]): TrackFacts {
 }
 
 async function deezerId(isrc: string): Promise<string | undefined> {
-  const found = await json<{ id?: number }>(`https://api.deezer.com/track/isrc:${encodeURIComponent(isrc)}`).catch(() => null)
+  const found = await fetchJson<{ id?: number }>(`https://api.deezer.com/track/isrc:${encodeURIComponent(isrc)}`, { headers: { 'user-agent': BROWSER } }).catch(() => null)
   return found?.id ? String(found.id) : undefined
 }
 
 /** The Spotify track a song is: its Spotify id, else the search's best. */
 async function spotifyIdOf(song: TrackQuery): Promise<string | null> {
   if (song.ids?.spotify && ID.test(song.ids.spotify)) return song.ids.spotify
-  const found = await search(`${song.title} ${song.artist}`.trim(), ['track'], 10, 0)
-  const match = best(found.tracks ?? [], (t) => ({ title: t.title, artist: t.artists.join(', '), album: t.album, durationS: t.durationS }), song, 70)
+  const found = await search({ text: `${song.title} ${song.artist}`.trim(), types: ['track'], limit: 10, offset: 0 })
+  const match = bestMatch(song, found.tracks ?? [], (t) => ({ title: t.title, artist: t.artists.join(', '), album: t.album, durationS: t.durationS }), 70)
   return match?.id ?? null
 }
 

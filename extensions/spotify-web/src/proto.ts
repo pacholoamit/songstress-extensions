@@ -4,7 +4,7 @@
 // are stepped over. From the Mornye "spotify-web" extension 1.10.4
 // (Copyright 2026 zarzet, LGPL-3.0-only; see NOTICE).
 
-import { utf8Text } from '../../shared/url'
+import { utf8Text } from 'songstress/server'
 
 /** Each field number's length-delimited values, in order. */
 export type Fields = Map<number, number[][]>

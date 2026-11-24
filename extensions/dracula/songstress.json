@@ -3,10 +3,10 @@
   "manifestVersion": 1,
   "id": "songstress.dracula",
   "name": "Dracula",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Dracula for dark and Alucard for light, from the Dracula Theme's own palettes.",
   "engines": {
-    "songstress": "^0.1.3"
+    "songstress": "^0.1.10"
   },
   "license": "MIT",
   "repository": "https://github.com/pacholoamit/songstress-extensions",

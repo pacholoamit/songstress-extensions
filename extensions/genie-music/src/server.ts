@@ -8,28 +8,35 @@
 // argument of the page's own fnViewArtist and fnViewAlbumLayer calls).
 
 import {
+  fetchText,
+  htmlToText,
+  nullIfMissing,
+  parseUrl,
+  queryString,
+  registerCatalog,
+  urlParam,
   type CatalogAlbum,
   type CatalogAlbumDetail,
   type CatalogArtist,
   type CatalogArtistDetail,
   type CatalogTrack,
   type LinkResult,
+  type SearchQuery,
   type SearchResults,
 } from 'songstress/server'
-import { HttpStatus, query, text } from '../../shared/http'
-import { registerCatalog } from '../../shared/register'
-import { htmlText } from '../../shared/text'
-import { param, parseAddress } from '../../shared/url'
 
 const SOURCE = 'genie-music'
 const SITE = 'https://www.genie.co.kr'
 
+/** What a desktop browser sends: Genie answers it as it answers one. */
+const HEADERS = {
+  'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
+  'accept-language': 'ko-KR,ko;q=0.9,en;q=0.8',
+}
+
 /** A page of Genie's, or null when it has no such thing. */
-async function pageOf(path: string, params: Record<string, string | number>): Promise<string | null> {
-  return text(`${SITE}${path}?${query(params)}`, { headers: { 'accept-language': 'ko-KR,ko;q=0.9,en;q=0.8' } }).catch((error: unknown) => {
-    if (error instanceof HttpStatus && error.status === 404) return null
-    throw error
-  })
+function pageOf(path: string, params: Record<string, string | number>): Promise<string | null> {
+  return nullIfMissing(() => fetchText(`${SITE}${path}?${queryString(params)}`, { headers: HEADERS }))
 }
 
 /** An image's address at 600 px, https. */
@@ -77,11 +84,11 @@ function songRows(html: string, album?: { id: string; title: string; cover?: str
   const out: CatalogTrack[] = []
   for (const row of html.matchAll(/<tr class="list"[^>]*songid="\s*(\d+)\s*"[^>]*>([\s\S]*?)<\/tr>/gi)) {
     const body = row[2]!
-    const title = htmlText(first(body, /<a[^>]*class="title ellipsis"[^>]*>([\s\S]*?)<\/a>/).replace(/<span class="icon[^"]*">[\s\S]*?<\/span>/g, ''))
-    const artist = htmlText(first(body, /<a[^>]*class="artist ellipsis"[^>]*>([\s\S]*?)<\/a>/))
+    const title = htmlToText(first(body, /<a[^>]*class="title ellipsis"[^>]*>([\s\S]*?)<\/a>/).replace(/<span class="icon[^"]*">[\s\S]*?<\/span>/g, ''))
+    const artist = htmlToText(first(body, /<a[^>]*class="artist ellipsis"[^>]*>([\s\S]*?)<\/a>/))
     if (!title) continue
-    const albumTitle = htmlText(first(body, /<a[^>]*class="albumtitle ellipsis"[^>]*>([\s\S]*?)<\/a>/))
-    const number = Number(htmlText(first(body, /<td class="number"[^>]*>([\s\S]*?)<(?:\/td|td|span)/))) || undefined
+    const albumTitle = htmlToText(first(body, /<a[^>]*class="albumtitle ellipsis"[^>]*>([\s\S]*?)<\/a>/))
+    const number = Number(htmlToText(first(body, /<td class="number"[^>]*>([\s\S]*?)<(?:\/td|td|span)/))) || undefined
     out.push({
       id: row[1]!,
       title,
@@ -103,10 +110,10 @@ function albumItems(html: string): CatalogAlbum[] {
   for (const item of html.matchAll(/<li class="list-album">([\s\S]*?)<\/dl>/g)) {
     const body = item[1]!
     const id = idIn(body, 'fnViewAlbumLayer')
-    const title = htmlText(first(body, /<dt class="ellipsis">([\s\S]*?)<\/dt>/))
+    const title = htmlToText(first(body, /<dt class="ellipsis">([\s\S]*?)<\/dt>/))
     if (!id || !title) continue
-    const artist = htmlText(first(body, /<a[^>]*class="album-artist"[^>]*>([\s\S]*?)<\/a>/))
-    const desc = htmlText(first(body, /<dd class="desc">([\s\S]*?)<\/dd>/))
+    const artist = htmlToText(first(body, /<a[^>]*class="album-artist"[^>]*>([\s\S]*?)<\/a>/))
+    const desc = htmlToText(first(body, /<dd class="desc">([\s\S]*?)<\/dd>/))
     out.push({
       id,
       title,
@@ -127,7 +134,7 @@ function artistItems(html: string): CatalogArtist[] {
   for (const item of html.matchAll(/<div class="artist-item">([\s\S]*?)<\/p>/g)) {
     const body = item[1]!
     const id = idIn(body, 'fnViewArtist')
-    const name = htmlText(first(body, /<span class="artist">([\s\S]*?)<\/span>/))
+    const name = htmlToText(first(body, /<span class="artist">([\s\S]*?)<\/span>/))
     if (id && name) out.push({ id, name, imageUrl: cover(first(body, /<img[^>]*src="([^"]+)"/)), url: `${SITE}/detail/artistInfo?xxnm=${id}` })
   }
   return out
@@ -135,7 +142,7 @@ function artistItems(html: string): CatalogArtist[] {
 
 // ── pages ───────────────────────────────────────────────────────────────────
 
-const pageTitle = (html: string): string => htmlText(first(html, /<h2 class="name">([\s\S]*?)<\/h2>/))
+const pageTitle = (html: string): string => htmlToText(first(html, /<h2 class="name">([\s\S]*?)<\/h2>/))
 const ogImage = (html: string): string | undefined => cover(first(html, /og:image"\s+content="([^"]+)"/))
 
 /** The anchor a detail page's info list links with fnGoMore('<kind>', id). */
@@ -147,7 +154,7 @@ const LINKS = {
 function linked(html: string, kind: keyof typeof LINKS): { id: string; text: string } | null {
   const list = first(html, /<ul class="info-data">([\s\S]*?)<\/ul>/)
   const match = LINKS[kind].exec(list)
-  return match ? { id: match[1]!, text: htmlText(match[2]!) } : null
+  return match ? { id: match[1]!, text: htmlToText(match[2]!) } : null
 }
 
 async function fetchTrack(id: string): Promise<CatalogTrack | null> {
@@ -164,7 +171,7 @@ async function fetchTrack(id: string): Promise<CatalogTrack | null> {
     artistId: artist?.id,
     album: album?.text || undefined,
     albumId: album?.id,
-    durationS: lengthOf(htmlText(info(html, '재생시간'))),
+    durationS: lengthOf(htmlToText(info(html, '재생시간'))),
     coverUrl: ogImage(html),
     url: `${SITE}/detail/songInfo?xgnm=${id}`,
   }
@@ -175,8 +182,8 @@ async function fetchAlbum(id: string): Promise<CatalogAlbumDetail | null> {
   const html = await pageOf('/detail/albumInfo', { axnm: id })
   const title = html ? pageTitle(html) : ''
   if (!html || !title) return null
-  const artist = htmlText(info(html, '아티스트'))
-  const releaseDate = dateOf(htmlText(info(html, '발매일')))
+  const artist = htmlToText(info(html, '아티스트'))
+  const releaseDate = dateOf(htmlToText(info(html, '발매일')))
   const coverUrl = ogImage(html)
   return {
     id,
@@ -202,7 +209,7 @@ async function fetchArtist(id: string): Promise<CatalogArtistDetail | null> {
 
 const SEARCHES = { track: '/search/searchSong', album: '/search/searchAlbum', artist: '/search/searchArtist' } as const
 
-async function search(text: string, types: readonly string[], limit: number, offset: number): Promise<SearchResults> {
+async function search({ text, types, limit, offset }: SearchQuery): Promise<SearchResults> {
   const out: SearchResults = {}
   const pg = Math.floor(offset / 20) + 1
   for (const type of types) {
@@ -217,18 +224,18 @@ async function search(text: string, types: readonly string[], limit: number, off
 }
 
 async function resolve(url: string): Promise<LinkResult | null> {
-  const address = parseAddress(url)
+  const address = parseUrl(url)
   if (!address) return null
   if (address.path.includes('/detail/songInfo')) {
-    const track = await fetchTrack(param(address, 'xgnm'))
+    const track = await fetchTrack(urlParam(address, 'xgnm'))
     return track ? { type: 'track', track } : null
   }
   if (address.path.includes('/detail/albumInfo')) {
-    const album = await fetchAlbum(param(address, 'axnm'))
+    const album = await fetchAlbum(urlParam(address, 'axnm'))
     return album ? { type: 'album', album } : null
   }
   if (address.path.includes('/detail/artistInfo')) {
-    const artist = await fetchArtist(param(address, 'xxnm'))
+    const artist = await fetchArtist(urlParam(address, 'xxnm'))
     return artist ? { type: 'artist', artist } : null
   }
   return null

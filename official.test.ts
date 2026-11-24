@@ -8,16 +8,19 @@
 // they show it (theme/, the apps' own engine); and `songstress pack` makes
 // its package the same byte for byte every time, as its release carries it.
 // Bugs Music and Melon Music have no port: K-Music carries no licence, Melon
-// times out and Bugs serves a bot challenge.
+// times out and Bugs serves a bot challenge. Each is built as anyone's
+// extension would be: its code imports from its own folder and from the SDK
+// (`songstress`), and from nothing else of this repository.
 
 import { execFileSync } from 'node:child_process'
 import { existsSync, mkdtempSync, readdirSync, readFileSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
-import { join } from 'node:path'
+import { dirname, join, relative, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { checkLook } from '@songstress/theme/looks'
 import { parseManifest, parseThemeFile } from 'songstress/manifest'
 import { normalizeLook } from 'songstress/theme'
+import ts from 'typescript'
 import { describe, expect, it } from 'vitest'
 
 const here = fileURLToPath(new URL('.', import.meta.url))
@@ -40,6 +43,31 @@ function packed(folder: string): Buffer {
   } finally {
     rmSync(out, { recursive: true, force: true })
   }
+}
+
+/** An extension's code files, its own: none under node_modules or dist. */
+function codeIn(folder: string): string[] {
+  return readdirSync(folder, { recursive: true, withFileTypes: true })
+    .filter((entry) => entry.isFile() && /\.[cm]?[jt]sx?$/.test(entry.name))
+    .map((entry) => join(entry.parentPath, entry.name))
+    .filter((file) => !/(^|\/)(node_modules|dist)\//.test(relative(folder, file)))
+}
+
+/** Each import of a file that leaves the extension's folder, as `file: module`.
+ * The SDK is anyone's; a test may also import its runner and Node's own
+ * modules. TypeScript reads the imports: static, dynamic and re-exports. */
+function importsLeaving(folder: string): string[] {
+  const left: string[] = []
+  for (const file of codeIn(folder)) {
+    const test = /\.test\.[cm]?[jt]sx?$/.test(file)
+    for (const { fileName: module } of ts.preProcessFile(readFileSync(file, 'utf8'), true, true).importedFiles) {
+      const sdk = module === 'songstress' || module.startsWith('songstress/')
+      const runner = test && (module === 'vitest' || module.startsWith('node:'))
+      const inside = module.startsWith('.') && !relative(folder, resolve(dirname(file), module)).startsWith('..')
+      if (!sdk && !runner && !inside) left.push(`${relative(folder, file)}: ${module}`)
+    }
+  }
+  return left
 }
 
 /** The themes: well-known palettes, each under its MIT licence (NOTICE), and Songstress's own originals. */
@@ -82,6 +110,10 @@ describe('the official extensions', () => {
     describe(folder, () => {
       const raw = readFileSync(join(shelf, folder, 'songstress.json'))
       const manifest = JSON.parse(raw.toString()) as { id: string }
+
+      it("imports from its own folder and the SDK, and nothing else", () => {
+        expect(importsLeaving(join(shelf, folder))).toEqual([])
+      })
 
       it("is Songstress's own, and passes the install profile", () => {
         expect(manifest.id).toBe(`songstress.${folder}`)

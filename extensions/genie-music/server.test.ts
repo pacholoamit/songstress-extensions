@@ -1,6 +1,9 @@
-import { describe, expect, it } from 'vitest'
-import { load, onlyTo, page, type StandIn } from '../shared/testing'
+import { createMockHost, type MockHost } from 'songstress/testing'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import manifest from './songstress.json' with { type: 'json' }
+
+// Against the SDK's mock host, given the manifest: a request to a host the
+// manifest does not name is refused, as a server refuses it.
 
 // Pages shaped as Genie's are (read from www.genie.co.kr on 2026-11-18):
 // rows of <tr class="list" songid=…>, ids in its own fnViewArtist and
@@ -33,20 +36,34 @@ const ALBUM = `<html><head><meta property="og:image" content="http://image.genie
     </span></li>
   </ul>${SEARCH}</html>`
 
-async function genie(): Promise<StandIn> {
-  const stand = await load(() => import('./src/server'))
-  stand.routes.push(
-    ['GET', /^https:\/\/www\.genie\.co\.kr\/search\/searchSong\?query=IU&pg=1$/, page(SEARCH)],
-    ['GET', /^https:\/\/www\.genie\.co\.kr\/detail\/songInfo\?xgnm=116789224$/, page(SONG)],
-    ['GET', /^https:\/\/www\.genie\.co\.kr\/detail\/albumInfo\?axnm=88135998$/, page(ALBUM)],
-  )
-  return stand
+/** Genie's pages, by address: any other is a 404. */
+const PAGES: [RegExp, string][] = [
+  [/^https:\/\/www\.genie\.co\.kr\/search\/searchSong\?query=IU&pg=1$/, SEARCH],
+  [/^https:\/\/www\.genie\.co\.kr\/detail\/songInfo\?xgnm=116789224$/, SONG],
+  [/^https:\/\/www\.genie\.co\.kr\/detail\/albumInfo\?axnm=88135998$/, ALBUM],
+]
+
+let host: MockHost
+
+async function genie(): Promise<MockHost> {
+  host = createMockHost({
+    manifest,
+    fetch: (url) => {
+      const body = PAGES.find(([address]) => address.test(url))?.[1]
+      return body === undefined ? { status: 404, body: 'not found' } : { body, headers: { 'content-type': 'text/html' } }
+    },
+  })
+  vi.resetModules()
+  await import('./src/server')
+  return host
 }
+
+afterEach(() => host.remove())
 
 describe('the Genie port', () => {
   it("reads its search page's song rows", async () => {
-    const stand = await genie()
-    const found = (await stand.ask('search', 'genie-music', 'search', { text: 'IU', types: ['track'], limit: 1, offset: 0 })) as { tracks: unknown[] }
+    const genieMusic = await genie()
+    const found = await genieMusic.provider('search', 'genie-music').search({ text: 'IU', types: ['track'], limit: 1, offset: 0 }, {})
     expect(found.tracks).toEqual([
       {
         id: '116789224',
@@ -61,20 +78,20 @@ describe('the Genie port', () => {
         url: 'https://www.genie.co.kr/detail/songInfo?xgnm=116789224',
       },
     ])
-    expect(onlyTo(stand, manifest.permissions.network.hosts)).toBe(true)
+    expect(genieMusic.requests.map((asked) => asked.request.headers?.['user-agent'])).toEqual([expect.stringMatching(/^Mozilla\/5\.0 /)])
   })
 
   it('opens a song and an album from their links', async () => {
-    const stand = await genie()
-    expect(await stand.ask('links', 'genie-music', 'resolve', 'https://www.genie.co.kr/detail/songInfo?xgnm=116789224')).toMatchObject({
+    const genieMusic = await genie()
+    const links = genieMusic.provider('links', 'genie-music')
+    expect(await links.resolve('https://www.genie.co.kr/detail/songInfo?xgnm=116789224', {})).toMatchObject({
       type: 'track',
       track: { id: '116789224', title: 'Dear my crazy soulmate', artists: ['아이유 (IU)'], albumId: '88135998', durationS: 156 },
     })
-    const album = (await stand.ask('links', 'genie-music', 'resolve', 'https://genie.co.kr/detail/albumInfo?axnm=88135998')) as {
-      album: { title: string; releaseDate: string; artistId: string; tracks: { trackNumber: number; releaseDate: string }[] }
-    }
+    const album = await links.resolve('https://genie.co.kr/detail/albumInfo?axnm=88135998', {})
+    if (album?.type !== 'album') throw new Error('not an album')
     expect(album.album).toMatchObject({ title: '이 별로부터', releaseDate: '2026-09-10', artistId: '67872918' })
     expect(album.album.tracks.map((t) => t.trackNumber)).toEqual([1, 2])
-    expect(await stand.ask('lookup', 'genie-music', 'track', '1')).toBeNull()
+    expect(await genieMusic.provider('lookup', 'genie-music').track!('1', {})).toBeNull()
   })
 })
