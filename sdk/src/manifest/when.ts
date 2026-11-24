@@ -67,8 +67,13 @@ class Reader {
   private at = 0
   private depth = 0
   readonly keys: WhenKey[] = []
+  // A field set in the constructor, not a parameter property: the apps
+  // compile the SDK's source with erasableSyntaxOnly (apps/web).
+  private readonly words: Token[]
 
-  constructor(private readonly words: Token[]) {}
+  constructor(words: Token[]) {
+    this.words = words
+  }
 
   private peek(): Token | undefined {
     return this.words[this.at]

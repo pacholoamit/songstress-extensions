@@ -36,7 +36,7 @@ function spanOf(match: RegExpExecArray): ProseSpan {
 /** A line of prose as its runs, in order: every character of the line is in exactly one of them.
  * @example
  * ```ts
- * import { proseSpans } from 'songstress/manifest'
+ * import { proseSpans } from 'songstress/prose'
  *
  * proseSpans('Set `mode` to **collapse**.')
  * // [{ kind: 'text', text: 'Set ' }, { kind: 'code', text: 'mode' }, { kind: 'text', text: ' to ' },
@@ -66,7 +66,7 @@ export function proseSpans(line: string): ProseSpan[] {
 /** The blocks of a manifest's prose as a page draws them: a block that starts with `## ` or `### ` is a heading, blocks that start with `- ` and follow one another are one list, and every other block is a paragraph.
  * @example
  * ```ts
- * import { parseProse } from 'songstress/manifest'
+ * import { parseProse } from 'songstress/prose'
  *
  * parseProse(['## Sources', '- Search', '- Links', 'Both are **off** until an admin turns them on.'])
  * // a heading, a list of two items, a paragraph
@@ -89,7 +89,7 @@ export function parseProse(blocks: readonly string[]): ProseBlock[] {
 /** A manifest's prose as Markdown, for a page's copy as text: the blocks as written, a blank line between them, and the items of one list on lines that follow one another.
  * @example
  * ```ts
- * import { proseToMarkdown } from 'songstress/manifest'
+ * import { proseToMarkdown } from 'songstress/prose'
  *
  * proseToMarkdown(['Finds lyrics.', '- Synced', '- Plain'])
  * // 'Finds lyrics.\n\n- Synced\n- Plain'

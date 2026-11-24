@@ -16,6 +16,7 @@ const ENTRIES: readonly (readonly [name: string, file: string])[] = [
   ['songstress', 'src/index.ts'],
   ['songstress/server', 'src/server.ts'],
   ['songstress/client', 'src/client.ts'],
+  ['songstress/prose', 'src/prose.ts'],
   ['songstress/manifest', 'src/manifest.ts'],
   ['songstress/testing', 'src/testing.ts'],
   ['songstress/theme', 'src/theme.ts'],

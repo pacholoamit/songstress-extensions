@@ -152,9 +152,11 @@ function standIn(answer: (pushed: number) => { status: number; body: unknown }) 
   })
 }
 
-const until = async (what: string, ok: () => boolean) => {
+/** Waits until `ok`, ten seconds at most; `nudge`, when given, is done again each second until then. */
+const until = async (what: string, ok: () => boolean, nudge?: () => void) => {
   for (let i = 0; i < 400; i++) {
     if (ok()) return
+    if (nudge && i % 40 === 0) nudge()
     await new Promise((resolve) => setTimeout(resolve, 25))
   }
   throw new Error(`never: ${what}`)
@@ -172,8 +174,10 @@ describe('songstress dev', () => {
       expect(remote.pushes[0]).toMatchObject({ type: 'application/zip', auth: 'session' })
       expect(unzip(new Uint8Array(remote.pushes[0]!.archive)).map((e) => e.path)).toEqual(['assets/icon.png', 'dist/server.js', 'songstress.json'])
       await until('the log printed', () => lines.some((line) => line.includes('hello from the host')))
-      writeFileSync(join(folder, 'dist/server.js'), 'void 1;')
-      await until('the push after a change', () => remote.pushes.length === 2)
+      // A Mac's watcher starts on a thread of its own, so on a busy machine a change made as the log prints can come
+      // before it watches. The same change is written again each second until it is pushed: a round whose package is
+      // the one pushed already pushes nothing, so it is pushed once.
+      await until('the push after a change', () => remote.pushes.length === 2, () => writeFileSync(join(folder, 'dist/server.js'), 'void 1;'))
       // The stand-in counts a push when it arrives; the command says so once it has read the answer, which on a
       // busy machine is after the count: stopping before then would cut that line off.
       await until('the push after a change said', () => lines.filter((line) => line.startsWith('pushed acme.recorder 1.0.0')).length === 2)

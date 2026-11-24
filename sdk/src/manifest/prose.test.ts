@@ -1,3 +1,5 @@
+import { readFileSync } from 'node:fs'
+import ts from 'typescript'
 import { expect, it } from 'vitest'
 import { parseProse, proseSpans, proseToMarkdown } from './prose'
 
@@ -60,4 +62,21 @@ it('reads blocks as a page draws them: headings, one list for items that follow 
 it('writes the blocks as Markdown: a blank line between blocks, a list on lines that follow one another', () => {
   expect(proseToMarkdown(['Finds lyrics.', '- Synced', '- Plain', '## How', 'By asking.'])).toBe('Finds lyrics.\n\n- Synced\n- Plain\n\n## How\n\nBy asking.')
   expect(proseToMarkdown([])).toBe('')
+})
+
+/** The modules a file's statements import or re-export from, as TypeScript parses it (a doc comment's example is no import). */
+function importsOf(file: string): string[] {
+  const source = ts.createSourceFile(file, readFileSync(new URL(file, import.meta.url), 'utf8'), ts.ScriptTarget.ES2022)
+  const modules = source.statements.flatMap((statement) =>
+    (ts.isImportDeclaration(statement) || ts.isExportDeclaration(statement)) && statement.moduleSpecifier && ts.isStringLiteral(statement.moduleSpecifier)
+      ? [statement.moduleSpecifier.text]
+      : [],
+  )
+  return [...new Set(modules)]
+}
+
+it('is an entry of its own, songstress/prose, that reaches nothing but this reader', () => {
+  // An app's bundler that does not tree-shake (Metro) takes whatever the entry imports.
+  expect(importsOf('../prose.ts')).toEqual(['./manifest/prose'])
+  expect(importsOf('./prose.ts')).toEqual([])
 })

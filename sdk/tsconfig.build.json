@@ -7,5 +7,5 @@
     "rootDir": ".",
     "types": []
   },
-  "include": ["src/index.ts", "src/server.ts", "src/client.ts", "src/manifest.ts", "src/testing.ts", "src/theme.ts"]
+  "include": ["src/index.ts", "src/server.ts", "src/client.ts", "src/prose.ts", "src/manifest.ts", "src/testing.ts", "src/theme.ts"]
 }

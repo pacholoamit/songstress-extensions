@@ -2301,6 +2301,40 @@ Users: as above
 songstress:
 export declare const clientApi: ClientApi;
 
+== songstress/prose ==
+
+ProseBlock:
+export type ProseBlock = {
+    kind: 'paragraph';
+    spans: ProseSpan[];
+} | {
+    kind: 'heading';
+    level: 2 | 3;
+    spans: ProseSpan[];
+} | {
+    kind: 'list';
+    items: ProseSpan[][];
+};
+
+ProseSpan:
+export type ProseSpan = {
+    kind: 'text' | 'strong' | 'emphasis' | 'code';
+    text: string;
+} | {
+    kind: 'link';
+    text: string;
+    href: string;
+};
+
+parseProse:
+export declare function parseProse(blocks: readonly string[]): ProseBlock[];
+
+proseSpans:
+export declare function proseSpans(line: string): ProseSpan[];
+
+proseToMarkdown:
+export declare function proseToMarkdown(blocks: readonly string[]): string;
+
 == songstress/manifest ==
 
 ArtistInfoSource:
@@ -2739,28 +2773,9 @@ Platform: as above
 Prose:
 export type Prose = string;
 
-ProseBlock:
-export type ProseBlock = {
-    kind: 'paragraph';
-    spans: ProseSpan[];
-} | {
-    kind: 'heading';
-    level: 2 | 3;
-    spans: ProseSpan[];
-} | {
-    kind: 'list';
-    items: ProseSpan[][];
-};
+ProseBlock: as above
 
-ProseSpan:
-export type ProseSpan = {
-    kind: 'text' | 'strong' | 'emphasis' | 'code';
-    text: string;
-} | {
-    kind: 'link';
-    text: string;
-    href: string;
-};
+ProseSpan: as above
 
 ProviderGroup: as above
 
@@ -3070,8 +3085,7 @@ export declare function compareVersions(a: Version, b: Version): number;
 parseManifest:
 export declare function parseManifest(input: string | Uint8Array, options?: ValidateOptions): ManifestResult;
 
-parseProse:
-export declare function parseProse(blocks: readonly string[]): ProseBlock[];
+parseProse: as above
 
 parseRange:
 export declare function parseRange(text: string): VersionRange | null;
@@ -3082,11 +3096,9 @@ export declare function parseThemeFile(input: string | Uint8Array, appearance: T
 parseVersion:
 export declare function parseVersion(text: string): Version | null;
 
-proseSpans:
-export declare function proseSpans(line: string): ProseSpan[];
+proseSpans: as above
 
-proseToMarkdown:
-export declare function proseToMarkdown(blocks: readonly string[]): string;
+proseToMarkdown: as above
 
 satisfiesRange:
 export declare function satisfiesRange(version: Version, range: VersionRange): boolean;
