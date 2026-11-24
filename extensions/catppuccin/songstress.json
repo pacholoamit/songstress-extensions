@@ -3,13 +3,27 @@
   "manifestVersion": 1,
   "id": "songstress.catppuccin",
   "name": "Catppuccin",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Catppuccin's soothing pastels: Latte for light, and Frappé, Macchiato and Mocha for dark, from its own palette.",
   "engines": {
-    "songstress": "^0.1.3"
+    "songstress": "^0.1.10"
   },
   "license": "MIT",
   "repository": "https://github.com/pacholoamit/songstress-extensions",
+  "support": "https://github.com/pacholoamit/songstress-extensions/issues",
+  "about": [
+    "Catppuccin brings its soothing pastels to Songstress, from Catppuccin's own palette: **Latte** for light, and **Frappé**, **Macchiato** and **Mocha** for dark, from the softest dark to the deepest.",
+    "Each flavour is a theme of its own, so you can pick Latte for the day and Mocha for the night."
+  ],
+  "useCases": [
+    "Match Songstress to the Catppuccin flavour your editor and terminal already use.",
+    "Pick Latte for the day and Mocha for the night."
+  ],
+  "howItWorks": [
+    "A theme is colours and nothing more: it runs no code, asks for nothing and reaches nothing. Once an admin installs it, each person picks it in Settings › Appearance, and every screen takes it at once.",
+    "It sets the colour roles the apps share: the stage, surfaces, words, the accent in Songstress Red's place, and the colours of state. The logo, Wrapped's stories and the pages a public link opens keep Songstress's own look.",
+    "Latte is a light look and the other three dark ones: pick one for dark and one for light."
+  ],
   "categories": [
     "themes"
   ],

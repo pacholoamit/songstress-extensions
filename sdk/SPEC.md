@@ -1,6 +1,6 @@
 # Songstress extensions: the specification
 
-Manifest version 1 · extension API 0.1.8
+Manifest version 1 · extension API 0.1.10
 
 This document says what a Songstress extension is, what its manifest holds, what its code may do and where each part of it works. It is written for people who build extensions. Three things in this package say the same in a form a program reads, and they win where this text and they differ:
 
@@ -84,6 +84,10 @@ Tunelog Scrobbler sends each member's plays to their own profile on a made-up se
   },
   "license": "MIT",
   "repository": "https://github.com/acme/songstress-tunelog",
+  "about": [
+    "Tunelog Scrobbler sends each song you finish to your Tunelog profile, and shows there what is playing now.",
+    "Every member signs in with a token of their own, so each profile holds only its own plays."
+  ],
   "sponsor": {
     "url": "https://github.com/sponsors/acme"
   },
@@ -311,9 +315,17 @@ Every object in the manifest is closed: a field this document does not name is a
 | `license` | for a listing | The code's licence, as an SPDX identifier: `MIT`, `Apache-2.0`. |
 | `repository` | for a listing | Where the source lives, an https address. A listing needs `https://github.com/owner/name`. |
 | `sponsor.url` | no | Where people can support the author, an https address. |
+| `homepage` | no | The extension's own page: its site or its documentation, an https address. |
+| `demo` | no | Where it can be seen at work: a video or a live demo, an https address. |
+| `support` | no | Where people ask for help: an issue tracker, a forum, a chat, an https address. |
+| `about` | for a listing | What the extension is and does, at length: the Description of its page in the Marketplace and in the apps. A list of one to 16 blocks of prose (below). |
+| `useCases` | no | What people use it for: one to eight lines of up to 240 characters, each read as a block of prose is. The Use cases of its page. |
+| `howItWorks` | no | How it works: what it asks its service, what it keeps, what it changes. One to 32 blocks of prose. The How it works of its page. |
 | `categories` | for a listing | A list of exactly one of: `sources`, `lyrics`, `metadata-artwork`, `scrobbling-stats`, `discovery`, `playback-audio`, `visualisers`, `themes`, `social-jam`, `library-tools`, `integrations`, `server-worker`. |
 | `keywords` | no | Up to ten tags, each up to 30 lowercase letters and digits with single dots or hyphens between them. |
 | `platforms` | no | The apps the extension's interface and client code work in: `web`, `desktop`, `ios`, `android`. Left out, all four. It says nothing of the server entry, which reaches every app. |
+
+**Prose.** A manifest's text is one line, so a page's longer text is a list of blocks, each a line of up to 600 characters: a paragraph, a heading (the block starts with `## ` or `### `) or a list item (it starts with `- `; items that follow one another make one list). Inside a block, `**bold**`, `*emphasis*`, a span in backticks and `[a link](https://example.com)` are read as Markdown, and a link goes only to an https address. Nothing else is: HTML, an image, a table are shown as the text they are, so a page can show what an author wrote and nothing an author did not. A page's copy as Markdown is the blocks, a blank line between them. `songstress/prose` reads them as every page does (`parseProse`, `proseSpans`, `proseToMarkdown`), and carries nothing else.
 
 ### Images
 
@@ -609,9 +621,20 @@ Rules that hold for every call:
 - **One member at a time.** On the server one extension serves every member, so a call that concerns one of them names them: `songstress.settings.get('token', { userId })`, `songstress.storage.set(key, value, { userId })`. In an app the member is the one signed in and is never named. A member's part of the store is the part their own client code sees.
 - **Commands cross sides.** Client code may `execute` a command of the server entry and gets back the `value` its handler left: this is how the two halves of an extension talk. Server code has no `execute`: it calls its own functions. A handler may also leave an `action` for the app to carry out when a person ran the command.
 - **Failure has a code.** A call that fails rejects with a `SongstressError` whose `code` is one of: `no-host` (the code is not running inside Songstress), `permission-denied`, `not-available` (this side, this app or this build cannot do it), `limit-exceeded` (a quota, a size, a rate or a deadline), `invalid` (a wrong argument, or something that does not exist), `failed`.
+- **The network is the host's.** `net.fetch` sends the request from the server, server and client code alike (client code's goes by way of its server), and answers within the host's limits: 30 seconds unless `timeoutMs` or the call's own deadline is sooner, ten redirects, and an answer's body of at most 2.5 MiB. Both refusals are `limit-exceeded`: a request with no answer in time says `no answer in time`, and an answer too large says it is larger than its limit. The headers are sent as given. Each request carries `User-Agent: songstress-extension/<API version>` (the version `host.info()` gives) unless it names its own: a service that asks a client to say who it is (an app's name, its version and a way to reach its author) gets the extension's `User-Agent` as written. An answer's header names come back in lowercase, the values of a repeated header joined with `, `. A request that names its own `accept-encoding` gets the body as the source sent it, still packed (its `content-encoding` says how), and the 2.5 MiB counts the packed bytes; any other answer comes unpacked, and is counted unpacked.
 - **The player is asked, not commanded.** `player` and `queue` requests are carried out as a tap on the app's own controls would be. Adding to the queue never touches what is playing.
 
 `songstress/manifest` is apart from all this. It needs no host: it is the manifest's schema, its types and its validator, for tools.
+
+### Helpers
+
+`songstress/server` also exports helpers: functions of the SDK's own, which run in the extension and reach Songstress only through the API's members (`net.fetch` under `network`, `storage`, `providers.*.register`), so they need no permission those members do not. They stand in for what the server's sandbox lacks (`URL`, `atob`, `TextDecoder`, zlib) and for what every provider writes again. They are part of the API's surface and follow its version (section 14).
+
+- **Reaching a source.** `fetchResponse(url, init)` is `net.fetch` tried a second time, 300 ms later, when the call failed with the code `failed` or without a code (no answer), or the source answered a 5xx. A 429 throws a `ProviderFailure` `rate-limited` with `retryAfterS` from its `Retry-After` (seconds, or a date), and is not tried again; two tries without an answer, or two 5xx, throw `unavailable`, whose message names the source's host and never its address, its query or an error's words; a refusal of the host's own (any other code, a deadline's `limit-exceeded` too: the call's time is spent) is thrown as it comes; any other status is answered. `fetchText` answers a 2xx's body and throws an `HttpStatusError` (its `status` and `url`) for any other status. `fetchJson` sends `accept: application/json` unless the request names an `accept` in any case, and throws `unavailable` for a body that is not JSON. `nullIfMissing(load, statuses)` answers `null` for an `HttpStatusError` of 404 or 410, or of the statuses given. `findInAnswer(url, find, init)` hands `find` the text of a 2xx answer; when the host refuses that answer as too large (a `limit-exceeded` that is not a deadline's), it asks again with `accept-encoding: gzip` in place of any the request named and `responseEncoding: 'base64'`, and hands `find` the unpacked text a block at a time, one character a byte, each block with the last 2048 characters of the one before, until `find` answers something other than `null`. A packed answer that does not unpack throws `unavailable`.
+- **A value kept a while.** `new KeptValue(key)` keeps `{ value, until }` (`until` in milliseconds since 1970) in memory and under `key` in the extension's store: `get()` answers the value until `until`, else `null`; `set(value, until)` and `delete()` change both; `getOr(fetch)` answers the value or else what `fetch` brings, kept until the `until` it gives, and calls made while one `fetch` runs share it. A store that refuses (no `storage` permission) is passed over: the value is kept in memory only.
+- **The one result that is the song.** `matchScore(wanted, offered)` is from 0 to 100. When both carry an ISRC it is 100 for the same one (in any case) and 0 for two different ones. Otherwise the title's likeness counts 50, the artist's 30, and the length's 20 when both have one (whole within 2 seconds, falling to nothing at 30 seconds off), else the album's 20 when both have one, else 10. Names are compared folded (`foldText`: NFKD, marks removed, lowercase, every run of anything but letters and digits one space, NFC): two that fold the same are alike 1, one held whole in the other 0.9, any other 1 less their edit distance over the longer one's length, and nothing past 300 characters. `bestMatch(wanted, candidates, read, min)` answers the first of the candidates that score highest, when that score is at least `min` (65 unless given), else `null`.
+- **A catalogue.** `registerCatalog(id, catalog)` registers, under `id`, the `search` provider; a `lookup` provider with whichever of `track`, `album`, `artist` and `playlist` the catalogue has, and none when it has none of them; and a `links` provider when it has `resolve`. Each method is called on the catalogue itself. It answers one disposable that takes all of them back.
+- **Text, addresses and bytes.** `htmlToText` (comments and tags out, `<br>` a space, references read, spaces closed up) and `unescapeHtml` (numeric references, and `&amp;`, `&lt;`, `&gt;`, `&quot;`, `&apos;`, `&nbsp;` as a space; any other name kept). `parseUrl` reads an absolute http or https address and nothing else, none with a user or a password; `urlParam` answers the first parameter of the name, decoded, or `""`; `resolveUrl` resolves a reference against an address as a browser does; `queryString` writes each parameter encoded and leaves out `undefined` and `""`. `base64Bytes` reads either alphabet, its padding optional, past anything else; `utf8Text` reads UTF-8, U+FFFD for what is not; `base64Text` is the two together; `gunzip` unpacks one gzip member of at most 24 MiB, without checking its CRC.
 
 ### Signing in
 
@@ -839,6 +862,8 @@ Every source has an `id` and may have a `name` (as people read it; left out, the
 - **`group`** names the catalogue of Songstress's own that the source reads too: `musicbrainz`, `spotify`, `deezer`, `tidal`, `itunes` or `ytmusic`. Its results are then merged with that catalogue's and it speaks that catalogue's ids. Left out, the source is a group of its own.
 - **A link pattern** is a host with an optional path that a link must begin with (`soundcloud.com`, `example.com/album/`), or an app link's scheme (`spotify:`). A host also takes links to the hosts under it. The longest pattern that fits a link wins. `http:` and `https:` alone are refused (`LINK_PATTERN_TOO_BROAD`).
 - **Beside, never instead.** A source joins switched off or last, the admin's order decides, and one that fails never fails the rest. Lyrics from a provider never replace the lyrics a song's own file carries. Its results carry the extension's mark, so people can tell them from Songstress's own.
+- **Lyrics, as they are shown.** A lyrics answer is rebuilt before anyone sees it. At most 2000 lines are kept. Each line's `text` is one line of at most 500 characters: line breaks and tabs become spaces, control characters go, and runs of white space close up. An empty line stays, as a pause. A `startS` below 0 or past seven days is dropped. The lines are synced only when every one has its `startS` and none comes before the line above it (equal times may follow each other); otherwise every time is dropped and the lyrics are shown as plain text, since the server never sorts them. `synced` is worked out again from the lines. There is no word-by-word timing. A `found` answer with no lines is read as `none`.
+- **When lyrics are asked, and what is kept.** A lyrics source is never asked while a song plays. It is asked once an admin adds it to the server's lyrics order (beside Songstress's own lyrics sources, kept with the library's enrichment), by the server's nightly library pass, about the tracks that have no synced lyrics yet, those with plain lyrics included: one track at a time, at most 1000 a night, each source in that order until one answers synced lyrics or `instrumental` (a plain answer is kept while the rest are asked). A `find` has 10 seconds. A track with plain lyrics is asked because one of Songstress's own sources may match it exactly enough to replace them with synced ones; an extension's answer is never that sure, so its lyrics are written only to a track that has none at all, synced as LRC or else as plain text, and never replace lyrics a track already has. No answer is cached as such: the track keeps its last outcome and is asked about again only once that has rested (`none` 30 days, then 180; `instrumental` a year; plain lyrics 30 days, doubling up to 180; a failure a day, doubling up to 30). After ten failures in a row the night's pass pauses five minutes, then goes on; a `rate-limited` failure's `retryAfterS` does not lengthen that pause, so a source that is rate-limited keeps its own pace.
 - **`play` and `download`** are switched off until the admin turns each on. An extension that has either may be listed in the Marketplace like any other. A `play` provider plays what the `search` provider of the same id found (`PROVIDER_PLAY_NEEDS_SEARCH`). Both answer where the audio is, as addresses; Songstress fetches it, under the extension's own `network` permission on every hop, and joins segments itself. Nothing is decrypted.
 - **Failure.** "Nothing found" is an empty list or `null`. A failure Songstress knows what to do about is thrown as a `ProviderFailure` with one of four codes: `rate-limited` (with `retryAfterS`), `sign-in-required`, `not-configured`, `unavailable`. Anything else thrown counts as the provider being broken for now.
 
@@ -1049,7 +1074,7 @@ One for each kind of thing the schema asks. For a missing or an unknown field th
 
 | Code | Means |
 |---|---|
-| `LISTING_FIELD_REQUIRED` | One of `license`, `repository`, `categories`, `icon`, `screenshots` is missing |
+| `LISTING_FIELD_REQUIRED` | One of `license`, `repository`, `categories`, `icon`, `screenshots`, `about` is missing |
 | `LISTING_LICENSE` | The licence is not one of: `MIT`, `Apache-2.0`, `BSD-2-Clause`, `BSD-3-Clause`, `ISC`, `0BSD`, `MPL-2.0`, `LGPL-3.0-only`, `LGPL-3.0-or-later`, `GPL-3.0-only`, `GPL-3.0-or-later` |
 | `LISTING_REPOSITORY` | `repository` is not `https://github.com/owner/name` |
 | `LISTING_SCREENSHOTS` | Fewer than three screenshots |

@@ -3,11 +3,24 @@
   "manifestVersion": 1,
   "id": "songstress.genie-music",
   "name": "Genie Music",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Search Genie Music's songs, albums and artists, and open them from a link.",
-  "engines": { "songstress": "^0.1.0" },
+  "engines": { "songstress": "^0.1.10" },
   "license": "MIT",
   "repository": "https://github.com/pacholoamit/songstress-extensions",
+  "support": "https://github.com/pacholoamit/songstress-extensions/issues",
+  "about": [
+    "Genie Music adds Korea's Genie catalogue to Songstress's search: its songs, albums and artists appear beside what your library and your other sources find.",
+    "A Genie link to a song, an album or an artist opens as its page in Songstress."
+  ],
+  "useCases": [
+    "Find a Korean release in Genie's catalogue, and add it to your library.",
+    "Open a genie.co.kr link to a song, an album or an artist."
+  ],
+  "howItWorks": [
+    "Your server reads Genie Music's own search and detail pages, and its cover images, from genie.co.kr. It needs no account and keeps nothing.",
+    "It finds and opens music: it doesn't play or download it. Its results sit beside Songstress's own sources, never in their place."
+  ],
   "categories": ["sources"],
   "keywords": ["genie", "k-pop", "korea"],
   "icon": { "path": "assets/icon.png", "width": 512, "height": 512 },

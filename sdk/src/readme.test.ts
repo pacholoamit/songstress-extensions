@@ -22,6 +22,16 @@ describe('README.md', () => {
     expect(Object.keys(packageJson.publishConfig.exports)).toEqual(Object.keys(packageJson.exports))
   })
 
+  it('declares the types of every entry it exports, and builds every one', () => {
+    const build = JSON.parse(readFileSync(new URL('../tsconfig.build.json', import.meta.url), 'utf8')) as { include: string[] }
+    const sources = Object.values(packageJson.exports)
+      .filter((target): target is string => typeof target === 'string' && target.endsWith('.ts'))
+      .map((target) => target.replace(/^\.\//, ''))
+    expect([...build.include].sort()).toEqual([...sources].sort())
+    const script = readFileSync(new URL('../scripts/build.ts', import.meta.url), 'utf8')
+    for (const source of sources) expect(script).toContain(`'${source}'`)
+  })
+
   it('is published with the files it sends its reader to', () => {
     const linked = [...README.matchAll(/\]\(\.\/([^)/]+)/g)].map((match) => match[1]!)
     const always = ['README.md', 'LICENSE']

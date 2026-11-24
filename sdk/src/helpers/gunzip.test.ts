@@ -3,7 +3,8 @@
 
 import { deflateRawSync, gzipSync } from 'node:zlib'
 import { describe, expect, it } from 'vitest'
-import { bytesToText, findInGzip, fromBase64, gunzip, isGzip } from './gunzip'
+import { byteText } from './bytes'
+import { findInGzip, gunzip, isGzip } from './gunzip'
 
 /** Bytes that repeat (long matches) and bytes that do not (literals), from a seed. */
 function sample(size: number, seed: number): Uint8Array {
@@ -33,14 +34,17 @@ describe('gunzip', () => {
     const plain = new TextEncoder().encode('a script, named')
     const header = [0x1f, 0x8b, 8, 4 | 8 | 16, 0, 0, 0, 0, 0, 3, 2, 0, 9, 9, ...new TextEncoder().encode('a.js'), 0, ...new TextEncoder().encode('note'), 0]
     const packed = new Uint8Array([...header, ...deflateRawSync(plain), 0, 0, 0, 0, plain.length, 0, 0, 0])
-    expect(bytesToText(gunzip(packed))).toBe('a script, named')
+    expect(byteText(gunzip(packed))).toBe('a script, named')
   })
 
-  it('refuses what is not gzip, and a file cut short', () => {
+  it('refuses what is not gzip, a file cut short, and one that says it unpacks past 24 MiB', () => {
     expect(isGzip(new TextEncoder().encode('n.exports={client_id:"x"}, a script as it is'))).toBe(false)
-    expect(() => gunzip(new Uint8Array(40))).toThrow('does not read')
+    expect(() => gunzip(new Uint8Array(40))).toThrow('do not read as gzip')
     const packed = new Uint8Array(gzipSync(sample(50_000, 3)))
-    expect(() => gunzip(packed.subarray(0, packed.length - 2000))).toThrow('does not read')
+    expect(() => gunzip(packed.subarray(0, packed.length - 2000))).toThrow('do not read as gzip')
+    const vast = new Uint8Array(packed)
+    vast.set([0, 0, 0, 2], vast.length - 4) // 32 MiB, as the trailer says
+    expect(() => gunzip(vast)).toThrow('do not read as gzip')
   })
 
   it('finds a token a block at a time, stops reading at the block that holds it, and misses none cut across two', () => {
@@ -59,11 +63,5 @@ describe('gunzip', () => {
       const packed = new Uint8Array(gzipSync(Buffer.from(`${filler(before, 3)}"${token}"${filler(100_000, 4)}`, 'latin1'), { level: 0 }))
       expect(findInGzip(packed, find), String(before)).toBe(token)
     }
-  })
-
-  it('reads base64 as the host writes it, and bytes as text', () => {
-    const bytes = sample(1000, 5)
-    expect(Buffer.from(fromBase64(Buffer.from(bytes).toString('base64'))).equals(Buffer.from(bytes))).toBe(true)
-    expect(bytesToText(new TextEncoder().encode('eyJhbGciOi.abc_DEF-123'))).toBe('eyJhbGciOi.abc_DEF-123')
   })
 })

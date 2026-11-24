@@ -41,7 +41,7 @@ Use `--dir`, or turbo's `--filter=songstress`. `pnpm --filter songstress` also m
 
 **When an answer changes** (a rule, the schema, the corpus, the fuzz helpers), the differential test fails as stale: run `pnpm --dir packages/extensions differential:record`, which writes `testdata/differential.json.gz` again, then the Go server's reader's tests (`go test ./internal/extensions/manifest/` in `apps/pocketbase`), which must agree with every answer. The fixture, unlike the corpus, is this validator's output: it tests that two readers agree, not what the answers should be.
 
-**To change the API**, change the types in `src/api/` and the table in `src/host.ts`. The surface test then fails, because the public surface is frozen at its version. Move the version in `package.json` and in `src/version.ts`, then run `pnpm --dir packages/extensions api:record`. It refuses to record while the version stands still.
+**To change the API**, change the types in `src/api/` and the table in `src/host.ts`. The surface test then fails, because the public surface is frozen at its version. Move the version in `package.json` and in `src/version.ts` (and the skill's, `skill/.claude-plugin/plugin.json` and `marketplace.json`, which follow it: `src/skill.test.ts`), then run `pnpm --dir packages/extensions api:record`. It refuses to record while the version stands still.
 
 ### Decisions worth knowing
 
@@ -69,7 +69,7 @@ pnpm --dir packages/extensions pack --pack-destination /tmp/songstress-pack
 tar -tzf /tmp/songstress-pack/songstress-*.tgz
 ```
 
-Publish from inside this folder (`cd packages/extensions && pnpm publish`), never with `pnpm --dir packages/extensions publish`: the repository's pnpm (9.15.9) hands the work to `npm publish` with `--dir`'s leftover arguments, and npm refuses them (`EUSAGE`). The SDK goes first, then `create-songstress-extension`, whose extensions depend on it.
+CI publishes both packages to npm, under npm's trusted publishing: [RELEASING.md](./RELEASING.md) says how, and the owner's one-time step on npmjs.com. Never publish by hand with `npm publish` of the folder, which skips `publishConfig`.
 
 The proof that the packed package works for an author is `e2e/sdk/`: it packs this package and `create-songstress-extension`, starts both kinds of repository from the tarballs, installs, checks, tests, builds and packs each, and installs the result on a lane's server.
 

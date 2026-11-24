@@ -64,12 +64,21 @@ export type ThemeAppearance = Theme['appearance']
 
 const defs = schema.$defs
 
+/** Every hook the server entry may listen to, as the schema lists them. */
 export const SERVER_HOOKS = defs.serverHook.enum as readonly ServerHook[]
+/** Every hook the client entry may listen to, as the schema lists them. */
 export const CLIENT_HOOKS = defs.clientHook.enum as readonly ClientHook[]
+/** Every category a manifest may list, as the schema lists them. */
 export const CATEGORIES = defs.category.enum as readonly Category[]
+/** The apps an extension's interface and client code may work in. */
 export const PLATFORMS = defs.platform.enum as readonly Platform[]
+/** Every screen a panel may be drawn in. */
 export const PANEL_LOCATIONS = defs.panelLocation.enum as readonly PanelLocation[]
+/** Every permission a manifest may ask for. */
 export const PERMISSIONS = Object.keys(defs.permissions.properties) as readonly PermissionName[]
+/** Every place a menu item may stand. */
 export const MENU_LOCATIONS = Object.keys(defs.menus.properties) as readonly MenuLocation[]
+/** Every kind of provider a manifest may declare. */
 export const PROVIDER_KINDS = Object.keys(defs.sourcesByKind.properties) as readonly ProviderKind[]
+/** A theme's appearances: `dark`, `light` or `both`. */
 export const THEME_APPEARANCES = defs.theme.properties.appearance.enum as readonly ThemeAppearance[]

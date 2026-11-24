@@ -2,7 +2,7 @@
 // exports name its TypeScript sources; what is published is what this writes,
 // which package.json's publishConfig points at instead:
 //
-//   dist/index.js, server.js, client.js, manifest.js, testing.js, theme.js
+//   dist/index.js, server.js, client.js, prose.js, manifest.js, testing.js, theme.js
 //                    the entries as ES modules, bundled by rolldown, with
 //                    what they share in dist/chunks/ and the schema inside
 //   dist/cli.js      the songstress command, for Node, with its two
@@ -29,6 +29,7 @@ const ENTRIES = {
   index: 'src/index.ts',
   server: 'src/server.ts',
   client: 'src/client.ts',
+  prose: 'src/prose.ts',
   manifest: 'src/manifest.ts',
   testing: 'src/testing.ts',
   theme: 'src/theme.ts',
@@ -132,9 +133,21 @@ function onlyPnpmPacks(env: NodeJS.ProcessEnv): void {
   process.exit(1)
 }
 
+/** Every file publishConfig points an export or the command at, built: an entry the declarations leave out
+ * (tsconfig.build.json's include) would be published with no types. */
+async function everyExportBuilt(): Promise<void> {
+  const { publishConfig } = JSON.parse(await readFile(join(ROOT, 'package.json'), 'utf8')) as {
+    publishConfig: { exports: Record<string, string | Record<string, string>>; bin: Record<string, string> }
+  }
+  const targets = [...Object.values(publishConfig.exports).flatMap((target) => (typeof target === 'string' ? [target] : Object.values(target))), ...Object.values(publishConfig.bin)]
+  const missing = targets.filter((target) => !existsSync(join(ROOT, target)))
+  if (missing.length > 0) throw new Error(`publishConfig points at files the build did not write: ${missing.join(', ')}`)
+}
+
 onlyPnpmPacks(process.env)
 await rm(DIST, { recursive: true, force: true })
 await library()
 await command()
 await declarations()
+await everyExportBuilt()
 console.log(`built ${(await filesUnder(DIST)).length} files in dist/`)

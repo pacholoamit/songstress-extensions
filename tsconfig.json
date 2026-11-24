@@ -7,7 +7,6 @@
     "allowImportingTsExtensions": true
   },
   "include": [
-    "extensions/shared",
     "index",
     "extensions/*/src",
     "*.test.ts",

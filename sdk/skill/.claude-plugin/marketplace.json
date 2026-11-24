@@ -1,0 +1,15 @@
+{
+  "name": "songstress",
+  "owner": {
+    "name": "Pacholo Amit"
+  },
+  "description": "The Songstress plugin: building extensions and themes for Songstress, the self-hosted music server.",
+  "plugins": [
+    {
+      "name": "songstress",
+      "source": "./",
+      "version": "0.1.10",
+      "description": "Build, test, package and publish Songstress extensions and themes with the songstress SDK."
+    }
+  ]
+}

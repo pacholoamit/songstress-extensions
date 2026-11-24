@@ -5,6 +5,7 @@
 
 import type { ThemeColors } from '../manifest/types.generated'
 
+/** Every colour token a theme's look may set, in the order the specification lists them. */
 export const THEME_TOKENS = [
   'background',
   'surface',

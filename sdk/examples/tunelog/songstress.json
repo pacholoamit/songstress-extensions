@@ -10,6 +10,10 @@
   },
   "license": "MIT",
   "repository": "https://github.com/acme/songstress-tunelog",
+  "about": [
+    "Tunelog Scrobbler sends each song you finish to your Tunelog profile, and shows there what is playing now.",
+    "Every member signs in with a token of their own, so each profile holds only its own plays."
+  ],
   "sponsor": {
     "url": "https://github.com/sponsors/acme"
   },

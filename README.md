@@ -214,15 +214,14 @@ To pack one exactly as its release would: `pnpm exec songstress pack extensions/
 
 | Path | What it is |
 |---|---|
-| `extensions/<name>/` | One extension: its `songstress.json`, its code in `src/` or its looks in `themes/`, `assets/icon.png`, its README and its licence files |
-| `extensions/shared/` | Code the music sources share (requests, matching songs, kept values), built into each one's package |
+| `extensions/<name>/` | One extension, whole: its `songstress.json`, its code in `src/` or its looks in `themes/`, `assets/icon.png`, its README and its licence files. Its code imports only from its own folder and from `songstress`, as anyone's extension would (`official.test.ts` holds it to that) |
 | `sdk/` | The Songstress extension SDK, carried here until it's on npm |
 | `theme/` | The theme engine the apps use. `check` holds every look to it |
 | `index/` | Builds and signs the official index |
 
 ### Tests
 
-- Each music source's `server.test.ts` runs its providers against a stand-in Songstress and a stand-in service (`extensions/shared/testing.ts`).
+- Each music source's `server.test.ts` runs its providers against the SDK's mock host (`songstress/testing`), given its manifest, and a stand-in service.
 - `official.test.ts` checks that every manifest is Songstress's own, passes the install checks, would pass the listing checks once it has its images, and packs the same package every time.
 - `index/*.test.ts` covers the signed index, `publishers.json` as a server reads it, the releases it lists, and the ping to songstress.app.
 

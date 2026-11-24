@@ -10,6 +10,9 @@
   },
   "license": "LGPL-3.0-only",
   "repository": "https://github.com/harbor/songstress-soundcloud",
+  "about": [
+    "Search SoundCloud beside your library, open its tracks, sets and artists from a link, and acquire the tracks it streams in full."
+  ],
   "categories": [
     "sources"
   ],

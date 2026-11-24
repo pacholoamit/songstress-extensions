@@ -6,13 +6,24 @@
 // A port of the Mornye "apple-music" extension 1.4.14 (Copyright 2026
 // zarzet, LGPL-3.0-only; see NOTICE). Apple's public catalogue API
 // (amp-api.music.apple.com) takes the developer token music.apple.com's own
-// page embeds, or its script holds (shared/http's findIn: the script is
-// larger than the extension host answers in one request); lyrics also need
-// a member's Media User Token.
+// page embeds, or its script holds (findInAnswer: the script is larger
+// than the extension host answers in one request); lyrics also need a
+// member's Media User Token.
 
 import {
+  base64Text,
+  bestMatch,
+  fetchJson,
+  findInAnswer,
+  HttpStatusError,
+  KeptValue,
+  nullIfMissing,
   ProviderFailure,
+  queryString,
+  registerCatalog,
   songstress,
+  unescapeHtml,
+  urlParam,
   type CatalogAlbum,
   type CatalogAlbumDetail,
   type CatalogArtist,
@@ -23,21 +34,18 @@ import {
   type LinkResult,
   type LyricsLine,
   type LyricsResult,
+  type SearchQuery,
   type SearchResults,
   type TrackFacts,
   type TrackQuery,
 } from 'songstress/server'
-import { findIn, HttpStatus, json, orNull, query } from '../../shared/http'
-import { Kept } from '../../shared/kept'
-import { firstOf, registerCatalog, some } from '../../shared/register'
-import { score } from '../../shared/match'
-import { unescapeHTML } from '../../shared/text'
-import { base64Text, param, parseAddress } from '../../shared/url'
 
 const SOURCE = 'apple-music'
 const API = 'https://amp-api.music.apple.com/v1/catalog'
 const COVER = 1200
 const HOUR_MS = 60 * 60 * 1000
+/** What a desktop browser sends: Apple answers it as it answers one. */
+const AGENT = { 'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36' }
 
 // ── settings ────────────────────────────────────────────────────────────────
 
@@ -55,7 +63,7 @@ async function storefront(): Promise<string> {
 
 const JWT = /([A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+)/
 const WEB_PLAY_HEADERS = ['eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6IldlYlBsYXlLaWQifQ.', 'eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NiIsImtpZCI6IldlYlBsYXlLaWQifQ.']
-const token = new Kept<string>('developer-token')
+const token = new KeptValue<string>('developer-token')
 
 /** The token's own expiry, five minutes early; twelve hours when it says
  * none. */
@@ -89,36 +97,36 @@ async function findToken(): Promise<{ value: string; until: number }> {
     for (const [, bundle] of page.matchAll(/src="(\/assets\/[^"]*\.js)"/g)) if (!bundle!.includes('-legacy')) bundles.add(bundle!)
     return /devToken=([A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+)/.exec(page)?.[1] ?? webPlayToken(page)
   }
-  let found = await findIn('https://music.apple.com/us/browse', inPage).catch((error: unknown) => {
-    throw error instanceof HttpStatus ? new ProviderFailure('unavailable', { message: error.message }) : error
+  let found = await findInAnswer('https://music.apple.com/us/browse', inPage, { headers: AGENT }).catch((error: unknown) => {
+    throw error instanceof HttpStatusError ? new ProviderFailure('unavailable', { message: error.message }) : error
   })
   for (const bundle of [...bundles].slice(0, 6)) {
     if (found) break
-    found = await findIn(`https://music.apple.com${bundle}`, webPlayToken).catch(() => null)
+    found = await findInAnswer(`https://music.apple.com${bundle}`, webPlayToken, { headers: AGENT }).catch(() => null)
   }
   if (!found || !JWT.test(found)) throw new ProviderFailure('unavailable', { message: "music.apple.com's page held no developer token" })
   return { value: found, until: expiryOf(found) }
 }
 
-const BROWSER = { origin: 'https://music.apple.com', referer: 'https://music.apple.com/' }
+const BROWSER = { ...AGENT, origin: 'https://music.apple.com', referer: 'https://music.apple.com/' }
 
 /** One of the catalogue's answers for the storefront, or null for a 404. A
  * token Apple refuses is fetched again, once. */
 async function catalog<T>(path: string, params: Record<string, string | number | undefined>, front?: string): Promise<T | null> {
-  return catalogAt<T>(`${API}/${front ?? (await storefront())}/${path}?${query(params)}`)
+  return catalogAt<T>(`${API}/${front ?? (await storefront())}/${path}?${queryString(params)}`)
 }
 
 async function catalogAt<T>(where: string): Promise<T | null> {
   for (let attempt = 0; ; attempt++) {
     const bearer = await token.getOr(findToken)
     try {
-      return await orNull(() => json<T>(where, { headers: { ...BROWSER, authorization: `Bearer ${bearer}` } }))
+      return await nullIfMissing(() => fetchJson<T>(where, { headers: { ...BROWSER, authorization: `Bearer ${bearer}` } }), [400, 404])
     } catch (error) {
-      if (attempt === 0 && error instanceof HttpStatus && error.status === 401) {
-        await token.drop()
+      if (attempt === 0 && error instanceof HttpStatusError && error.status === 401) {
+        await token.delete()
         continue
       }
-      if (error instanceof HttpStatus) throw new ProviderFailure('unavailable', { message: error.message })
+      if (error instanceof HttpStatusError) throw new ProviderFailure('unavailable', { message: error.message })
       throw error
     }
   }
@@ -164,10 +172,10 @@ function onAlbum(song: Resource, album?: Resource): Pick<CatalogTrack, 'album' |
   const a = song.attributes ?? {}
   const of = album?.attributes ?? {}
   return {
-    album: firstOf(s(of.name), s(a.albumName)),
+    album: s(of.name) || s(a.albumName) || undefined,
     albumId: album?.id ?? albumIdOf(song),
-    albumArtist: firstOf(s(a.albumArtistName), s(of.artistName)),
-    releaseDate: firstOf(s(of.releaseDate), s(a.releaseDate)),
+    albumArtist: s(a.albumArtistName) || s(of.artistName) || undefined,
+    releaseDate: s(of.releaseDate) || s(a.releaseDate) || undefined,
     artistId: first(song, 'artists')?.id ?? first(album, 'artists')?.id,
   }
 }
@@ -180,13 +188,13 @@ function songOf(song: Resource, album?: Resource): CatalogTrack | null {
     title: s(a.name),
     artists: a.artistName ? [s(a.artistName)] : [],
     ...onAlbum(song, album),
-    durationS: some(Number(a.durationInMillis ?? 0) / 1000),
-    trackNumber: some(Number(a.trackNumber ?? 0)),
-    discNumber: some(Number(a.discNumber ?? 0)),
-    isrc: some(s(a.isrc)),
+    durationS: Number(a.durationInMillis ?? 0) / 1000 || undefined,
+    trackNumber: Number(a.trackNumber ?? 0) || undefined,
+    discNumber: Number(a.discNumber ?? 0) || undefined,
+    isrc: s(a.isrc) || undefined,
     explicit: a.contentRating === 'explicit',
     coverUrl: art(a.artwork) ?? art(album?.attributes?.artwork as Artwork | undefined),
-    url: some(s(a.url)),
+    url: s(a.url) || undefined,
     ids: { itunes: song.id },
   }
 }
@@ -218,7 +226,7 @@ function albumOf(album: Resource): CatalogAlbum | null {
 
 function descriptionOf(a: Record<string, unknown>): string | undefined {
   const d = a.description as { standard?: string; short?: string } | undefined
-  const plain = unescapeHTML(s(d?.standard || d?.short).replace(/<[^>]+>/g, '')).trim()
+  const plain = unescapeHtml(s(d?.standard || d?.short).replace(/<[^>]+>/g, '')).trim()
   return plain || undefined
 }
 
@@ -321,7 +329,7 @@ async function fetchArtist(id: string, front?: string): Promise<CatalogArtistDet
 
 const TYPES = { track: 'songs', album: 'albums', artist: 'artists', playlist: 'playlists' } as const
 
-async function search(term: string, types: readonly string[], limit: number, offset: number): Promise<SearchResults> {
+async function search({ text: term, types, limit, offset }: SearchQuery): Promise<SearchResults> {
   const asked = types.map((t) => TYPES[t as keyof typeof TYPES]).filter(Boolean)
   const listing = await catalog<Listing>('search', { term, types: asked.join(','), limit: Math.min(limit, 25), offset })
   const results = listing?.results ?? {}
@@ -341,18 +349,8 @@ async function find(song: TrackQuery): Promise<Resource | null> {
   const term = `${song.title} ${song.artist}`.trim()
   if (!term) return null
   const listing = await catalog<Listing>('search', { term, types: 'songs', limit: 10 })
-  let found: Resource | null = null
-  let top = -1
-  for (const candidate of listing?.results?.songs?.data ?? []) {
-    const a = candidate.attributes ?? {}
-    const offered = { title: s(a.name), artist: s(a.artistName), album: s(a.albumName), durationS: Number(a.durationInMillis ?? 0) / 1000, isrc: s(a.isrc) }
-    const points = score(song, offered)
-    if (points > top) {
-      top = points
-      found = candidate
-    }
-  }
-  return top >= 70 ? found : null
+  const tags = ({ attributes: a = {} }: Resource) => ({ title: s(a.name), artist: s(a.artistName), album: s(a.albumName), durationS: Number(a.durationInMillis ?? 0) / 1000, isrc: s(a.isrc) })
+  return bestMatch(song, listing?.results?.songs?.data ?? [], tags, 70)
 }
 
 // ── links ───────────────────────────────────────────────────────────────────
@@ -361,7 +359,7 @@ async function find(song: TrackQuery): Promise<Resource | null> {
 function parseLink(url: string): { front: string; type: string; id: string } | null {
   const match = /music\.apple\.com\/([a-z]{2})\/(album|playlist|artist|song)\/(?:[^/?#]*\/)?([a-z0-9.-]+)/i.exec(url)
   if (!match) return null
-  const songId = param(parseAddress(url), 'i')
+  const songId = urlParam(url, 'i')
   if (match[2] === 'album' && /^\d+$/.test(songId)) return { front: match[1]!.toLowerCase(), type: 'song', id: songId }
   return { front: match[1]!.toLowerCase(), type: match[2]!.toLowerCase(), id: match[3]! }
 }
@@ -415,7 +413,7 @@ function attribute(tag: string, name: keyof typeof ATTRIBUTES): string {
 }
 
 const plain = (fragment: string): string =>
-  unescapeHTML(fragment.replace(/<[^>]*>/g, '')).replace(/\s+/g, ' ').trim()
+  unescapeHtml(fragment.replace(/<[^>]*>/g, '')).replace(/\s+/g, ' ').trim()
 
 /** The spans of one role (x-bg, x-translation, x-roman) in a line, and
  * what is left without them. Background vocals may nest spans, so spans
@@ -525,11 +523,11 @@ async function lyrics(song: TrackQuery): Promise<LyricsResult> {
   const front = await storefront()
   let ttml = ''
   for (const kind of ['syllable-lyrics', 'lyrics']) {
-    const answer = await json<Listing>(`${API}/${front}/songs/${found.id}/${kind}`, { headers }).catch((error: unknown) => {
-      if (error instanceof HttpStatus && (error.status === 401 || error.status === 403)) {
+    const answer = await fetchJson<Listing>(`${API}/${front}/songs/${found.id}/${kind}`, { headers }).catch((error: unknown) => {
+      if (error instanceof HttpStatusError && (error.status === 401 || error.status === 403)) {
         throw new ProviderFailure('sign-in-required', { message: 'Apple Music refused the Media User Token: set it again' })
       }
-      if (error instanceof HttpStatus) return null
+      if (error instanceof HttpStatusError) return null
       throw error
     })
     ttml = s(answer?.data?.[0]?.attributes?.ttml)

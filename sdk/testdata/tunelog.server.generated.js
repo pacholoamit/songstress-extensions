@@ -2,7 +2,6 @@
 // and the SDK it imports. Never edit it by hand.
 (function() {
 	// src/api/common.ts
-	/** The error every call to the API rejects or throws with. */
 	var SongstressError = class extends Error {
 		name = "SongstressError";
 		code;
@@ -12,8 +11,6 @@
 		}
 	};
 	// src/manifest/rules/permissions.ts
-	/** The permission each hook needs before it is delivered; null for none.
-	* Hearing a member's playback is reading their listening, on either side. */
 	const HOOK_PERMISSIONS = {
 		server: {
 			onPlay: "listening.read",
@@ -38,7 +35,6 @@
 		return (a << 24 | b << 16 | c << 8 | d) >>> 0;
 	}
 	// src/host.ts
-	/** Where the host is looked for on the global object. */
 	const HOST_KEY = Symbol.for("songstress.host");
 	function bridge() {
 		const found = globalThis[HOST_KEY];
@@ -68,7 +64,6 @@
 		net: { fetch: "network" },
 		host: { info: null }
 	};
-	/** A notice, and rendering again: no permission, under the host's caps. */
 	const UI_TOLD = {
 		...SHARED.ui,
 		notify: null,
@@ -138,8 +133,6 @@
 		}
 	};
 	const isTable = (entry) => typeof entry === "object" && entry !== null;
-	/** The API object a table describes: each member a function that hands its
-	* call to the host. */
 	function build(table, path = []) {
 		const members = Object.entries(table).map(([name, entry]) => {
 			const member = [...path, name];
@@ -148,7 +141,6 @@
 		});
 		return Object.freeze(Object.fromEntries(members));
 	}
-	/** A table's members by their full names: "storage.get" → "storage". */
 	function flatten(table, path = []) {
 		return Object.entries(table).flatMap(([name, entry]) => isTable(entry) ? flatten(entry, [...path, name]) : [[[...path, name].join("."), entry]]);
 	}
@@ -167,7 +159,6 @@
 		listens: (request) => serverApi.net.fetch("https://api.tunelog.example/v1/listens", request),
 		profile: (request) => serverApi.net.fetch("https://api.tunelog.example/v1/me", request)
 	};
-	/** A request signed with one member's token. */
 	function signed(token, body) {
 		return {
 			method: body ? "POST" : "GET",

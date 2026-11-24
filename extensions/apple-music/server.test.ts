@@ -1,11 +1,14 @@
 import { gzipSync } from 'node:zlib'
-import { describe, expect, it } from 'vitest'
-import { load, ok, onlyTo, page, type StandIn } from '../shared/testing'
+import { SongstressError, type NetRequest, type NetResponse, type SettingValue } from 'songstress/server'
+import { createMockHost, type MockHost } from 'songstress/testing'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import manifest from './songstress.json' with { type: 'json' }
 
 // The Apple Music the Mornye port's own tests stood in for (the worker's
 // test_ext_real.py): music.apple.com's page embeds a developer token;
-// lyrics come as TTML, for a Media User Token only.
+// lyrics come as TTML, for a Media User Token only. Against the SDK's mock
+// host, given the manifest: a request to a host the manifest does not name
+// is refused, as a server refuses it.
 
 function devToken(): string {
   const part = (value: object) => Buffer.from(JSON.stringify(value)).toString('base64url')
@@ -36,29 +39,51 @@ const TTML =
   '<p begin="00:03.500" end="00:05.000" itunes:key="L2">Second &amp; last line</p>' +
   '</div></body></tt>'
 
-async function apple(settings: Record<string, unknown>): Promise<StandIn> {
-  const stand = await load(() => import('./src/server'), settings)
-  stand.routes.push(
-    ['GET', /^https:\/\/music\.apple\.com\/us\/browse$/, page(`<iframe src="https://embed.music.apple.com/?devToken=${devToken()}"></iframe>`)],
-    ['GET', /amp-api\.music\.apple\.com\/v1\/catalog\/us\/search\?/, ok({ results: { songs: { data: [SONG] } } })],
-    ['GET', /amp-api\.music\.apple\.com\/v1\/catalog\/us\/albums\?/, ok({ data: [] })],
-    [
-      'GET',
-      /\/v1\/catalog\/us\/songs\/1499378615\/syllable-lyrics/,
-      (_url, request) =>
-        request.headers?.['media-user-token'] === 'mut-123' ? ok({ data: [{ attributes: { ttml: TTML } }] }) : { status: 401, body: '' },
-    ],
-  )
-  return stand
+type Answer = Partial<NetResponse> | ((request: NetRequest) => Partial<NetResponse>)
+
+const ok = (value: unknown): Answer => ({ body: JSON.stringify(value), headers: { 'content-type': 'application/json' } })
+const page = (body: string): Answer => ({ body, headers: { 'content-type': 'text/html' } })
+const answered = (answer: Answer, request: NetRequest) => (typeof answer === 'function' ? answer(request) : answer)
+
+/** Apple's answers, by address, the first that fits: any other is a 404. */
+let routes: [RegExp, Answer][] = []
+let host: MockHost | undefined
+
+async function start(settings: Record<string, SettingValue>): Promise<MockHost> {
+  const mock = createMockHost({
+    manifest,
+    settings,
+    fetch: (url, request) => answered(routes.find(([address]) => address.test(url))?.[1] ?? { status: 404, body: 'not found' }, request),
+  })
+  host = mock
+  vi.resetModules()
+  await import('./src/server')
+  return mock
 }
+
+async function apple(settings: Record<string, SettingValue>): Promise<MockHost> {
+  routes = [
+    [/^https:\/\/music\.apple\.com\/us\/browse$/, page(`<iframe src="https://embed.music.apple.com/?devToken=${devToken()}"></iframe>`)],
+    [/amp-api\.music\.apple\.com\/v1\/catalog\/us\/search\?/, ok({ results: { songs: { data: [SONG] } } })],
+    [/amp-api\.music\.apple\.com\/v1\/catalog\/us\/albums\?/, ok({ data: [] })],
+    [
+      /\/v1\/catalog\/us\/songs\/1499378615\/syllable-lyrics/,
+      (request) => answered(request.headers?.['media-user-token'] === 'mut-123' ? ok({ data: [{ attributes: { ttml: TTML } }] }) : { status: 401, body: '' }, request),
+    ],
+  ]
+  return start(settings)
+}
+
+afterEach(() => host?.remove())
+
+const query = { text: 'stub song', types: ['track' as const], limit: 5, offset: 0 }
+const asked = (mock: MockHost, part: string) => mock.requests.some((request) => request.url.includes(part))
 
 describe('the Apple Music port', () => {
   it('searches the catalogue with the token its page embeds, and joins iTunes', async () => {
-    const stand = await apple({ storefront: 'us' })
-    const found = (await stand.ask('search', 'apple-music', 'search', { text: 'stub song', types: ['track'], limit: 5, offset: 0 })) as {
-      tracks: Record<string, unknown>[]
-    }
-    expect(found.tracks[0]).toMatchObject({
+    const mock = await apple({ storefront: 'us' })
+    const found = await mock.provider('search', 'apple-music').search(query, {})
+    expect(found.tracks?.[0]).toMatchObject({
       id: '1499378615',
       title: 'Stub Song',
       artists: ['Stub Band'],
@@ -67,43 +92,43 @@ describe('the Apple Music port', () => {
       ids: { itunes: '1499378615' },
       coverUrl: 'https://is1-ssl.mzstatic.com/image/thumb/Music/x/1200x1200bb.jpg',
     })
-    expect(onlyTo(stand, manifest.permissions.network.hosts)).toBe(true)
+    expect(mock.requests.every((request) => request.request.headers?.['user-agent']?.startsWith('Mozilla/5.0 '))).toBe(true)
   })
 
   it('finds the token in a script larger than one request may answer, by asking for it gzipped', async () => {
-    const stand = await load(() => import('./src/server'), { storefront: 'us' })
     const now = Math.floor(Date.now() / 1000)
     const claims = Buffer.from(JSON.stringify({ iss: 'AMPWebPlay', iat: now, exp: now + 86400 })).toString('base64url')
     const token = `eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6IldlYlBsYXlLaWQifQ.${claims}.c2ln`
+    const script = `${'var a=1;'.repeat(125_000)}const t="${token}";${'var b=2;'.repeat(250_000)}`
     const asked: (string | undefined)[] = []
-    stand.routes.push(
-      ['GET', /^https:\/\/music\.apple\.com\/us\/browse$/, page('<script type="module" crossorigin src="/assets/index~B8RK.js"></script>')],
+    routes = [
+      [/^https:\/\/music\.apple\.com\/us\/browse$/, page('<script type="module" crossorigin src="/assets/index~B8RK.js"></script>')],
       [
-        'GET',
         /^https:\/\/music\.apple\.com\/assets\/index~B8RK\.js$/,
-        (_url, request) => {
+        (request) => {
           asked.push(request.headers?.['accept-encoding'], request.responseEncoding)
-          // Three megabytes unpacked, the token a megabyte in: as Apple's own script is.
-          return { large: gzipSync(`${'var a=1;'.repeat(125_000)}const t="${token}";${'var b=2;'.repeat(250_000)}`) }
+          // Three megabytes unpacked, the token a megabyte in, as Apple's own script is: past what the host
+          // answers in one request, so refused as the host refuses it unless asked for gzipped.
+          if (request.headers?.['accept-encoding'] !== 'gzip') throw new SongstressError('limit-exceeded', 'net.fetch: the answer is larger than 2621440 bytes')
+          return { headers: { 'content-encoding': 'gzip' }, body: gzipSync(script).toString('base64') }
         },
       ],
       [
-        'GET',
         /amp-api\.music\.apple\.com\/v1\/catalog\/us\/search\?/,
-        (_url, request) => (request.headers?.authorization === `Bearer ${token}` ? ok({ results: { songs: { data: [SONG] } } }) : { status: 401, body: '' }),
+        (request) => answered(request.headers?.authorization === `Bearer ${token}` ? ok({ results: { songs: { data: [SONG] } } }) : { status: 401, body: '' }, request),
       ],
-      ['GET', /amp-api\.music\.apple\.com\/v1\/catalog\/us\/albums\?/, ok({ data: [] })],
-    )
-    const found = (await stand.ask('search', 'apple-music', 'search', { text: 'stub song', types: ['track'], limit: 5, offset: 0 })) as { tracks: { id: string }[] }
-    expect(found.tracks[0]?.id).toBe('1499378615')
+      [/amp-api\.music\.apple\.com\/v1\/catalog\/us\/albums\?/, ok({ data: [] })],
+    ]
+    const mock = await start({ storefront: 'us' })
+    const found = await mock.provider('search', 'apple-music').search(query, {})
+    expect(found.tracks?.[0]?.id).toBe('1499378615')
     // Asked for as it is first, which the host refuses as too large; then gzipped, as bytes.
     expect(asked).toEqual([undefined, undefined, 'gzip', 'base64'])
-    expect(onlyTo(stand, manifest.permissions.network.hosts)).toBe(true)
   })
 
   it('finds synced lyrics with your own Media User Token, a translation as a line of its own', async () => {
-    const stand = await apple({ storefront: 'us', mediaUserToken: 'mut-123', lyricsTranslation: 'es' })
-    const answer = await stand.ask('lyrics', 'apple-music', 'find', { title: 'Stub Song', artist: 'Stub Band', album: 'Stub Album', durationS: 200 })
+    const mock = await apple({ storefront: 'us', mediaUserToken: 'mut-123', lyricsTranslation: 'es' })
+    const answer = await mock.provider('lyrics', 'apple-music').find({ title: 'Stub Song', artist: 'Stub Band', album: 'Stub Album', durationS: 200 }, {})
     expect(answer).toEqual({
       status: 'found',
       synced: true,
@@ -116,24 +141,25 @@ describe('the Apple Music port', () => {
   })
 
   it('asks for no lyrics without a Media User Token, and says so when Apple refuses one', async () => {
-    const stand = await apple({ storefront: 'us' })
-    expect(await stand.ask('lyrics', 'apple-music', 'find', { title: 'Stub Song', artist: 'Stub Band' })).toEqual({ status: 'none' })
-    expect(stand.seen.some((line) => line.includes('lyrics'))).toBe(false)
+    const mock = await apple({ storefront: 'us' })
+    expect(await mock.provider('lyrics', 'apple-music').find({ title: 'Stub Song', artist: 'Stub Band' }, {})).toEqual({ status: 'none' })
+    expect(asked(mock, 'lyrics')).toBe(false)
+    mock.remove()
     const refused = await apple({ storefront: 'us', mediaUserToken: 'stale' })
-    await expect(refused.ask('lyrics', 'apple-music', 'find', { title: 'Stub Song', artist: 'Stub Band' })).rejects.toMatchObject({
+    await expect(refused.provider('lyrics', 'apple-music').find({ title: 'Stub Song', artist: 'Stub Band' }, {})).rejects.toMatchObject({
       code: 'sign-in-required',
     })
   })
 
   it('fills a song with its ISRC, and reads a song link in its storefront', async () => {
-    const stand = await apple({ storefront: 'us' })
-    stand.routes.push(['GET', /\/v1\/catalog\/(us|gb)\/songs\/1499378615\?/, ok({ data: [SONG] })])
-    expect(await stand.ask('metadata', 'apple-music', 'enrich', { title: 'Stub Song', artist: 'Stub Band', durationS: 200 })).toMatchObject({
+    const mock = await apple({ storefront: 'us' })
+    routes.push([/\/v1\/catalog\/(us|gb)\/songs\/1499378615\?/, ok({ data: [SONG] })])
+    expect(await mock.provider('metadata', 'apple-music').enrich!({ title: 'Stub Song', artist: 'Stub Band', durationS: 200 }, {})).toMatchObject({
       isrc: 'USSTB2000001',
       ids: { itunes: '1499378615' },
     })
-    const link = await stand.ask('links', 'apple-music', 'resolve', 'https://music.apple.com/gb/album/stub-song/1499378600?i=1499378615')
+    const link = await mock.provider('links', 'apple-music').resolve('https://music.apple.com/gb/album/stub-song/1499378600?i=1499378615', {})
     expect(link).toMatchObject({ type: 'track', track: { id: '1499378615' } })
-    expect(stand.seen.some((line) => line.includes('/catalog/gb/songs/1499378615'))).toBe(true)
+    expect(asked(mock, '/catalog/gb/songs/1499378615')).toBe(true)
   })
 })

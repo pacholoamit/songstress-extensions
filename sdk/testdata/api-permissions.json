@@ -1,6 +1,6 @@
 {
   "note": "Written by \"pnpm --dir packages/extensions fixtures:record\" from src/host.ts. Never edit it by hand.",
-  "apiVersion": "0.1.8",
+  "apiVersion": "0.1.10",
   "shared": {
     "commands.register": null,
     "hooks.onPlay": "listening.read",

@@ -12,11 +12,13 @@ That starts a working extension, with this package installed. To add it to a pro
 
 | Part | What it is |
 |---|---|
-| `songstress/server`, `songstress/client`, `songstress` | The API an extension's code is written against, as types, with a thin object that hands each call to Songstress. `server` is the entry that runs on the user's own server, `client` the one that runs inside an app; the bare name is what both have |
+| `songstress/server`, `songstress/client`, `songstress` | The API an extension's code is written against, as types, with a thin object that hands each call to Songstress. `server` is the entry that runs on the user's own server, `client` the one that runs inside an app; the bare name is what both have. `server` also carries the helpers a provider reaches its source with (`registerCatalog`, `fetchJson`, `KeptValue`, `bestMatch`, and addresses, text and bytes for a sandbox that has no `URL`, `atob` or zlib: SPEC.md, "Helpers") |
 | `songstress/manifest` | The types of the manifest, `songstress.json`, and its validator. It needs nothing but JavaScript, so it runs in a terminal, on a server and in a browser |
+| `songstress/prose` | The reader of a manifest's prose (`about`, `howItWorks`): `parseProse`, `proseSpans` and `proseToMarkdown`, read the way every page reads them. It imports nothing else, so an app that draws an extension's page takes it alone |
 | `songstress/testing` | A mock Songstress for your own tests |
 | `songstress/theme` | A theme's colours as the apps read them: `parseColor` reads any form a theme may write (hex, `rgb()`, `hsl()`) and `normalizeLook` puts a look in its one form, each colour `#rrggbb` or `#rrggbbaa`. It carries no schema, so an app imports it |
 | `songstress/sandbox` | The types of the few globals the sandbox has, so the compiler refuses the ones it lacks |
+| [skill/](./skill/README.md) | An Agent Skill for coding agents: how to build, check, pack and release an extension, the rules `check` holds it to, and what to build for each idea. A Claude Code plugin as it is; `create-songstress-extension` puts it in every new extension |
 | The `songstress` command | `check`, `build`, `pack` and `dev`: from a folder to an extension running on your server |
 | [SPEC.md](./SPEC.md) | The specification: what an extension is, the manifest field by field, the hooks, the permissions, the API, versions. Start here |
 | `schema/extension.v1.json` | The manifest's JSON Schema. Its address, `https://songstress.app/schema/extension/v1.json`, in a manifest's `$schema` makes an editor check the file as you type |

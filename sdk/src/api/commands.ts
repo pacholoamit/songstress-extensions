@@ -45,7 +45,19 @@ export type CommandHandler<Input = unknown> = (
  * Both sides; no permission. */
 export interface Commands {
   /** Sets the handler of one of the manifest's commands, in the entry the
-   * command names in `run`. */
+   * command names in `run`.
+   * @param id - The id the manifest declares it under.
+   * @param handler - What runs the command.
+   * @example
+   * ```ts
+   * import { songstress } from 'songstress/server'
+   *
+   * songstress.commands.register<{ songId: string }>('song-plays', async (input, context) => {
+   *   const plays = (await songstress.storage.get<number>(`plays:${input.songId}`, { userId: context.userId })) ?? 0
+   *   return { value: plays, action: { type: 'toast', message: `Played ${plays} times` } }
+   * })
+   * ```
+   */
   register<Input = unknown>(id: string, handler: CommandHandler<Input>): Disposable
 }
 
@@ -55,6 +67,17 @@ export interface ClientCommands extends Commands {
    * `run`, for the member signed in here, and resolves to the `value` it
    * left. This is how client code asks its server half for something.
    * Server code has no `execute`: it calls its own functions, and a command
-   * it ran would have no member to run for. */
+   * it ran would have no member to run for.
+   * @param id - The id of one of the extension's commands.
+   * @param input - JSON handed to the command's handler as its input.
+   * @example
+   * ```ts
+   * import { songstress } from 'songstress/client'
+   *
+   * // The server entry's "song-plays" command leaves a number as its value.
+   * const plays = await songstress.commands.execute<number>('song-plays', { songId: 's1' })
+   * await songstress.ui.notify({ title: `Played ${plays ?? 0} times` })
+   * ```
+   */
   execute<Value = unknown>(id: string, input?: unknown): Promise<Value | undefined>
 }

@@ -53,6 +53,10 @@
         {
           "code": "LISTING_FIELD_REQUIRED",
           "pointer": "/screenshots"
+        },
+        {
+          "code": "LISTING_FIELD_REQUIRED",
+          "pointer": "/about"
         }
       ],
       "note": "The same file for the official list, which needs five more fields."
@@ -1670,6 +1674,25 @@
         }
       ],
       "note": "An address inside a repository, not the repository's own."
+    },
+    {
+      "file": "invalid/listing-about.json",
+      "profile": "listing",
+      "valid": false,
+      "errors": [
+        {
+          "code": "LISTING_FIELD_REQUIRED",
+          "pointer": "/about"
+        }
+      ],
+      "note": "Everything a listing needs but its about: its page would have no Description."
+    },
+    {
+      "file": "invalid/listing-about.json",
+      "profile": "install",
+      "valid": true,
+      "errors": [],
+      "note": "The same file installs from a link or a file: about is the list's to ask."
     },
     {
       "file": "invalid/listing-screenshots.json",

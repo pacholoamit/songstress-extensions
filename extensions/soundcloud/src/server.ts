@@ -5,11 +5,23 @@
 // A port of the Mornye "soundcloud" extension 1.0.12 (Copyright 2026
 // zarzet, LGPL-3.0-only; see NOTICE). SoundCloud's api-v2 needs a client id,
 // which its own site hands out in its page or its script bundles
-// (shared/http's findIn: the one that holds it is larger than the extension
-// host answers in one request).
+// (findInAnswer: the one that holds it is larger than the extension host
+// answers in one request).
 
 import {
+  bestMatch,
+  fetchJson,
+  fetchResponse,
+  fetchText,
+  findInAnswer,
+  HttpStatusError,
+  KeptValue,
+  nullIfMissing,
+  parseUrl,
   ProviderFailure,
+  queryString,
+  registerCatalog,
+  resolveUrl,
   songstress,
   type CatalogAlbum,
   type CatalogAlbumDetail,
@@ -20,29 +32,27 @@ import {
   type CatalogTrack,
   type DownloadLocation,
   type LinkResult,
+  type SearchQuery,
   type SearchResults,
   type StreamLocation,
   type TrackQuery,
 } from 'songstress/server'
-import { findIn, HttpStatus, json, orNull, query, reach, text } from '../../shared/http'
-import { Kept } from '../../shared/kept'
-import { best } from '../../shared/match'
-import { firstOf, registerCatalog, some } from '../../shared/register'
-import { parseAddress, resolveAddress } from '../../shared/url'
 
 const SOURCE = 'soundcloud'
 const API = 'https://api-v2.soundcloud.com'
 const DAY_MS = 24 * 60 * 60 * 1000
+/** What a desktop browser sends: SoundCloud answers it as it answers one. */
+const BROWSER = { 'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36' }
 
 // ── the client id ───────────────────────────────────────────────────────────
 
 const CLIENT_ID = /["']?client_id["']?\s*[:=]\s*["']([a-zA-Z0-9]{32})["']/
-const clientId = new Kept<string>('client-id')
+const clientId = new KeptValue<string>('client-id')
 
 /** The client id in SoundCloud's page, else in its last script bundles. */
 async function findClientId(): Promise<{ value: string; until: number }> {
-  const page = await text('https://soundcloud.com/').catch((error: unknown) => {
-    throw error instanceof HttpStatus ? new ProviderFailure('unavailable', { message: error.message }) : error
+  const page = await fetchText('https://soundcloud.com/', { headers: BROWSER }).catch((error: unknown) => {
+    throw error instanceof HttpStatusError ? new ProviderFailure('unavailable', { message: error.message }) : error
   })
   const direct = CLIENT_ID.exec(page)
   if (direct) return { value: direct[1]!, until: Date.now() + DAY_MS }
@@ -50,7 +60,7 @@ async function findClientId(): Promise<{ value: string; until: number }> {
   const inScript = (code: string): string | null =>
     (CLIENT_ID.exec(code) ?? /\("client_id=([a-zA-Z0-9]{32})"\)/.exec(code) ?? /client_id=([a-zA-Z0-9]{32})/.exec(code))?.[1] ?? null
   for (const bundle of bundles.slice(-8).reverse()) {
-    const found = await findIn(bundle, inScript).catch(() => null)
+    const found = await findInAnswer(bundle, inScript, { headers: BROWSER }).catch(() => null)
     if (found) return { value: found, until: Date.now() + DAY_MS }
   }
   throw new ProviderFailure('unavailable', { message: 'SoundCloud handed out no client id' })
@@ -63,13 +73,13 @@ async function api<T>(path: string, params: Record<string, string | number | und
     const id = await clientId.getOr(findClientId)
     const separator = path.includes('?') ? '&' : '?'
     try {
-      return await orNull(() => json<T>(`${API}/${path}${separator}${query({ ...params, client_id: id })}`))
+      return await nullIfMissing(() => fetchJson<T>(`${API}/${path}${separator}${queryString({ ...params, client_id: id })}`, { headers: BROWSER }), [400, 404])
     } catch (error) {
-      if (attempt === 0 && error instanceof HttpStatus && (error.status === 401 || error.status === 403)) {
-        await clientId.drop()
+      if (attempt === 0 && error instanceof HttpStatusError && (error.status === 401 || error.status === 403)) {
+        await clientId.delete()
         continue
       }
-      if (error instanceof HttpStatus) throw new ProviderFailure('unavailable', { message: error.message })
+      if (error instanceof HttpStatusError) throw new ProviderFailure('unavailable', { message: error.message })
       throw error
     }
   }
@@ -159,11 +169,11 @@ function trackOf(t: ScTrack): CatalogTrack | null {
     title: t.title,
     artists: artist ? [artist] : [],
     artistId: t.user?.id ? String(t.user.id) : undefined,
-    album: firstOf(meta.album_title, meta.release_title),
+    album: meta.album_title || meta.release_title || undefined,
     albumArtist: t.user?.username,
-    durationS: some((t.full_duration || t.duration || 0) / 1000),
+    durationS: (t.full_duration || t.duration || 0) / 1000 || undefined,
     releaseDate: dateOf(t.display_date || t.created_at),
-    isrc: firstOf(meta.isrc, t.isrc),
+    isrc: meta.isrc || t.isrc || undefined,
     explicit: meta.explicit,
     coverUrl: coverOf(t.artwork_url, t.user),
     url: t.permalink_url,
@@ -291,7 +301,7 @@ function fill(out: SearchResults, type: string, items: Found[]): void {
 
 /** Each kind asked, searched apart: a kind that fails leaves the others;
  * when all fail, the first failure is the answer. */
-async function search(text: string, types: readonly string[], limit: number, offset: number): Promise<SearchResults> {
+async function search({ text, types, limit, offset }: SearchQuery): Promise<SearchResults> {
   const out: SearchResults = {}
   const failures: unknown[] = []
   const asked = types.filter((type) => type in SEARCHED)
@@ -313,10 +323,10 @@ async function find(song: TrackQuery, min: number): Promise<ScTrack | null> {
   if (!words) return null
   const page = await api<Page<ScTrack>>('search/tracks', { q: words, limit: 5, access: 'playable' })
   const wanted = { title: song.title, artist: song.artist, durationS: song.durationS }
-  return best(
+  return bestMatch(
+    wanted,
     page?.collection ?? [],
     (t) => ({ title: t.title ?? '', artist: artistOfTrack(t), durationS: (t.duration ?? 0) / 1000 }),
-    wanted,
     min,
   )
 }
@@ -328,8 +338,8 @@ interface Resolved extends ScTrack, ScSet, ScUser {}
 /** Where a short on.soundcloud.com link leads: the page it redirects to, or
  * the canonical address that page names. */
 async function unshorten(url: string): Promise<string> {
-  const answer = await reach(url)
-  if (parseAddress(answer.url)?.host.endsWith('soundcloud.com') && !answer.url.includes('on.soundcloud.com')) {
+  const answer = await fetchResponse(url, { headers: BROWSER })
+  if (parseUrl(answer.url)?.host.endsWith('soundcloud.com') && !answer.url.includes('on.soundcloud.com')) {
     return answer.url.split('?')[0]!
   }
   const canonical = /<link[^>]*rel=["']canonical["'][^>]*href=["']([^"']+)["']/i.exec(answer.body) ??
@@ -367,7 +377,7 @@ async function resultOf(found: Resolved): Promise<LinkResult | null> {
 
 async function resolve(url: string): Promise<LinkResult | null> {
   let address = url.trim().replace(/^https?:\/\/m\.soundcloud\.com/i, 'https://soundcloud.com')
-  if (parseAddress(address)?.host === 'on.soundcloud.com') address = await unshorten(address)
+  if (parseUrl(address)?.host === 'on.soundcloud.com') address = await unshorten(address)
   const found = await api<Resolved>('resolve', { url: address })
   return found?.id ? resultOf(found) : null
 }
@@ -422,7 +432,7 @@ interface Playlist {
  * decrypts nothing). */
 async function readPlaylist(url: string, depth = 0): Promise<Playlist> {
   if (depth > 3) throw new ProviderFailure('unavailable', { message: 'the HLS playlist nests too deep' })
-  const body = (await text(url)).trim()
+  const body = (await fetchText(url, { headers: BROWSER })).trim()
   if (!body.startsWith('#EXTM3U')) throw new ProviderFailure('unavailable', { message: 'not an HLS playlist' })
   const read = new PlaylistReader(url)
   for (const line of body.split(/\r?\n/)) read.line(line.trim())
@@ -446,8 +456,8 @@ class PlaylistReader {
       this.tag(line)
       return
     }
-    if (this.variant !== null) this.variants.push({ url: resolveAddress(line, this.base), bandwidth: this.variant })
-    else this.out.urls.push(resolveAddress(line, this.base))
+    if (this.variant !== null) this.variants.push({ url: resolveUrl(line, this.base), bandwidth: this.variant })
+    else this.out.urls.push(resolveUrl(line, this.base))
     this.variant = null
   }
 
@@ -455,7 +465,7 @@ class PlaylistReader {
     if (line.startsWith('#EXT-X-STREAM-INF:')) this.variant = Number(/BANDWIDTH=(\d+)/.exec(line)?.[1] ?? 0)
     else if (line.startsWith('#EXT-X-KEY:') && !/METHOD=NONE/.test(line)) throw new ProviderFailure('unavailable', { message: 'the stream is encrypted' })
     else if (line.startsWith('#EXT-X-BYTERANGE')) throw new ProviderFailure('unavailable', { message: 'the stream is in byte ranges' })
-    else if (line.startsWith('#EXT-X-MAP:')) this.out.initUrl = resolveAddress(/URI="([^"]+)"/.exec(line)?.[1] ?? '', this.base)
+    else if (line.startsWith('#EXT-X-MAP:')) this.out.initUrl = resolveUrl(/URI="([^"]+)"/.exec(line)?.[1] ?? '', this.base)
     else if (line.startsWith('#EXTINF:')) this.out.durationS += Number(line.slice(8).split(',')[0]) || 0
     else if (line === '#EXT-X-ENDLIST') this.ended = true
   }

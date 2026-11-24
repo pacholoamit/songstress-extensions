@@ -63,18 +63,50 @@ export interface SignedIn {
  * throws a `ProviderFailure`; anything else thrown counts as broken. */
 export interface SignInHandler {
   /** The service's page for this sign-in. Keep what `finish` will need (a
-   * code verifier) in `songstress.secrets`: another instance may run it. */
+   * code verifier) in `songstress.secrets`: another instance may run it.
+   * @param request - Where the service sends the person back, and the `state` it must return.
+   */
   start(request: SignInStart): Awaitable<SignInPage>
   /** Trades what came back for the account's tokens, keeps them in
-   * `songstress.secrets`, and answers whose account it is. */
+   * `songstress.secrets`, and answers whose account it is.
+   * @param returned - The address the person came back on.
+   */
   finish(returned: SignInReturn): Awaitable<SignedIn>
   /** Forgets the tokens, and tells the service when it has a way to. Left
-   * out, signing out only forgets the account's name. */
+   * out, signing out only forgets the account's name.
+   * @param request - Whose account it is.
+   */
   signOut?(request: SignOutRequest): Awaitable<void>
 }
 
 /** The sign-in the manifest declares. Server entry; permission `secrets`. */
 export interface SignInRegistry {
-  /** Registers the declared sign-in's handler: one for the extension. */
+  /** Registers the declared sign-in's handler: one for the extension.
+   * @param handler - What starts and finishes the sign-in.
+   * @example
+   * ```ts
+   * import { fetchJson, queryString, songstress, urlParam } from 'songstress/server'
+   *
+   * const AUTH = 'https://accounts.example.com'
+   *
+   * songstress.signIn.register({
+   *   start: (request) => ({
+   *     url: `${AUTH}/authorize?${queryString({ client_id: 'my-extension', redirect_uri: request.redirectUrl, state: request.state })}`,
+   *   }),
+   *   async finish(returned) {
+   *     const code = urlParam(returned.url, 'code')
+   *     const got = await fetchJson<{ token: string; name: string }>(`${AUTH}/token`, {
+   *       method: 'POST',
+   *       body: JSON.stringify({ code, redirect_uri: returned.redirectUrl }),
+   *     })
+   *     await songstress.secrets.set('token', got.token, returned.userId ? { userId: returned.userId } : undefined)
+   *     return { account: got.name }
+   *   },
+   *   async signOut(request) {
+   *     await songstress.secrets.delete('token', request.userId ? { userId: request.userId } : undefined)
+   *   },
+   * })
+   * ```
+   */
   register(handler: SignInHandler): Disposable
 }

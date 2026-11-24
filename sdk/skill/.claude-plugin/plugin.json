@@ -1,0 +1,16 @@
+{
+  "name": "songstress",
+  "version": "0.1.10",
+  "description": "Build, test, package and publish Songstress extensions and themes with the songstress SDK: the workflow, the rules the checker holds them to, and what to build for each idea.",
+  "author": {
+    "name": "Pacholo Amit"
+  },
+  "homepage": "https://songstress.app/docs/develop/ai-agents/",
+  "license": "MIT",
+  "keywords": [
+    "songstress",
+    "extensions",
+    "sdk",
+    "music"
+  ]
+}

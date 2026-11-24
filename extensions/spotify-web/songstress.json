@@ -3,11 +3,25 @@
   "manifestVersion": 1,
   "id": "songstress.spotify-web",
   "name": "Spotify Web",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Search Spotify's catalogue beside Songstress's Spotify, open its links, and fill a track with the ISRC Spotify keeps.",
-  "engines": { "songstress": "^0.1.0" },
+  "engines": { "songstress": "^0.1.10" },
   "license": "LGPL-3.0-only",
   "repository": "https://github.com/pacholoamit/songstress-extensions",
+  "support": "https://github.com/pacholoamit/songstress-extensions/issues",
+  "about": [
+    "Spotify Web searches Spotify's catalogue through its web player, beside the Spotify connection Songstress has of its own, and opens Spotify links (open.spotify.com, play.spotify.com and spotify: links) as their pages.",
+    "It also fills in a track's **ISRC**, the code that names one recording, from what Spotify keeps, which helps Songstress match a song across sources."
+  ],
+  "useCases": [
+    "Search Spotify's catalogue with no Spotify account.",
+    "Open a Spotify link someone sent you.",
+    "Match a song across sources by its ISRC."
+  ],
+  "howItWorks": [
+    "Your server opens an anonymous session with Spotify's web player, as a browser would, and keeps it until its tokens expire. Searches, lookups and metadata go from your server to Spotify with it.",
+    "For a track's id elsewhere, it asks Deezer by the track's ISRC. It finds and opens music: it doesn't play or download it. Its results sit beside Songstress's own sources, never in their place."
+  ],
   "categories": ["sources"],
   "keywords": ["spotify"],
   "icon": { "path": "assets/icon.png", "width": 512, "height": 512 },

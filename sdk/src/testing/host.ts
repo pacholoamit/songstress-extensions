@@ -27,26 +27,34 @@ import { hostOf, reaches } from './network'
 
 /** A call the code under test made, by the member's full name ("storage.get"). */
 export interface MockCall {
+  /** The member's full name, as `storage.get`. */
   readonly member: string
+  /** What it was called with, in order. */
   readonly args: readonly unknown[]
 }
 
 /** A request the code under test made through `net.fetch`. */
 export interface MockRequest {
+  /** The address asked for. */
   readonly url: string
+  /** The method, the headers and the body it was asked with. */
   readonly request: NetRequest
 }
 
 /** The parts of a manifest the mock host reads. Hand it your songstress.json
  * as you import it, or a `Manifest` the validator answered. */
 export interface MockManifest {
+  /** The extension's id. */
   readonly id?: string
+  /** The extension's version. */
   readonly version?: string
+  /** The hooks each entry listens to: `emit` throws for a hook not listed. */
   readonly hooks?: { readonly server?: readonly string[]; readonly client?: readonly string[] }
   /** Keyed by the permission's name, as the manifest writes it. */
   readonly permissions?: object
 }
 
+/** What a mock host is given: the manifest, the settings, the network, answers for other calls, and the side it stands in for. */
 export interface MockHostOptions {
   /** The entry under test. Left out, "server". */
   side?: Side
@@ -93,18 +101,108 @@ export interface MockHost {
   readonly requests: readonly MockRequest[]
   /** Fires a hook: each of its listeners is called in turn and waited for.
    * It throws when nothing listens, or when the manifest does not list the
-   * hook. */
+   * hook.
+   * @param hook - The hook's name.
+   * @param args - What its listeners are called with.
+   * @example
+   * ```ts
+   * import { createMockHost } from 'songstress/testing'
+   * import { expect, test } from 'vitest'
+   *
+   * declare const entry: string // the path of the entry under test
+   *
+   * test('a play is counted', async () => {
+   *   const host = createMockHost({ manifest: { hooks: { server: ['onPlay'] }, permissions: { storage: true } } })
+   *   await import(entry)
+   *   await host.emit('onPlay', { id: 's1', title: 'So What', artist: 'Miles Davis' }, { userId: 'ana', startedAt: '2026-01-01T20:00:00Z' })
+   *   expect(host.calls.map((call) => call.member)).toContain('storage.set')
+   *   host.remove()
+   * })
+   * ```
+   */
   emit<Name extends HookName>(hook: Name, ...args: HookArguments<Name>): Promise<void>
   /** Runs a command the code registered, as a person picking it would.
-   * `context` is laid over `{ userId: 'member', source: 'menu' }`. */
+   * `context` is laid over `{ userId: 'member', source: 'menu' }`.
+   * @param command - The command's id.
+   * @param input - What its handler is given as its input.
+   * @param context - Laid over `{ userId: 'member', source: 'menu' }`.
+   * @example
+   * ```ts
+   * import { createMockHost } from 'songstress/testing'
+   * import { expect, test } from 'vitest'
+   *
+   * declare const entry: string // the path of the entry under test
+   *
+   * test('the command answers the plays', async () => {
+   *   const host = createMockHost()
+   *   await import(entry)
+   *   const outcome = await host.run('song-plays', { songId: 's1' }, { userId: 'ana' })
+   *   expect(outcome?.value).toBe(0)
+   *   host.remove()
+   * })
+   * ```
+   */
   run(command: string, input?: unknown, context?: Partial<CommandContext>): Promise<CommandOutcome | undefined>
-  /** The provider the code registered under a kind and an id. */
+  /** The provider the code registered under a kind and an id.
+   * @param kind - The provider kind.
+   * @param id - The id it was registered under.
+   * @example
+   * ```ts
+   * import { createMockHost } from 'songstress/testing'
+   * import { expect, test } from 'vitest'
+   *
+   * declare const entry: string // the path of the entry under test
+   *
+   * test('the search finds the song', async () => {
+   *   const host = createMockHost({ fetch: () => ({ status: 200, body: '[{"id":"1","title":"Halo","artists":["Beyonce"]}]' }) })
+   *   await import(entry)
+   *   const results = await host.provider('search', 'my-source').search({ text: 'halo', types: ['track'], limit: 5, offset: 0 }, {})
+   *   expect(results.tracks?.[0]?.title).toBe('Halo')
+   *   host.remove()
+   * })
+   * ```
+   */
   provider<Kind extends keyof Providers>(kind: Kind, id: string): ProviderOf<Kind>
   /** What the code handed to any registering member, by the member's full
    * name and, where it takes one, the id: `registered('jobs.register', 'sync')`
-   * is that job's handler, `registered('signIn.register')` the sign-in's. */
+   * is that job's handler, `registered('signIn.register')` the sign-in's.
+   * @param member - The registering member's full name, as `jobs.register`.
+   * @param id - The id it was registered under, where it takes one.
+   * @example
+   * ```ts
+   * import type { JobHandler } from 'songstress/server'
+   * import { createMockHost } from 'songstress/testing'
+   * import { expect, test } from 'vitest'
+   *
+   * declare const entry: string // the path of the entry under test
+   *
+   * test('the job reports its progress', async () => {
+   *   const host = createMockHost()
+   *   await import(entry)
+   *   const steps: number[] = []
+   *   await host.registered<JobHandler>('jobs.register', 'mark-live')({ runId: 'r1', progress: (done) => steps.push(done) })
+   *   expect(steps.length).toBeGreaterThan(0)
+   *   host.remove()
+   * })
+   * ```
+   */
   registered<Handler = unknown>(member: string, id?: string): Handler
-  /** Takes the mock host away. Later calls throw "no host" again. */
+  /** Takes the mock host away. Later calls throw "no host" again.
+   * @example
+   * ```ts
+   * import { createMockHost, type MockHost } from 'songstress/testing'
+   * import { afterEach, beforeEach } from 'vitest'
+   *
+   * let host: MockHost
+   *
+   * beforeEach(() => {
+   *   host = createMockHost()
+   * })
+   *
+   * // Each test starts with no host: calls made after this throw "no-host".
+   * afterEach(() => host.remove())
+   * ```
+   */
   remove(): void
 }
 
@@ -291,7 +389,27 @@ function createBridge(parts: Parts, calls: MockCall[]): HostBridge {
 
 const slot = globalThis as { [HOST_KEY]?: HostBridge }
 
-/** Puts a mock Songstress in place, for the entry a test then imports. */
+/** Puts a mock Songstress in place, for the entry a test then imports.
+ * @param options - The manifest, the settings, the network, answers for other calls, and the side.
+ * @returns The mock host: fire hooks, run commands, read every call. `remove()` takes it away.
+ * @example
+ * ```ts
+ * import { createMockHost, type MockManifest } from 'songstress/testing'
+ *
+ * declare const manifest: MockManifest // your songstress.json, as you import it
+ * declare const entry: string // the path of the entry under test
+ *
+ * const host = createMockHost({ manifest })
+ * await import(entry) // the entry registers as it loads
+ * await host.emit(
+ *   'onScrobble',
+ *   { id: 's1', title: 'Blue in Green', artist: 'Miles Davis' },
+ *   { userId: 'ana', playedAt: '2026-01-01T20:00:00Z' },
+ * )
+ * console.log(host.calls)
+ * host.remove()
+ * ```
+ */
 export function createMockHost(options: MockHostOptions = {}): MockHost {
   const side = options.side ?? 'server'
   const calls: MockCall[] = []

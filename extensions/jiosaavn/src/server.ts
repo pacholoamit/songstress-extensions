@@ -10,7 +10,15 @@
 // same address with their bitrate.
 
 import {
+  base64Bytes,
+  fetchJson,
+  foldText,
+  HttpStatusError,
+  parseUrl,
+  queryString,
+  registerCatalog,
   songstress,
+  unescapeHtml,
   type CatalogAlbum,
   type CatalogAlbumDetail,
   type CatalogArtist,
@@ -19,13 +27,10 @@ import {
   type CatalogPlaylistDetail,
   type CatalogTrack,
   type LinkResult,
+  type SearchQuery,
   type SearchResults,
   type TrackQuery,
 } from 'songstress/server'
-import { json, query } from '../../shared/http'
-import { firstOf, registerCatalog, some } from '../../shared/register'
-import { fold, unescapeHTML } from '../../shared/text'
-import { base64Bytes, parseAddress } from '../../shared/url'
 import { openSealed } from './des'
 
 const SOURCE = 'jiosaavn'
@@ -33,6 +38,8 @@ const SITE = 'https://www.jiosaavn.com'
 const REFERER = `${SITE}/`
 const GEO = 'geo=19.0760%2C72.8777%2CIN%2CMaharashtra%2CMumbai%2C400001'
 const PAGE = 100
+/** What a desktop browser sends: JioSaavn answers it as it answers one. */
+const BROWSER = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36'
 
 /** The languages the admin chose, as JioSaavn's cookie names them. */
 async function languages(): Promise<string> {
@@ -49,9 +56,10 @@ type Raw = Record<string, unknown>
 /** One of api.php's calls. */
 async function call<T = Raw>(name: string, params: Record<string, string | number | undefined>): Promise<T | null> {
   const lang = await languages()
-  const url = `${SITE}/api.php?${query({ __call: name, _format: 'json', _marker: 0, api_version: 4, ctx: 'web6dot0', ...params })}`
-  return json<T>(url, {
+  const url = `${SITE}/api.php?${queryString({ __call: name, _format: 'json', _marker: 0, api_version: 4, ctx: 'web6dot0', ...params })}`
+  return fetchJson<T>(url, {
     headers: {
+      'user-agent': BROWSER,
       accept: 'application/json, text/plain, */*',
       'accept-language': 'en-US,en;q=0.9',
       'x-requested-with': 'XMLHttpRequest',
@@ -59,7 +67,7 @@ async function call<T = Raw>(name: string, params: Record<string, string | numbe
       cookie: `DL=english; ${GEO}; L=${encodeURIComponent(lang)}`,
     },
   }).catch((error: unknown) => {
-    if (error instanceof Error && error.name === 'HttpStatus') return null
+    if (error instanceof HttpStatusError) return null
     throw error
   })
 }
@@ -67,7 +75,7 @@ async function call<T = Raw>(name: string, params: Record<string, string | numbe
 // ── JioSaavn's shapes, and Songstress's ─────────────────────────────────────
 
 const str = (value: unknown): string => (value === null || value === undefined ? '' : String(value))
-const textOf = (value: unknown): string => unescapeHTML(str(value)).trim()
+const textOf = (value: unknown): string => unescapeHtml(str(value)).trim()
 
 /** The last part of a JioSaavn address: its token. */
 function tokenOf(url: unknown): string {
@@ -90,7 +98,7 @@ function image(url: unknown): string | undefined {
 function mediaOf(more: Raw): string {
   const sealed = str(more.encrypted_media_url)
   if (!sealed) return ''
-  const url = openSealed(base64Bytes(sealed)).trim().replace(/^http:/, 'https:')
+  const url = openSealed(Array.from(base64Bytes(sealed))).trim().replace(/^http:/, 'https:')
   return /^https:\/\/aac\.saavncdn\.com\//i.test(url) ? url : ''
 }
 
@@ -129,11 +137,11 @@ const explicitOf = (raw: Raw): boolean => raw.explicit_content === '1' || raw.ex
 /** What a song's more_info says of its album and its numbers. */
 function songFacts(raw: Raw, more: Raw, n?: number): Pick<CatalogTrack, 'album' | 'albumId' | 'durationS' | 'trackNumber' | 'releaseDate'> {
   return {
-    album: some(textOf(more.album || raw.album)),
-    albumId: firstOf(str(more.album_id || raw.albumid), tokenOf(more.album_url)),
+    album: textOf(more.album || raw.album) || undefined,
+    albumId: str(more.album_id || raw.albumid) || tokenOf(more.album_url) || undefined,
     durationS: positive(more.duration || raw.duration),
     trackNumber: positive(more.track_number || raw.track_number) ?? n,
-    releaseDate: some(str(more.release_date || raw.release_date || raw.year)),
+    releaseDate: str(more.release_date || raw.release_date || raw.year) || undefined,
   }
 }
 
@@ -152,9 +160,9 @@ function songOf(raw: Raw, n?: number): Song | null {
     isrc: isrcOf(more.isrc || raw.isrc),
     explicit: explicitOf(raw),
     coverUrl: image(raw.image),
-    url: some(str(raw.perma_url)),
+    url: str(raw.perma_url) || undefined,
   }
-  return { track, media: mediaOf(more), genre: some(textOf(more.genre)), label: some(textOf(more.label)) }
+  return { track, media: mediaOf(more), genre: textOf(more.genre) || undefined, label: textOf(more.label) || undefined }
 }
 
 const tracksOf = (rows: unknown, numbered: boolean): CatalogTrack[] =>
@@ -283,7 +291,7 @@ const SEARCHES = {
   artist: ['search.getArtistResults', 'artist'],
 } as const
 
-async function search(text: string, types: readonly string[], limit: number, offset: number): Promise<SearchResults> {
+async function search({ text, types, limit, offset }: SearchQuery): Promise<SearchResults> {
   const out: SearchResults = {}
   const page = Math.floor(offset / Math.max(limit, 1)) + 1
   for (const type of types) {
@@ -302,7 +310,7 @@ async function search(text: string, types: readonly string[], limit: number, off
 // ── links ───────────────────────────────────────────────────────────────────
 
 async function resolve(url: string): Promise<LinkResult | null> {
-  const address = parseAddress(url)
+  const address = parseUrl(url)
   if (!address) return null
   const token = tokenOf(url)
   const path = address.path
@@ -334,11 +342,11 @@ function atBitrate(media: string, quality: string): string {
   return media.replace(/_\d+\.mp4(?=[?#]|$)/, `_${bitrate}.mp4`)
 }
 
-const sameName = (a: string, b: string) => fold(a) === fold(b)
+const sameName = (a: string, b: string) => foldText(a) === foldText(b)
 
 /** The artist credits share a name. */
 function sameArtists(wanted: string, offered: string[]): boolean {
-  const names = (credit: string) => credit.split(/[,;&]|\s+(?:feat\.?|ft\.?)\s+/i).map(fold).filter(Boolean)
+  const names = (credit: string) => credit.split(/[,;&]|\s+(?:feat\.?|ft\.?)\s+/i).map(foldText).filter(Boolean)
   const asked = names(wanted)
   return offered.flatMap(names).some((name) => asked.includes(name))
 }

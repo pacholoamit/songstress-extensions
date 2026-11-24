@@ -166,7 +166,17 @@ function callBytes(value: string): number[] | undefined {
 const hexOf = (byte: number) => byte.toString(16).padStart(2, '0')
 
 /** Reads a colour as a theme writes it; nothing for a value that is not one of a theme's forms (SPEC.md,
- * section 12): a name, `currentColor`, `var()`, a gradient, a part out of its range, more than 64 characters. */
+ * section 12): a name, `currentColor`, `var()`, a gradient, a part out of its range, more than 64 characters.
+ * @param value - A colour as a theme writes it: hex, `rgb()`, `rgba()`, `hsl()` or `hsla()`.
+ * @returns Its one form and its alpha, or undefined.
+ * @example
+ * ```ts
+ * import { parseColor } from 'songstress/theme'
+ *
+ * parseColor('#FF464A') // { hex: '#ff464a', alpha: 1 }
+ * parseColor('red') // undefined: a name is not one of a theme's forms
+ * ```
+ */
 export function parseColor(value: string): ParsedColor | undefined {
   if (value.length > MAX_COLOR_LENGTH) return undefined
   const bytes = HEX.test(value) ? hexBytes(value) : callBytes(value)
@@ -175,7 +185,18 @@ export function parseColor(value: string): ParsedColor | undefined {
   return { hex: `#${hexOf(red)}${hexOf(green)}${hexOf(blue)}${alpha < 255 ? hexOf(alpha) : ''}`, alpha: alpha / 255 }
 }
 
-/** A colour in its one form, `#rrggbb` or `#rrggbbaa`; nothing for a value that is not a colour. */
+/** A colour in its one form, `#rrggbb` or `#rrggbbaa`; nothing for a value that is not a colour.
+ * @param value - A colour as a theme writes it.
+ * @returns Its one form, or undefined.
+ * @example
+ * ```ts
+ * import { normalizeColor } from 'songstress/theme'
+ *
+ * normalizeColor('rgb(255 70 74)') // '#ff464a'
+ * normalizeColor('#FF464A80') // '#ff464a80'
+ * normalizeColor('red') // undefined: a name is not one of a theme's forms
+ * ```
+ */
 export function normalizeColor(value: string): string | undefined {
   return parseColor(value)?.hex
 }
